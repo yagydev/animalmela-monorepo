@@ -1,0 +1,17 @@
+# Environment Configuration for Next.js Backend
+# Copy this to .env.local in your frontend directory
+
+# MongoDB Configuration
+MONGODB_URI=mongodb+srv://yagydev:Kishutryu%402124@cluster0.fwjkpvc.mongodb.net/animalmela_db?retryWrites=true&w=majority&appName=Cluster0
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+
+# Next.js Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret-key
+
+# Frontend Environment Variables
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3000
