@@ -69,10 +69,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: any) {
       console.error('Send OTP error:', error);
+      
+      // Enhanced error handling with specific error messages
+      let errorMessage = 'Please try again.';
+      
+      if (error.message) {
+        if (error.message.includes('Invalid phone') || error.message.includes('invalid')) {
+          errorMessage = 'Please enter a valid mobile number.';
+        } else if (error.message.includes('network') || error.message.includes('timeout')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.message.includes('rate limit')) {
+          errorMessage = 'Too many requests. Please wait before trying again.';
+        } else if (error.message.includes('blocked')) {
+          errorMessage = 'This number is temporarily blocked. Please contact support.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       Toast.show({
         type: 'error',
         text1: 'OTP Failed',
-        text2: error.message || 'Please try again.',
+        text2: errorMessage,
       });
       return false;
     } finally {
@@ -103,10 +121,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: any) {
       console.error('Verify OTP error:', error);
+      
+      // Enhanced error handling with specific error messages
+      let errorMessage = 'Please check your OTP and try again.';
+      
+      if (error.message) {
+        if (error.message.includes('Invalid OTP') || error.message.includes('expired')) {
+          errorMessage = 'Invalid or expired OTP. Please request a new one.';
+        } else if (error.message.includes('network') || error.message.includes('timeout')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        } else if (error.message.includes('rate limit')) {
+          errorMessage = 'Too many attempts. Please wait before trying again.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       Toast.show({
         type: 'error',
         text1: 'Login Failed',
-        text2: error.message || 'Please check your OTP and try again.',
+        text2: errorMessage,
       });
       return false;
     } finally {
@@ -213,7 +247,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         return true;
       } else {
-        throw new Error(response.message || 'Failed to complete profile');
+        throw new Error('Failed to complete profile');
       }
     } catch (error: any) {
       console.error('Complete profile error:', error);
@@ -243,7 +277,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           text2: 'Your profile has been updated successfully.',
         });
       } else {
-        throw new Error(response.message || 'Failed to update profile');
+        throw new Error('Failed to update profile');
       }
     } catch (error: any) {
       console.error('Update profile error:', error);

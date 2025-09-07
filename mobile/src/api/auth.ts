@@ -44,7 +44,7 @@ class AuthAPI {
   async sendOTP(phone: string): Promise<{ success: boolean; message: string }> {
     return this.makeRequest('/auth/otp/send', {
       method: 'POST',
-      data: { phone },
+      data: { mobile: phone },
     });
   }
 
@@ -52,7 +52,7 @@ class AuthAPI {
   async verifyOTP(phone: string, otp: string, name?: string): Promise<AuthResponse> {
     const response = await this.makeRequest('/auth/otp/verify', {
       method: 'POST',
-      data: { phone, otp, name },
+      data: { mobile: phone, otp, name },
     });
 
     if (response.success && response.token) {

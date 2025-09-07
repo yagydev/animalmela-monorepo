@@ -11,11 +11,12 @@ import {
   Platform,
 } from 'react-native';
 import { LinearGradient } from 'react-native-linear-gradient';
-import authAPI from '../../api/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const LoginPhoneScreen = ({ navigation }) => {
+  const { sendOTP, isLoading } = useAuth();
   const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const validatePhone = (phoneNumber) => {
     // Indian mobile number validation
@@ -25,29 +26,26 @@ const LoginPhoneScreen = ({ navigation }) => {
 
   const handleSendOTP = async () => {
     if (!phone.trim()) {
-      Alert.alert('Error', 'Please enter your mobile number');
+      setError('Please enter your mobile number');
       return;
     }
 
     if (!validatePhone(phone)) {
-      Alert.alert('Error', 'Please enter a valid 10-digit mobile number');
+      setError('Please enter a valid 10-digit mobile number');
       return;
     }
 
-    setLoading(true);
+    setError('');
+    
     try {
-      const response = await authAPI.sendOTP(phone);
+      const success = await sendOTP(phone);
       
-      if (response.success) {
+      if (success) {
         navigation.navigate('OTP', { phone });
-      } else {
-        Alert.alert('Error', response.error || 'Failed to send OTP');
       }
     } catch (error) {
       console.error('Send OTP error:', error);
-      Alert.alert('Error', 'Failed to send OTP. Please try again.');
-    } finally {
-      setLoading(false);
+      setError('Failed to send OTP. Please try again.');
     }
   };
 
@@ -73,23 +71,29 @@ const LoginPhoneScreen = ({ navigation }) => {
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Mobile Number</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, error && styles.inputError]}
                 placeholder="9876543210"
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={(text) => {
+                  setPhone(text);
+                  setError(''); // Clear error when user types
+                }}
                 keyboardType="phone-pad"
                 maxLength={10}
                 autoFocus
               />
+              {error ? (
+                <Text style={styles.errorText}>{error}</Text>
+              ) : null}
             </View>
 
             <TouchableOpacity
-              style={[styles.button, loading && styles.buttonDisabled]}
+              style={[styles.button, isLoading && styles.buttonDisabled]}
               onPress={handleSendOTP}
-              disabled={loading}
+              disabled={isLoading}
             >
               <Text style={styles.buttonText}>
-                {loading ? 'Sending...' : 'Send OTP'}
+                {isLoading ? 'Sending...' : 'Send OTP'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -159,6 +163,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#333333',
     borderWidth: 0,
+  },
+  inputError: {
+    borderWidth: 2,
+    borderColor: '#ff4444',
+  },
+  errorText: {
+    color: '#ff4444',
+    fontSize: 14,
+    marginTop: 5,
+    fontWeight: '500',
   },
   button: {
     backgroundColor: '#ffffff',

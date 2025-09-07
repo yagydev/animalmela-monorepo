@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 const connectDB = require('../../../../lib/mongodb');
 const { User, OtpSession } = require('../../../../models');
+const smsService = require('../../../../services/smsService');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   await connectDB();
@@ -62,19 +63,47 @@ async function sendOTP(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // In production, send SMS via Twilio or similar service
-    // For now, we'll just log it (remove in production)
-    console.log(`OTP for ${mobile}: ${otp}`);
+    // Send SMS via SMS service
+    let smsResult;
+    if (smsService.isConfigured()) {
+      try {
+        smsResult = await smsService.sendOTP(mobile, otp);
+        console.log(`SMS sent to ${mobile} via ${smsResult.provider}: ${smsResult.message}`);
+      } catch (error) {
+        console.error('SMS sending failed:', error.message);
+        smsResult = {
+          success: false,
+          message: 'SMS service temporarily unavailable',
+          provider: 'None'
+        };
+      }
+    } else {
+      // Development mode - just log the OTP
+      console.log(`OTP for ${mobile}: ${otp}`);
+      smsResult = {
+        success: true,
+        message: 'OTP logged to console (development mode)',
+        provider: 'Console'
+      };
+    }
 
-    // TODO: Integrate with SMS service
-    // await sendSMS(mobile, `Your Pashu Marketplace OTP is: ${otp}`);
-
-    res.json({
+    // Prepare response
+    const response: any = {
       success: true,
       message: 'OTP sent successfully',
-      // In development, include OTP for testing
-      ...(process.env.NODE_ENV === 'development' && { otp })
-    });
+      smsProvider: smsResult.provider
+    };
+
+    // In development mode, include OTP for testing
+    if (process.env.NODE_ENV === 'development') {
+      response.otp = otp;
+      response.debug = {
+        smsResult,
+        availableProviders: smsService.getAvailableProviders()
+      };
+    }
+
+    res.json(response);
 
   } catch (error) {
     console.error('Send OTP error:', error);
