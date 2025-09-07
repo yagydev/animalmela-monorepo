@@ -1,70 +1,29 @@
-// src/navigation/MinimalNavigator.js
+// src/navigation/MinimalNavigator.js - Simplified Version
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAuth } from '../context/AuthContext';
-import featureFlags from '../config/featureFlags';
 
-// Minimal screens - only essential ones
+// Simple screens
 import LoginScreen from '../screens/auth/LoginScreen';
-import OTPScreen from '../screens/auth/OTPScreen';
-import HomeScreen from '../screens/buyer/HomeScreen';
-import LoadingScreen from '../screens/LoadingScreen';
+import HomeScreen from '../screens/HomeScreen';
 
 const Stack = createStackNavigator();
 
 const MinimalNavigator = () => {
-  const { user, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return null; // Will be handled by App.js splash screen
   }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          gestureEnabled: true,
-          cardStyleInterpolator: ({ current, layouts }) => {
-            return {
-              cardStyle: {
-                transform: [
-                  {
-                    translateX: current.progress.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [layouts.screen.width, 0],
-                    }),
-                  },
-                ],
-              },
-            };
-          },
-        }}
-      >
-        {!user ? (
-          // Auth Stack - Minimal
-          <>
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen}
-              options={{ title: 'Login' }}
-            />
-            <Stack.Screen 
-              name="OTP" 
-              component={OTPScreen}
-              options={{ title: 'Verify OTP' }}
-            />
-          </>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {isAuthenticated ? (
+          <Stack.Screen name="Home" component={HomeScreen} />
         ) : (
-          // Main Stack - Minimal (only core features)
-          <>
-            <Stack.Screen 
-              name="Home" 
-              component={HomeScreen}
-              options={{ title: 'Pashu Marketplace' }}
-            />
-          </>
+          <Stack.Screen name="Login" component={LoginScreen} />
         )}
       </Stack.Navigator>
     </NavigationContainer>

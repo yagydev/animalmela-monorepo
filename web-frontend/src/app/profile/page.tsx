@@ -4,6 +4,16 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { ProfileEditModal } from '@/components/ProfileEditModal';
+import { 
+  PencilIcon,
+  UserCircleIcon,
+  CameraIcon,
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  CalendarIcon
+} from '@heroicons/react/24/outline';
 
 interface UserProfile {
   _id: string;

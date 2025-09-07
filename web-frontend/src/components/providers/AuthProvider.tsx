@@ -23,6 +23,10 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<void>;
+  sendOTP: (mobile: string) => Promise<void>;
+  verifyOTP: (mobile: string, otp: string, name?: string) => Promise<void>;
+  googleLogin: () => Promise<void>;
+  facebookLogin: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -158,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = async (data: Partial<User>) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -179,6 +183,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const sendOTP = async (mobile: string) => {
+    try {
+      const response = await fetch('/api/auth/otp/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobile }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to send OTP');
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const verifyOTP = async (mobile: string, otp: string, name?: string) => {
+    try {
+      const response = await fetch('/api/auth/otp/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mobile, otp, name }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Invalid OTP');
+      }
+
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const googleLogin = async () => {
+    // Placeholder for Google OAuth implementation
+    throw new Error('Google login not implemented yet');
+  };
+
+  const facebookLogin = async () => {
+    // Placeholder for Facebook OAuth implementation
+    throw new Error('Facebook login not implemented yet');
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -186,6 +245,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     updateProfile,
+    sendOTP,
+    verifyOTP,
+    googleLogin,
+    facebookLogin,
     isAuthenticated: !!user,
   };
 

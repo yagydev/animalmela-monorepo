@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: false, // Make password optional
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false // Don't include password in queries by default
   },
@@ -89,7 +89,28 @@ const userSchema = new mongoose.Schema({
   languages: [{
     type: String,
     trim: true
-  }]
+  }],
+  settings: {
+    notifications: {
+      email: { type: Boolean, default: true },
+      sms: { type: Boolean, default: false },
+      push: { type: Boolean, default: true },
+      marketing: { type: Boolean, default: false }
+    },
+    privacy: {
+      profileVisibility: { 
+        type: String, 
+        enum: ['public', 'private', 'friends'], 
+        default: 'public' 
+      },
+      showEmail: { type: Boolean, default: false },
+      showPhone: { type: Boolean, default: false }
+    },
+    security: {
+      twoFactorEnabled: { type: Boolean, default: false },
+      loginAlerts: { type: Boolean, default: true }
+    }
+  }
 }, {
   timestamps: true
 });
