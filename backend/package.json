@@ -4,9 +4,9 @@
   "description": "AnimalMela Backend API - Next.js with MongoDB",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 5001",
+    "dev": "next dev -p 5000",
     "build": "next build",
-    "start": "next start -p 5001",
+    "start": "next start -p 5000",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
