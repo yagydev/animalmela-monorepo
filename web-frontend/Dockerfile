@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-COPY ../shared/package*.json ../shared/
+COPY ../shared/package*.json ../shared/ || true
 RUN npm ci --only=production
 
 # Rebuild the source code only when needed
@@ -16,7 +16,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-COPY ../shared ../shared
+COPY ../shared ../shared || true
 
 # Build the application
 ENV NEXT_TELEMETRY_DISABLED 1
