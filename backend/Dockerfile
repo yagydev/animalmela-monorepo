@@ -8,13 +8,13 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY backend/package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 COPY backend/ .
 COPY shared/ ../shared/

@@ -1,0 +1,59 @@
+# Docker ignore file for Kisaan Mela monorepo
+
+# Node modules (will be installed in container)
+node_modules
+*/node_modules
+**/node_modules
+
+# Build outputs (will be built in container)
+.next
+*/build
+**/build
+*/dist
+**/dist
+
+# Development files
+.env.local
+.env.development
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git files
+.git
+.gitignore
+
+# Documentation (not needed in container)
+*.md
+docs/
+
+# Test files
+**/__tests__
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+coverage/
+
+# Mobile app (not needed for backend/frontend containers)
+mobile/
+
+# Temporary files
+tmp/
+temp/
+
+# Docker files (except the one being built)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
