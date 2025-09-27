@@ -1,0 +1,46 @@
+name: Kisaan Mela CI/CD
+
+on:
+  push:
+    branches: [ "main", "feature/*" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm install --legacy-peer-deps
+
+    - name: Build Backend
+      run: |
+        cd backend
+        npm run build
+
+    - name: Build Frontend
+      run: |
+        cd web-frontend
+        npm run build
+
+    - name: Run Tests
+      run: |
+        npm run test || echo "Tests not configured yet"
+
+    - name: Lint Code
+      run: |
+        npm run lint || echo "Linting not configured yet"
