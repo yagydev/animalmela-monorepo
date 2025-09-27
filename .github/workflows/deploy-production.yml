@@ -1,0 +1,248 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm run install:all
+        
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test
+        
+    - name: Run frontend tests
+      run: |
+        cd web-frontend
+        npm test
+        
+    - name: Build applications
+      run: |
+        npm run build:backend
+        npm run build:web
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Images
+    
+    permissions:
+      contents: read
+      packages: write
+      
+    strategy:
+      matrix:
+        service: [backend, web-frontend]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./${{ matrix.service }}/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [test, build-and-push]
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        
+    - name: Add server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to production server
+      run: |
+        ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
+          set -e
+          
+          # Navigate to deployment directory
+          cd /opt/kisaanmela || { echo "Deployment directory not found"; exit 1; }
+          
+          # Pull latest changes from main branch
+          git fetch origin
+          git checkout main
+          git pull origin main
+          
+          # Update environment variables if needed
+          if [ ! -f "env.production" ]; then
+            echo "Warning: env.production not found, copying from env.example"
+            cp env.example env.production
+          fi
+          
+          # Pull latest Docker images
+          docker-compose -f docker-compose.prod.yml --env-file env.production pull
+          
+          # Restart services with zero downtime
+          docker-compose -f docker-compose.prod.yml --env-file env.production up -d --remove-orphans
+          
+          # Wait for services to be ready
+          echo "Waiting for services to be ready..."
+          sleep 30
+          
+          # Health check
+          if curl -f -s http://localhost:5000/api/health > /dev/null; then
+            echo "✅ Backend is healthy"
+          else
+            echo "❌ Backend health check failed"
+            exit 1
+          fi
+          
+          if curl -f -s http://localhost:3000 > /dev/null; then
+            echo "✅ Frontend is healthy"
+          else
+            echo "❌ Frontend health check failed"
+            exit 1
+          fi
+          
+          echo "🎉 Deployment completed successfully!"
+        EOF
+        
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  post-deploy:
+    needs: deploy
+    runs-on: ubuntu-latest
+    name: Post-deployment Tasks
+    
+    steps:
+    - name: Run post-deployment tests
+      run: |
+        # Wait a bit for services to fully start
+        sleep 60
+        
+        # Test main endpoints
+        curl -f https://kisaanmela.com/api/health
+        curl -f https://kisaanmela.com
+        
+        echo "✅ Post-deployment tests passed"
+        
+    - name: Update deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: context.payload.deployment.id,
+            state: 'success',
+            environment_url: 'https://kisaanmela.com',
+            description: 'Deployment completed successfully'
+          });
+
+  rollback:
+    if: failure()
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    name: Rollback on Failure
+    environment: production
+    
+    steps:
+    - name: Rollback deployment
+      run: |
+        ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
+          set -e
+          
+          cd /opt/kisaanmela
+          
+          # Get previous commit
+          PREVIOUS_COMMIT=$(git log --oneline -n 2 | tail -n 1 | cut -d' ' -f1)
+          
+          echo "Rolling back to commit: $PREVIOUS_COMMIT"
+          
+          # Checkout previous commit
+          git checkout $PREVIOUS_COMMIT
+          
+          # Restart services
+          docker-compose -f docker-compose.prod.yml --env-file env.production up -d --build
+          
+          echo "🔄 Rollback completed"
+        EOF
+        
+    - name: Notify rollback
+      uses: 8398a7/action-slack@v3
+      with:
+        status: 'warning'
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        text: '🔄 Production deployment failed and was rolled back'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
