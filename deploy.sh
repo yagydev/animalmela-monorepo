@@ -153,12 +153,12 @@ case $DEPLOYMENT_METHOD in
         
         # Start backend
         cd backend
-        pm2 start ecosystem.config.js --env production
+        pm2 start npm --name "animall-backend" -- start
         cd ..
 
         # Start web frontend
         cd web-frontend
-        pm2 start ecosystem.config.js --env production
+        pm2 start npm --name "animall-frontend" -- start
         cd ..
 
         # Save PM2 configuration
