@@ -1,0 +1,211 @@
+// src/screens/auth/LoginPhone.js
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { LinearGradient } from 'react-native-linear-gradient';
+import { useAuth } from '../../context/AuthContext';
+
+const LoginPhoneScreen = ({ navigation }) => {
+  const { sendOTP, isLoading } = useAuth();
+  const [phone, setPhone] = useState('');
+  const [error, setError] = useState('');
+
+  const validatePhone = (phoneNumber) => {
+    // Indian mobile number validation
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(phoneNumber);
+  };
+
+  const handleSendOTP = async () => {
+    if (!phone.trim()) {
+      setError('Please enter your mobile number');
+      return;
+    }
+
+    if (!validatePhone(phone)) {
+      setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    setError('');
+    
+    try {
+      const success = await sendOTP(phone);
+      
+      if (success) {
+        navigation.navigate('OTP', { phone });
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      setError('Failed to send OTP. Please try again.');
+    }
+  };
+
+  return (
+    <LinearGradient
+      colors={['#4CAF50', '#45a049']}
+      style={styles.container}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.emoji}>🐄</Text>
+            <Text style={styles.title}>Welcome to Pashu Marketplace</Text>
+            <Text style={styles.subtitle}>
+              Enter your mobile number to get started
+            </Text>
+          </View>
+
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Mobile Number</Text>
+              <TextInput
+                style={[styles.input, error && styles.inputError]}
+                placeholder="9876543210"
+                value={phone}
+                onChangeText={(text) => {
+                  setPhone(text);
+                  setError(''); // Clear error when user types
+                }}
+                keyboardType="phone-pad"
+                maxLength={10}
+                autoFocus
+              />
+              {error ? (
+                <Text style={styles.errorText}>{error}</Text>
+              ) : null}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, isLoading && styles.buttonDisabled]}
+              onPress={handleSendOTP}
+              disabled={isLoading}
+            >
+              <Text style={styles.buttonText}>
+                {isLoading ? 'Sending...' : 'Send OTP'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              By continuing, you agree to our Terms of Service and Privacy Policy
+            </Text>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </LinearGradient>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 30,
+    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 50,
+  },
+  emoji: {
+    fontSize: 80,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ffffff',
+    opacity: 0.9,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  form: {
+    marginBottom: 30,
+  },
+  inputContainer: {
+    marginBottom: 25,
+  },
+  inputLabel: {
+    fontSize: 16,
+    color: '#ffffff',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  input: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    fontSize: 18,
+    color: '#333333',
+    borderWidth: 0,
+  },
+  inputError: {
+    borderWidth: 2,
+    borderColor: '#ff4444',
+  },
+  errorText: {
+    color: '#ff4444',
+    fontSize: 14,
+    marginTop: 5,
+    fontWeight: '500',
+  },
+  button: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
+  footer: {
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#ffffff',
+    opacity: 0.8,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+});
+
+export default LoginPhoneScreen;
