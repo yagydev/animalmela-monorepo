@@ -39,8 +39,9 @@ jobs:
 
     - name: Run Tests
       run: |
-        npm run test || echo "Tests not configured yet"
+        npm run test
 
-    - name: Lint Code
+    - name: Lint Code (Optional)
       run: |
-        npm run lint || echo "Linting not configured yet"
+        npm run lint || echo "Linting configuration pending - skipping for now"
+      continue-on-error: true
