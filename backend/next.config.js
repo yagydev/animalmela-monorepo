@@ -6,7 +6,6 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   experimental: {
-    appDir: false, // Use pages directory for API routes
     outputFileTracingRoot: path.join(__dirname, '../'),
   },
   async headers() {
