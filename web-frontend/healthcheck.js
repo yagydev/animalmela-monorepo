@@ -2,31 +2,32 @@ const http = require('http');
 
 const options = {
   hostname: 'localhost',
-  port: 3000,
-  path: '/api/health',
+  port: process.env.PORT || 3000,
+  path: '/',
   method: 'GET',
   timeout: 3000
 };
 
 const req = http.request(options, (res) => {
   if (res.statusCode === 200) {
-    console.log('Health check passed');
+    console.log('Frontend health check: OK');
     process.exit(0);
   } else {
-    console.log(`Health check failed with status: ${res.statusCode}`);
+    console.log(`Frontend health check failed: ${res.statusCode}`);
     process.exit(1);
   }
 });
 
-req.on('error', (error) => {
-  console.log(`Health check failed with error: ${error.message}`);
+req.on('error', (err) => {
+  console.log('Frontend health check error:', err.message);
   process.exit(1);
 });
 
 req.on('timeout', () => {
-  console.log('Health check timed out');
+  console.log('Frontend health check timeout');
   req.destroy();
   process.exit(1);
 });
 
+req.setTimeout(3000);
 req.end();
