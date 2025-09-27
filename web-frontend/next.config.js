@@ -2,8 +2,30 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'standalone',
   images: {
-    domains: ['localhost', 'animall-platform.s3.amazonaws.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kisaanmela.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.kisaanmela.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'animall-platform.s3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'kisaanmela-uploads.s3.amazonaws.com',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
   },
   env: {
