@@ -5,7 +5,7 @@
   "private": true,
   "workspaces": [
     "backend",
-    "web-frontend", 
+    "web-frontend",
     "mobile",
     "shared"
   ],
@@ -35,7 +35,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "webpack-cli": "^6.0.1"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -50,5 +51,9 @@
     "typescript"
   ],
   "author": "AnimalMela Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "next": "^15.5.4"
+  }
 }
