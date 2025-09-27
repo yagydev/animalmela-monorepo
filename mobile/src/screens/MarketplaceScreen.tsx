@@ -12,7 +12,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { BRAND_CONFIG } from '../../shared/constants/branding';
 
 // Mock data for marketplace listings
 const mockListings = [
@@ -276,7 +275,7 @@ export default function MarketplaceScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{BRAND_CONFIG?.name || 'Animall'} Marketplace</Text>
+        <Text style={styles.headerTitle}>Marketplace</Text>
         <TouchableOpacity style={styles.sellButton}>
           <Text style={styles.sellButtonText}>Sell</Text>
         </TouchableOpacity>
@@ -380,7 +379,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   sellButton: {
-    backgroundColor: BRAND_CONFIG?.colors?.primary?.[500] || '#3B82F6',
+    backgroundColor: '#3B82F6',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -420,7 +419,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
   },
   selectedCategoryItem: {
-    backgroundColor: BRAND_CONFIG?.colors?.primary?.[100] || '#DBEAFE',
+    backgroundColor: '#DBEAFE',
   },
   categoryIcon: {
     fontSize: 20,
@@ -432,7 +431,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   selectedCategoryText: {
-    color: BRAND_CONFIG?.colors?.primary?.[500] || '#3B82F6',
+    color: '#3B82F6',
   },
   sortContainer: {
     flexDirection: 'row',

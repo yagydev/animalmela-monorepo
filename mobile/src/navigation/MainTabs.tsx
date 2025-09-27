@@ -4,11 +4,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '@/context/AuthContext';
-import { BRAND_CONFIG } from '../../../shared/constants/branding';
 
 // Buyer Screens
 import HomeScreen from '@/screens/buyer/HomeScreen';
-import MarketplaceScreen from '@/screens/MarketplaceScreen';
 import OrdersScreen from '@/screens/buyer/OrdersScreen';
 import ChatScreen from '@/screens/buyer/ChatScreen';
 import ProfileScreen from '@/screens/buyer/ProfileScreen';
@@ -26,7 +24,6 @@ import ServiceProfileScreen from '@/screens/service/ServiceProfileScreen';
 export type MainTabsParamList = {
   // Buyer Tabs
   Home: undefined;
-  Marketplace: undefined;
   Orders: undefined;
   Chat: undefined;
   Profile: undefined;
@@ -148,16 +145,6 @@ const MainTabs: React.FC = () => {
               }}
             />
             <Tab.Screen
-              name="Marketplace"
-              component={MarketplaceScreen}
-              options={{
-                title: 'Marketplace',
-                tabBarIcon: ({ color, size, focused }) => (
-                  <TabBarIcon name="store" color={color} size={size} focused={focused} />
-                ),
-              }}
-            />
-            <Tab.Screen
               name="Orders"
               component={OrdersScreen}
               options={{
@@ -196,12 +183,12 @@ const MainTabs: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: BRAND_CONFIG?.colors?.primary?.[500] || '#3b82f6',
-        tabBarInactiveTintColor: BRAND_CONFIG?.colors?.gray?.[500] || '#6b7280',
+        tabBarActiveTintColor: '#0ea5e9',
+        tabBarInactiveTintColor: '#6b7280',
         tabBarStyle: {
           backgroundColor: '#ffffff',
           borderTopWidth: 1,
-          borderTopColor: BRAND_CONFIG?.colors?.gray?.[200] || '#e5e7eb',
+          borderTopColor: '#e5e7eb',
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
