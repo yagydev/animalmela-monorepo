@@ -8,13 +8,13 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY web-frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY web-frontend/package*.json ./
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 COPY web-frontend/ .
 COPY shared/ ../shared/
@@ -47,6 +47,6 @@ ENV HOSTNAME "0.0.0.0"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
 CMD ["node", "server.js"]
