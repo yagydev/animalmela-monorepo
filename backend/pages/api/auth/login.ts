@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 const connectDB = require('../../../lib/mongodb');
-import { User } from '../../../models';
+const { User } = require('../../../models');
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
