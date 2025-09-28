@@ -89,6 +89,21 @@ test_api "GET" "/api/me" "" "401" "Me endpoint without token"
 test_api "POST" "/api/logout" '{}' "200" "Logout"
 test_api "GET" "/api/logout" "" "405" "Logout GET method"
 
+# Test Forgot Password API
+test_api "POST" "/api/forgot-password" '{"email":"demo@kisaanmela.com"}' "200" "Valid forgot password"
+test_api "POST" "/api/forgot-password" '{"email":"nonexistent@email.com"}' "404" "Non-existent email forgot password"
+test_api "POST" "/api/forgot-password" '{"email":""}' "400" "Empty email forgot password"
+test_api "GET" "/api/forgot-password" "" "405" "Forgot password GET method"
+
+# Test Reset Password API (without token)
+test_api "POST" "/api/reset-password" '{"token":"invalid","password":"newpass","confirmPassword":"newpass"}' "400" "Invalid reset token"
+test_api "POST" "/api/reset-password" '{"password":"newpass","confirmPassword":"different"}' "400" "Mismatched passwords"
+test_api "GET" "/api/reset-password" "" "405" "Reset password GET method"
+
+# Test Change Password API (without token)
+test_api "POST" "/api/change-password" '{"currentPassword":"old","newPassword":"new","confirmPassword":"new"}' "401" "Change password without token"
+test_api "GET" "/api/change-password" "" "405" "Change password GET method"
+
 echo ""
 echo "=================================="
 echo -e "${BLUE}📊 TEST RESULTS${NC}"
