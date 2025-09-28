@@ -1,24 +1,46 @@
-import { withAuth } from '../../lib/auth';
+// Frontend API proxy to backend user profile endpoint
+export default async function handler(req, res) {
+  // Only allow GET requests
+  if (req.method !== 'GET') {
+    return res.status(405).json({
+      success: false,
+      message: 'Method not allowed'
+    });
+  }
 
-async function handler(req, res) {
   try {
-    // User is already available from auth middleware
-    const user = req.user;
+    // Get authorization header
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authorization header required'
+      });
+    }
 
-    return res.status(200).json({
-      success: true,
-      message: 'User profile retrieved successfully',
-      user: user.getPublicProfile()
+    // Proxy request to backend API
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${backendUrl}/user/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader,
+      },
     });
 
-  } catch (error) {
-    console.error('Get user profile error:', error);
+    const data = await response.json();
 
+    // Return the response from backend
+    return res.status(response.status).json(data);
+
+  } catch (error) {
+    console.error('User profile proxy error:', error);
+
+    // Generic server error
     return res.status(500).json({
       success: false,
       message: 'Internal server error. Please try again later.'
     });
   }
 }
-
-export default withAuth(handler);

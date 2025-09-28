@@ -1,7 +1,4 @@
-import connectDB from '../../lib/mongodb';
-import User from '../../models/User';
-import { createTokenResponse } from '../../lib/jwt';
-
+// Frontend API proxy to backend login endpoint
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -12,9 +9,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Connect to database
-    await connectDB();
-
     const { email, password } = req.body;
 
     // Validate required fields
@@ -34,37 +28,23 @@ export default async function handler(req, res) {
       });
     }
 
-    // Find user by email and include password for comparison
-    const user = await User.findByEmail(email).select('+password');
-    
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
-    }
+    // Proxy request to backend API
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${backendUrl}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Check if password is correct
-    const isPasswordValid = await user.comparePassword(password);
-    
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password'
-      });
-    }
+    const data = await response.json();
 
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
-
-    // Generate token and return response
-    const response = createTokenResponse(user);
-    
-    return res.status(200).json(response);
+    // Return the response from backend
+    return res.status(response.status).json(data);
 
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login proxy error:', error);
 
     // Generic server error
     return res.status(500).json({

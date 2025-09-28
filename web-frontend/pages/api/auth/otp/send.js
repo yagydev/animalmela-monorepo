@@ -1,5 +1,4 @@
-const smsService = require('../../../../lib/smsService');
-
+// Frontend API proxy to backend OTP send endpoint
 export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -29,60 +28,28 @@ export default async function handler(req, res) {
       });
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Send SMS via SMS service
-    let smsResult;
-    try {
-      if (smsService.isConfigured()) {
-        smsResult = await smsService.sendOTP(mobile, otp);
-        console.log(`SMS sent to ${mobile} via ${smsResult.provider}: ${smsResult.message}`);
-      } else {
-        // Development mode - just log the OTP
-        console.log(`OTP for ${mobile}: ${otp}`);
-        smsResult = {
-          success: true,
-          message: 'OTP logged to console (development mode)',
-          provider: 'Console'
-        };
-      }
-    } catch (smsError) {
-      console.error('SMS sending failed:', smsError.message);
-      smsResult = {
-        success: false,
-        message: 'SMS service temporarily unavailable',
-        provider: 'None'
-      };
-    }
+    // Proxy request to backend API
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${backendUrl}/auth/otp/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mobile }),
+    });
 
-    // Prepare response
-    const response = {
-      success: true,
-      message: 'OTP sent successfully',
-      smsProvider: smsResult.provider
-    };
+    const data = await response.json();
 
-    // In development mode, include OTP for testing
-    if (process.env.NODE_ENV === 'development') {
-      response.otp = otp;
-      response.debug = {
-        smsResult,
-        availableProviders: smsService.getAvailableProviders(),
-        environment: process.env.NODE_ENV
-      };
-    }
-
-    res.status(200).json(response);
+    // Return the response from backend
+    return res.status(response.status).json(data);
 
   } catch (error) {
-    console.error('Send OTP error:', error);
+    console.error('Send OTP proxy error:', error);
 
     // Generic server error
     return res.status(500).json({
       success: false,
-      message: 'Internal server error. Please try again later.',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      message: 'Internal server error. Please try again later.'
     });
   }
 }

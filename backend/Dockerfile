@@ -1,34 +1,53 @@
-FROM node:18-alpine
+# Backend Production Dockerfile
+FROM node:18-alpine AS base
 
-# Set working directory
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install dependencies based on the preferred package manager
+COPY backend/package*.json ./
+RUN npm install --only=production --legacy-peer-deps
 
-# Install dependencies
-RUN npm ci --only=production
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY backend/package*.json ./
+RUN npm install --legacy-peer-deps
 
-# Copy source code
-COPY . .
+COPY backend/ .
+COPY shared/ ../shared/
+
+# Build the application
+RUN npm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy built application
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Backend doesn't have a public directory, so we skip copying it
 
 # Create logs directory
-RUN mkdir -p logs
+RUN mkdir -p logs && chown nextjs:nodejs logs
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+USER nextjs
 
-# Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
-USER nodejs
-
-# Expose port
 EXPOSE 5000
+
+ENV PORT=5000
+ENV HOSTNAME="0.0.0.0"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node healthcheck.js
 
-# Start the application
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

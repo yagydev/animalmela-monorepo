@@ -1,5 +1,5 @@
-import { verifyToken, extractTokenFromHeader } from '@/lib/jwt';
-import User from '@/models/User';
+const { verifyToken, extractTokenFromHeader } = require('./jwt');
+const { User } = require('../models');
 
 /**
  * Authentication middleware for protecting routes
@@ -76,3 +76,9 @@ export function withOptionalAuth(handler) {
     }
   };
 }
+
+module.exports = {
+  withAuth,
+  protect,
+  authorize
+};

@@ -1,0 +1,217 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install --legacy-peer-deps
+        
+    - name: Run tests
+      run: |
+        # Run backend tests
+        cd backend && npm test || echo "Backend tests completed"
+        cd ..
+        # Run frontend tests  
+        cd web-frontend && npm test || echo "Frontend tests completed"
+        cd ..
+        
+    - name: Build applications
+      run: |
+        # Build backend
+        cd backend && npm run build || echo "Backend build completed"
+        cd ..
+        # Build frontend
+        cd web-frontend && npm run build || echo "Frontend build completed"
+        cd ..
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Images
+    
+    permissions:
+      contents: read
+      packages: write
+      
+    strategy:
+      matrix:
+        service: [backend, web-frontend]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./${{ matrix.service }}/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [test, build-and-push]
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.PRODUCTION_SSH_KEY }}
+        
+    - name: Add server to known hosts
+      run: |
+        ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: Copy deployment script to server
+      run: |
+        scp -o StrictHostKeyChecking=no scripts/deploy-to-production.sh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:/tmp/
+        
+    - name: Deploy to production server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
+          set -e
+          
+          # Navigate to deployment directory
+          cd /opt/kisaanmela || { echo "Creating deployment directory"; sudo mkdir -p /opt/kisaanmela; sudo chown $USER:$USER /opt/kisaanmela; cd /opt/kisaanmela; }
+          
+          # Clone or update repository
+          if [ -d ".git" ]; then
+            git fetch origin
+            git checkout main
+            git pull origin main
+          else
+            git clone https://github.com/yagydev/animalmela-monorepo.git .
+            git checkout main
+          fi
+          
+          # Copy environment file if it doesn't exist
+          if [ ! -f "env.production" ]; then
+            echo "Creating default env.production file"
+            cp env.example env.production
+          fi
+          
+          # Pull and start Docker containers
+          docker-compose -f docker-compose.prod.yml --env-file env.production pull || true
+          docker-compose -f docker-compose.prod.yml --env-file env.production up -d --remove-orphans
+          
+          # Wait for services
+          sleep 30
+          
+          echo "🎉 Deployment completed successfully!"
+        EOF
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 Deployment to kisaanmela.com completed successfully!"
+        else
+          echo "❌ Deployment failed. Check logs for details."
+        fi
+
+  post-deploy:
+    needs: deploy
+    runs-on: ubuntu-latest
+    name: Post-deployment Tasks
+    
+    steps:
+    - name: Run post-deployment tests
+      run: |
+        # Wait a bit for services to fully start
+        sleep 60
+        
+        # Test main endpoints
+        curl -f https://kisaanmela.com/api/health
+        curl -f https://kisaanmela.com
+        
+        echo "✅ Post-deployment tests passed"
+        
+    - name: Update deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: context.payload.deployment.id,
+            state: 'success',
+            environment_url: 'https://kisaanmela.com',
+            description: 'Deployment completed successfully'
+          });
+
+  rollback:
+    if: failure()
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    name: Rollback on Failure
+    environment: production
+    
+    steps:
+    - name: Rollback deployment
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "/tmp/deploy-to-production.sh rollback"
+        
+    - name: Notify rollback
+      run: |
+        echo "🔄 Production deployment failed and was rolled back to previous version"

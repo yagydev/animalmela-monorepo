@@ -168,7 +168,7 @@ async function moderateListing(req, res) {
       });
     }
 
-    let updateData = {};
+    let updateData: any = {};
 
     if (action === 'approve') {
       updateData.verified = true;
