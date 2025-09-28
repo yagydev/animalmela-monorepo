@@ -129,18 +129,46 @@ jobs:
         
     - name: Deploy to production server
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "chmod +x /tmp/deploy-to-production.sh && /tmp/deploy-to-production.sh deploy"
+        ssh -o StrictHostKeyChecking=no ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} << 'EOF'
+          set -e
+          
+          # Navigate to deployment directory
+          cd /opt/kisaanmela || { echo "Creating deployment directory"; sudo mkdir -p /opt/kisaanmela; sudo chown $USER:$USER /opt/kisaanmela; cd /opt/kisaanmela; }
+          
+          # Clone or update repository
+          if [ -d ".git" ]; then
+            git fetch origin
+            git checkout main
+            git pull origin main
+          else
+            git clone https://github.com/yagydev/animalmela-monorepo.git .
+            git checkout main
+          fi
+          
+          # Copy environment file if it doesn't exist
+          if [ ! -f "env.production" ]; then
+            echo "Creating default env.production file"
+            cp env.example env.production
+          fi
+          
+          # Pull and start Docker containers
+          docker-compose -f docker-compose.prod.yml --env-file env.production pull || true
+          docker-compose -f docker-compose.prod.yml --env-file env.production up -d --remove-orphans
+          
+          # Wait for services
+          sleep 30
+          
+          echo "🎉 Deployment completed successfully!"
+        EOF
         
     - name: Notify deployment status
       if: always()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        fields: repo,message,commit,author,action,eventName,ref,workflow
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 Deployment to kisaanmela.com completed successfully!"
+        else
+          echo "❌ Deployment failed. Check logs for details."
+        fi
 
   post-deploy:
     needs: deploy
@@ -185,11 +213,5 @@ jobs:
         ssh -o StrictHostKeyChecking=no ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "/tmp/deploy-to-production.sh rollback"
         
     - name: Notify rollback
-      uses: 8398a7/action-slack@v3
-      with:
-        status: 'warning'
-        channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        text: '🔄 Production deployment failed and was rolled back'
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      run: |
+        echo "🔄 Production deployment failed and was rolled back to previous version"
