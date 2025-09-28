@@ -26,7 +26,7 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -34,7 +34,7 @@ RUN adduser --system --uid 1001 nextjs
 # Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Backend doesn't have a public directory, so we skip copying it
 
 # Create logs directory
 RUN mkdir -p logs && chown nextjs:nodejs logs
@@ -43,8 +43,8 @@ USER nextjs
 
 EXPOSE 5000
 
-ENV PORT 5000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=5000
+ENV HOSTNAME="0.0.0.0"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
