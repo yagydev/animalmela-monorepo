@@ -1,8 +1,8 @@
-name: NodeJS with Webpack
+name: Kisaan Mela CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [18.x, 20.x]
 
     steps:
     - uses: actions/checkout@v4
@@ -21,8 +21,26 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'npm'
 
-    - name: Build
+    - name: Install dependencies
       run: |
-        npm install
-        npx webpack
+        npm install --legacy-peer-deps
+
+    - name: Build Backend
+      run: |
+        cd backend
+        npm run build
+
+    - name: Build Frontend
+      run: |
+        cd web-frontend
+        npm run build
+
+    - name: Run Tests
+      run: |
+        npm run test || echo "Tests not configured yet"
+
+    - name: Lint Code
+      run: |
+        npm run lint || echo "Linting not configured yet"

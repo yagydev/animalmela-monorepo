@@ -1,9 +1,5 @@
-import connectDB from '../../../../lib/mongodb';
-import User from '../../../../models/User';
-import { withAuth } from '../../../../lib/auth';
-import bcrypt from 'bcryptjs';
-
-async function handler(req, res) {
+// Frontend API proxy to backend change password endpoint
+export default async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -13,8 +9,15 @@ async function handler(req, res) {
   }
 
   try {
-    // Connect to database
-    await connectDB();
+    // Get authorization header
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authorization header required'
+      });
+    }
 
     const { currentPassword, newPassword } = req.body;
 
@@ -34,47 +37,24 @@ async function handler(req, res) {
       });
     }
 
-    // Get user with password
-    const user = await User.findById(req.user._id).select('+password');
-    
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    // Verify current password
-    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
-    
-    if (!isCurrentPasswordValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'Current password is incorrect'
-      });
-    }
-
-    // Update password
-    user.password = newPassword;
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Password changed successfully'
+    // Proxy request to backend API
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const response = await fetch(`${backendUrl}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader,
+      },
+      body: JSON.stringify({ currentPassword, newPassword }),
     });
 
-  } catch (error) {
-    console.error('Change password error:', error);
+    const data = await response.json();
 
-    // Handle validation errors
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(err => err.message);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors
-      });
-    }
+    // Return the response from backend
+    return res.status(response.status).json(data);
+
+  } catch (error) {
+    console.error('Change password proxy error:', error);
 
     // Generic server error
     return res.status(500).json({
@@ -83,5 +63,3 @@ async function handler(req, res) {
     });
   }
 }
-
-export default withAuth(handler);

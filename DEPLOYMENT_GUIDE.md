@@ -1,401 +1,377 @@
-# 🚀 Animall Platform - Complete Deployment Guide
+# Kisaan Mela Production Deployment Guide
 
-Your comprehensive pet services marketplace is ready for production deployment! This guide covers everything from customization to going live.
+## 🚀 Quick Start
 
-## 📋 **Quick Start Checklist**
+Deploy your Kisaan Mela platform to production in 3 simple steps:
 
-### ✅ **Pre-Deployment**
-- [ ] Customize branding with `./customize-branding.sh`
-- [ ] Configure production services with `./configure-production-services.sh`
-- [ ] Test locally with development servers
-- [ ] Review security settings
-- [ ] Prepare domain and SSL certificates
-
-### ✅ **Deployment**
-- [ ] Choose deployment method (Docker/Vercel/Manual/Hybrid)
-- [ ] Run deployment script `./deploy.sh [method]`
-- [ ] Verify all services are running
-- [ ] Test critical user flows
-- [ ] Monitor system health
-
-### ✅ **Post-Deployment**
-- [ ] Set up monitoring and alerts
-- [ ] Configure backups
-- [ ] Submit mobile apps to stores
-- [ ] Launch marketing campaigns
-
----
-
-## 🎨 **Step 1: Customize Your Platform**
-
-### **Interactive Branding Wizard**
 ```bash
-./customize-branding.sh
+# 1. Setup environment
+./setup-kisaanmela-env.sh
+
+# 2. Deploy to production
+./deploy-kisaanmela.sh
+
+# 3. Access your platform
+# Website: https://kisaanmela.com
+# API: https://api.kisaanmela.com
 ```
 
-**What it customizes:**
-- ✅ Company name and tagline
-- ✅ Color schemes (5 presets + custom)
-- ✅ Contact information
-- ✅ Social media links
-- ✅ Platform statistics
-- ✅ Updates all platforms automatically
+## 📋 Prerequisites
 
-**Color Scheme Options:**
-1. **Blue & Purple** (Default) - Professional and trustworthy
-2. **Green & Blue** (Nature) - Eco-friendly and natural
-3. **Orange & Red** (Warm) - Energetic and friendly
-4. **Purple & Pink** (Modern) - Creative and modern
-5. **Custom Colors** - Your own brand colors
+### Server Requirements
+- **OS**: Ubuntu 20.04+ or CentOS 8+
+- **RAM**: Minimum 4GB (8GB+ recommended)
+- **Storage**: 50GB+ SSD
+- **CPU**: 2+ cores
+- **Network**: Static IP address
 
----
+### Software Requirements
+- Docker 20.10+
+- Docker Compose 2.0+
+- Git
+- OpenSSL (for SSL certificates)
 
-## ⚙️ **Step 2: Configure Production Services**
+### Domain Setup
+Configure these DNS records for your domain `kisaanmela.com`:
 
-### **Production Services Setup**
-```bash
-./configure-production-services.sh
+```
+A     kisaanmela.com        → YOUR_SERVER_IP
+A     www.kisaanmela.com    → YOUR_SERVER_IP
+A     api.kisaanmela.com    → YOUR_SERVER_IP
 ```
 
-**Required Services:**
+## 🔧 Installation
 
-#### **🗄️ MongoDB Atlas (Database)**
-- **Free Tier**: M0 cluster (512MB storage)
-- **Setup Time**: 10 minutes
-- **Cost**: Free for development, $9+/month for production
-- **What you get**: Fully managed database with backups
+### 1. Clone Repository
 
-#### **☁️ AWS S3 (File Storage)**
-- **Free Tier**: 5GB storage, 20K requests
-- **Setup Time**: 15 minutes
-- **Cost**: ~$1-5/month for small apps
-- **What you get**: Scalable file storage for pet photos
-
-#### **💳 Stripe (Payments)**
-- **Free to Start**: Pay per transaction
-- **Setup Time**: 20 minutes
-- **Cost**: 2.9% + 30¢ per transaction
-- **What you get**: Complete payment processing
-
-#### **📧 Email Service (Notifications)**
-- **Gmail**: Free with app password
-- **SendGrid**: Free tier 100 emails/day
-- **AWS SES**: $0.10 per 1000 emails
-
----
-
-## 🚀 **Step 3: Choose Deployment Method**
-
-### **Option 1: Docker Deployment (Recommended)**
 ```bash
-./deploy.sh docker
+git clone https://github.com/yourusername/animall-monorepo.git
+cd animall-monorepo
 ```
 
-**✅ Best for:**
-- VPS or cloud servers
-- Complete control over infrastructure
-- Production-grade security
+### 2. Install Docker
 
-**What you get:**
-- Complete containerized stack
-- MongoDB + Redis + Nginx
-- SSL certificates with Let's Encrypt
-- Health checks and monitoring
-- Easy scaling and updates
-
-**Requirements:**
-- VPS with 2GB+ RAM
-- Docker and Docker Compose
-- Domain name (optional)
-
----
-
-### **Option 2: Vercel Deployment (Easiest)**
+**Ubuntu/Debian:**
 ```bash
-./deploy.sh vercel
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
 ```
 
-**✅ Best for:**
-- Zero server management
-- Global CDN performance
-- Automatic scaling
-
-**What you get:**
-- Serverless functions
-- Global CDN distribution
-- Automatic SSL certificates
-- Built-in monitoring
-- Zero maintenance
-
-**Requirements:**
-- Vercel account (free tier available)
-- MongoDB Atlas (external database)
-- Domain name (optional)
-
----
-
-### **Option 3: Manual Deployment (Custom)**
+**CentOS/RHEL:**
 ```bash
-./deploy.sh manual
+sudo yum install -y docker docker-compose
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
 ```
 
-**✅ Best for:**
-- Existing infrastructure
-- Custom server configurations
-- Full control over services
+### 3. Configure Environment
 
-**What you get:**
-- PM2 process management
-- Custom server configurations
-- Direct control over services
-- Flexible deployment options
+Run the interactive setup wizard:
 
-**Requirements:**
-- Linux server
-- PM2 installed
-- Manual database setup
-
----
-
-### **Option 4: Hybrid Deployment (Best Performance)**
 ```bash
-./deploy.sh hybrid
+./setup-kisaanmela-env.sh
 ```
 
-**✅ Best for:**
-- Production applications
-- Optimal performance
-- Cost optimization
+This will guide you through:
+- Database configuration (MongoDB Atlas or local)
+- AWS S3 setup for file storage
+- Email configuration (SMTP)
+- Payment setup (Stripe)
+- SMS configuration (Twilio)
 
-**What you get:**
-- Frontend on Vercel (global CDN)
-- Backend on Docker (full control)
-- External database (MongoDB Atlas)
-- Best of both worlds
+### 4. Deploy Application
 
-**Requirements:**
-- VPS for backend
-- Vercel account
-- MongoDB Atlas
+```bash
+./deploy-kisaanmela.sh
+```
 
----
+The deployment script will:
+- Setup SSL certificates (Let's Encrypt or self-signed)
+- Initialize MongoDB with proper schemas and indexes
+- Build and start all Docker containers
+- Configure Nginx reverse proxy
+- Perform health checks
 
-## 📱 **Step 4: Mobile App Deployment**
+## 🔐 SSL Certificate Setup
 
-### **Build Mobile Apps**
+### Option 1: Let's Encrypt (Recommended)
+
+The deployment script will automatically setup Let's Encrypt certificates:
+
+```bash
+./deploy-kisaanmela.sh ssl
+```
+
+### Option 2: Custom SSL Certificates
+
+Place your certificates in the `ssl/` directory:
+
+```bash
+ssl/
+├── kisaanmela.com.crt    # Certificate file
+└── kisaanmela.com.key    # Private key file
+```
+
+### Option 3: Self-Signed (Development Only)
+
+For testing purposes only:
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout ssl/kisaanmela.com.key \
+  -out ssl/kisaanmela.com.crt \
+  -subj "/C=IN/ST=State/L=City/O=KisaanMela/CN=kisaanmela.com"
+```
+
+## 🗄️ Database Configuration
+
+### MongoDB Atlas (Recommended)
+
+1. Create account at [MongoDB Atlas](https://cloud.mongodb.com/)
+2. Create a new cluster
+3. Get connection string
+4. Update `env.production` with your connection string
+
+### Local MongoDB
+
+The deployment uses Docker MongoDB with automatic initialization:
+
+- Database: `kisaanmela_prod`
+- Collections: users, listings, orders, chats, services, payments, reviews
+- Indexes: Optimized for performance
+- Default admin: `admin@kisaanmela.com`
+
+## ☁️ External Services Setup
+
+### AWS S3 (File Storage)
+
+1. Create AWS account
+2. Create S3 bucket: `kisaanmela-uploads`
+3. Create IAM user with S3 permissions
+4. Update environment variables:
+   ```
+   AWS_ACCESS_KEY_ID=your_access_key
+   AWS_SECRET_ACCESS_KEY=your_secret_key
+   AWS_S3_BUCKET=kisaanmela-uploads
+   ```
+
+### Stripe (Payments)
+
+1. Create Stripe account
+2. Get API keys from dashboard
+3. Update environment variables:
+   ```
+   STRIPE_SECRET_KEY=sk_live_...
+   STRIPE_PUBLISHABLE_KEY=pk_live_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+
+### Twilio (SMS)
+
+1. Create Twilio account
+2. Get phone number and credentials
+3. Update environment variables:
+   ```
+   TWILIO_ACCOUNT_SID=your_account_sid
+   TWILIO_AUTH_TOKEN=your_auth_token
+   TWILIO_PHONE_NUMBER=your_phone_number
+   ```
+
+## 🔧 Management Commands
+
+### View Logs
+```bash
+./deploy-kisaanmela.sh logs
+```
+
+### Restart Services
+```bash
+./deploy-kisaanmela.sh restart
+```
+
+### Stop Services
+```bash
+./deploy-kisaanmela.sh stop
+```
+
+### Update Application
+```bash
+git pull origin main
+./deploy-kisaanmela.sh
+```
+
+## 📊 Monitoring & Health Checks
+
+### Health Endpoints
+
+- **Backend**: `https://api.kisaanmela.com/api/health`
+- **Frontend**: `https://kisaanmela.com`
+
+### Container Status
+```bash
+docker-compose -f docker-compose.prod.yml ps
+```
+
+### View Container Logs
+```bash
+docker-compose -f docker-compose.prod.yml logs -f [service_name]
+```
+
+### Resource Usage
+```bash
+docker stats
+```
+
+## 🔒 Security Features
+
+### Built-in Security
+- SSL/TLS encryption
+- Rate limiting (API: 10 req/s, Login: 1 req/s)
+- CORS protection
+- Security headers (XSS, CSRF, etc.)
+- Input validation and sanitization
+- JWT authentication with refresh tokens
+
+### Firewall Configuration
+```bash
+# Allow only necessary ports
+sudo ufw allow 22    # SSH
+sudo ufw allow 80    # HTTP
+sudo ufw allow 443   # HTTPS
+sudo ufw enable
+```
+
+## 🚀 Performance Optimization
+
+### Nginx Optimizations
+- Gzip compression enabled
+- Static file caching
+- Connection keep-alive
+- Worker process optimization
+
+### Database Optimizations
+- Proper indexing for all collections
+- Connection pooling
+- Query optimization
+
+### Application Optimizations
+- Redis caching for sessions
+- Image compression and optimization
+- CDN-ready static assets
+
+## 📱 Mobile App Deployment
+
+### Build Mobile App
 ```bash
 cd mobile
-npm run build:ios     # iOS build
-npm run build:android # Android build
+npm install
+npx expo build:android
+npx expo build:ios
 ```
 
-### **App Store Submission**
+### Update API URLs
+Ensure mobile app points to production API:
+```javascript
+// mobile/src/config/api.js
+export const API_BASE_URL = 'https://api.kisaanmela.com/api';
+```
 
-#### **🍎 iOS App Store**
-1. **Apple Developer Account** ($99/year)
-2. **Build Process**: Expo EAS Build
-3. **Submission**: App Store Connect
-4. **Review Time**: 1-7 days
-5. **Requirements**: Privacy policy, app description, screenshots
+## 🔄 Backup & Recovery
 
-#### **🤖 Google Play Store**
-1. **Google Play Developer Account** ($25 one-time)
-2. **Build Process**: Expo EAS Build
-3. **Submission**: Google Play Console
-4. **Review Time**: Few hours to 3 days
-5. **Requirements**: Privacy policy, app description, screenshots
-
----
-
-## 🔧 **Platform Features**
-
-### **✅ Complete Marketplace**
-- **Pet Services**: Sitting, walking, grooming, training, vet care
-- **Pet Products**: Food, toys, accessories, health products
-- **Live Animals**: Puppies, kittens, birds, fish, reptiles
-- **Service Booking**: Real-time scheduling and payments
-- **Marketplace**: Buy/sell pet-related items
-
-### **✅ User Management**
-- **Multi-Role System**: Buyers, sellers, service providers
-- **Authentication**: Phone/email + OTP verification
-- **Profiles**: Detailed user and pet profiles
-- **KYC Verification**: Identity verification for sellers
-- **Reviews & Ratings**: Trust and reputation system
-
-### **✅ Business Features**
-- **Payment Processing**: Stripe integration with escrow
-- **Real-time Chat**: In-app messaging system
-- **Geolocation**: Location-based service discovery
-- **Push Notifications**: Order updates and reminders
-- **Admin Dashboard**: Platform management tools
-
-### **✅ Technical Features**
-- **Responsive Design**: Works on all devices
-- **Offline Support**: Core functionality works offline
-- **Real-time Updates**: Live order and chat updates
-- **Security**: JWT authentication, data encryption
-- **Performance**: Optimized for speed and scalability
-
----
-
-## 💰 **Cost Estimation**
-
-### **Development (Free)**
-- Local development: $0
-- MongoDB Atlas M0: $0
-- Vercel hobby plan: $0
-- AWS free tier: $0
-- **Total: $0/month**
-
-### **Small Production App (< 1000 users)**
-- VPS (DigitalOcean): $5/month
-- MongoDB Atlas M10: $57/month
-- AWS S3: $5/month
-- Domain: $12/year
-- SSL Certificate: Free (Let's Encrypt)
-- **Total: ~$67/month**
-
-### **Growing App (1000-10000 users)**
-- VPS (DigitalOcean): $20/month
-- MongoDB Atlas M20: $116/month
-- AWS S3 + CloudFront: $20/month
-- Stripe fees: 2.9% of revenue
-- **Total: ~$156/month + transaction fees**
-
-### **Enterprise App (10000+ users)**
-- Multiple VPS instances: $100+/month
-- MongoDB Atlas M30+: $200+/month
-- AWS services: $50+/month
-- CDN and monitoring: $50+/month
-- **Total: $400+/month + transaction fees**
-
----
-
-## 🔒 **Security Features**
-
-### **Built-in Security**
-- ✅ JWT authentication with refresh tokens
-- ✅ Password hashing with bcrypt
-- ✅ Rate limiting and DDoS protection
-- ✅ Input validation and sanitization
-- ✅ CORS configuration
-- ✅ Security headers (HSTS, CSP, etc.)
-- ✅ SSL/TLS encryption
-
-### **Additional Security (Recommended)**
-- **Cloudflare**: DDoS protection and CDN
-- **Auth0**: Enterprise authentication
-- **Vault**: Secret management
-- **Regular security audits**
-
----
-
-## 📊 **Monitoring & Analytics**
-
-### **Built-in Monitoring**
-- API health checks
-- Database connection monitoring
-- Error logging and tracking
-- Performance metrics
-
-### **External Monitoring (Optional)**
-- **Sentry**: Error tracking and performance
-- **LogRocket**: User session recording
-- **Google Analytics**: Website analytics
-- **Mixpanel**: User behavior analytics
-
----
-
-## 🆘 **Troubleshooting**
-
-### **Common Issues**
-
-#### **Build Errors**
+### Database Backup
 ```bash
-# Clear caches and rebuild
-npm run clean
-npm run install:all
-npm run build
+# Create backup
+docker exec kisaanmela-mongodb mongodump --db kisaanmela_prod --out /backup
+
+# Restore backup
+docker exec kisaanmela-mongodb mongorestore --db kisaanmela_prod /backup/kisaanmela_prod
 ```
 
-#### **Database Connection Issues**
-- Check MongoDB Atlas IP whitelist
-- Verify connection string format
-- Test network connectivity
+### File Backup
+```bash
+# Backup uploads
+tar -czf uploads-backup-$(date +%Y%m%d).tar.gz uploads/
 
-#### **Deployment Failures**
-- Check environment variables
-- Verify service configurations
-- Review deployment logs
+# Backup SSL certificates
+tar -czf ssl-backup-$(date +%Y%m%d).tar.gz ssl/
+```
 
-### **Getting Help**
-1. Check the comprehensive documentation
-2. Review error logs and health checks
-3. Test individual services
-4. Check configuration files
-5. Consult setup guides in `docs/` folder
+## 🐛 Troubleshooting
 
----
+### Common Issues
 
-## 🎯 **Launch Checklist**
+**1. SSL Certificate Issues**
+```bash
+# Check certificate validity
+openssl x509 -in ssl/kisaanmela.com.crt -text -noout
 
-### **Pre-Launch**
-- [ ] ✅ All services configured and tested
-- [ ] ✅ Domain and SSL certificates set up
-- [ ] ✅ Payment processing tested
-- [ ] ✅ Email notifications working
-- [ ] ✅ Mobile apps built and tested
-- [ ] ✅ Admin accounts created
-- [ ] ✅ Content and policies uploaded
-- [ ] ✅ Monitoring and alerts configured
+# Renew Let's Encrypt certificate
+sudo certbot renew
+```
 
-### **Launch Day**
-- [ ] ✅ Deploy to production
-- [ ] ✅ Test critical user flows
-- [ ] ✅ Monitor system performance
-- [ ] ✅ Check error rates
-- [ ] ✅ Verify SSL certificates
-- [ ] ✅ Test mobile apps
-- [ ] ✅ Monitor user registrations
-- [ ] ✅ Check payment processing
+**2. Database Connection Issues**
+```bash
+# Check MongoDB logs
+docker logs kisaanmela-mongodb
 
-### **Post-Launch**
-- [ ] ✅ Monitor system health
-- [ ] ✅ Collect user feedback
-- [ ] ✅ Track key metrics
-- [ ] ✅ Plan feature updates
-- [ ] ✅ Scale infrastructure as needed
-- [ ] ✅ Submit mobile apps to stores
-- [ ] ✅ Launch marketing campaigns
+# Test connection
+docker exec kisaanmela-mongodb mongo kisaanmela_prod --eval "db.stats()"
+```
 
----
+**3. Application Not Starting**
+```bash
+# Check all container logs
+docker-compose -f docker-compose.prod.yml logs
 
-## 🎊 **Congratulations!**
+# Restart specific service
+docker-compose -f docker-compose.prod.yml restart backend
+```
 
-Your Animall pet services marketplace is now ready to connect pet owners with trusted caregivers worldwide!
+**4. High Memory Usage**
+```bash
+# Check container resource usage
+docker stats
 
-### **What You've Built:**
-- 🐾 **Complete Pet Services Platform**
-- 📱 **Mobile Apps** (iOS & Android)
-- 🌐 **Responsive Web Application**
-- 💳 **Payment Processing System**
-- 💬 **Real-time Chat System**
-- 🛒 **Marketplace for Pet Products**
-- 👥 **Multi-role User Management**
-- 🔒 **Enterprise-grade Security**
-- 📊 **Admin Dashboard**
-- 🚀 **Production-ready Infrastructure**
+# Restart containers to free memory
+docker-compose -f docker-compose.prod.yml restart
+```
 
-### **Ready for:**
-- 🌍 **Global Scale** - Supports millions of users
-- 💰 **Revenue Generation** - Built-in payment processing
-- 📈 **Growth** - Scalable architecture
-- 🛡️ **Enterprise Use** - Security and compliance ready
-- 🎯 **Market Launch** - Complete feature set
+### Log Locations
+- **Nginx**: `logs/nginx/`
+- **Application**: `logs/app.log`
+- **Docker**: `docker-compose logs`
 
-**Welcome to the pet services industry! Your platform is ready to make a difference in the lives of pets and their owners.** 🐾
+## 📞 Support
 
----
+### Getting Help
+1. Check this documentation
+2. Review application logs
+3. Check Docker container status
+4. Verify environment configuration
 
-*For additional support and updates, check the documentation in the `docs/` folder or visit our community resources.*
+### Maintenance Mode
+To enable maintenance mode:
+```bash
+# Update database settings
+docker exec kisaanmela-mongodb mongo kisaanmela_prod --eval "db.settings.updateOne({}, {\$set: {maintenance: true}})"
+```
+
+## 🎉 Success!
+
+Your Kisaan Mela platform is now running in production!
+
+- **Website**: https://kisaanmela.com
+- **API**: https://api.kisaanmela.com
+- **Admin Panel**: https://kisaanmela.com/admin
+- **Default Admin**: admin@kisaanmela.com
+
+Remember to:
+1. Change default admin password
+2. Configure monitoring and alerts
+3. Set up regular backups
+4. Monitor application performance
+5. Keep dependencies updated
+
+Happy farming! 🌾🐄

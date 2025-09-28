@@ -1,7 +1,7 @@
 const { NextApiRequest, NextApiResponse } = require('next');
-const { Lead, Listing, User } = require('../../../models');
-const { protect } = require('../../../middleware/auth');
-const connectDB = require('../../../lib/mongodb');
+const { Lead, Listing, User } = require('../../../../models');
+const { protect } = require('../../../../middleware/auth');
+const connectDB = require('../../../../lib/mongodb');
 
 // Connect to database
 connectDB();

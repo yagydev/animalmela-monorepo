@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Booking, User, Listing, Pet } from '../../../models';
+const { Order, User, Listing } = require('../../../models');
 import { protect, authorize } from '../../../middleware/auth';
 import { connectDB } from '../../../lib/database';
 import Razorpay from 'razorpay';
@@ -80,7 +80,7 @@ async function getBookings(req: NextApiRequest, res: NextApiResponse) {
 
     const skip = (Number(page) - 1) * Number(limit);
 
-    const bookings = await Booking.find(query)
+    const bookings = await Order.find(query)
       .populate('buyer_id', 'name email phone avatar_url')
       .populate('seller_id', 'name email phone avatar_url business_info')
       .populate('listing_id', 'title price images')
@@ -89,7 +89,7 @@ async function getBookings(req: NextApiRequest, res: NextApiResponse) {
       .skip(skip)
       .limit(Number(limit));
 
-    const total = await Booking.countDocuments(query);
+    const total = await Order.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -126,7 +126,7 @@ async function getBooking(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    const booking = await Booking.findById(bookingId)
+    const booking = await Order.findById(bookingId)
       .populate('buyer_id', 'name email phone avatar_url location')
       .populate('seller_id', 'name email phone avatar_url business_info location')
       .populate('listing_id', 'title price images description')
@@ -204,7 +204,7 @@ async function createBooking(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Verify pet exists
-    const pet = await Pet.findById(pet_id);
+    const pet = await Listing.findById(pet_id);
     if (!pet) {
       return res.status(404).json({
         success: false,
@@ -213,7 +213,7 @@ async function createBooking(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const bookingData = {
-      buyer_id: req.user.id,
+      buyer_id: (req as any).user.id,
       seller_id,
       listing_id,
       pet_id,
@@ -229,10 +229,10 @@ async function createBooking(req: NextApiRequest, res: NextApiResponse) {
       payment_status: 'pending'
     };
 
-    const booking = await Booking.create(bookingData);
+    const booking = await Order.create(bookingData);
 
     // Populate the booking with related data
-    const populatedBooking = await Booking.findById(booking._id)
+    const populatedBooking = await Order.findById(booking._id)
       .populate('buyer_id', 'name email phone avatar_url')
       .populate('seller_id', 'name email phone avatar_url business_info')
       .populate('listing_id', 'title price images')
@@ -265,7 +265,7 @@ async function createPaymentOrder(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    const booking = await Booking.findById(booking_id);
+    const booking = await Order.findById(booking_id);
     if (!booking) {
       return res.status(404).json({
         success: false,
@@ -323,7 +323,7 @@ async function verifyPayment(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    const booking = await Booking.findById(booking_id);
+    const booking = await Order.findById(booking_id);
     if (!booking) {
       return res.status(404).json({
         success: false,
@@ -398,7 +398,7 @@ async function processAdvancePayment(req: NextApiRequest, res: NextApiResponse) 
       razorpay_signature
     } = req.body;
 
-    const booking = await Booking.findById(booking_id);
+    const booking = await Order.findById(booking_id);
     if (!booking) {
       return res.status(404).json({
         success: false,
@@ -484,7 +484,7 @@ async function updateBooking(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Order.findById(bookingId);
     if (!booking) {
       return res.status(404).json({
         success: false,
@@ -509,7 +509,7 @@ async function updateBooking(req: NextApiRequest, res: NextApiResponse) {
         return obj;
       }, {});
 
-    const updatedBooking = await Booking.findByIdAndUpdate(
+    const updatedBooking = await Order.findByIdAndUpdate(
       bookingId,
       filteredUpdates,
       { new: true, runValidators: true }
@@ -555,7 +555,7 @@ async function cancelBooking(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Order.findById(bookingId);
     if (!booking) {
       return res.status(404).json({
         success: false,
