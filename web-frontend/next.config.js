@@ -33,12 +33,8 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production' 
-          ? 'https://api.kisaanmela.com/api/:path*'
-          : 'http://localhost:5000/api/:path*',
-      },
+      // In production, use the frontend's API routes as proxies
+      // The frontend API routes will proxy to the backend
     ];
   },
   async headers() {
