@@ -1,0 +1,371 @@
+{
+  "info": {
+    "name": "Farmers Market API Tests",
+    "description": "Complete API testing collection for Farmers Market application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "farmerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Seed Data",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/seed",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "seed"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Farmers",
+      "item": [
+        {
+          "name": "Create Farmer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"mobile\": \"9876543210\",\n  \"location\": {\n    \"state\": \"Punjab\",\n    \"district\": \"Ludhiana\",\n    \"pincode\": \"141001\",\n    \"village\": \"Village A\"\n  },\n  \"products\": [\"wheat\", \"corn\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/farmers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "farmers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Farmers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/farmers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "farmers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Farmer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/farmers/{{farmerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "farmers", "{{farmerId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Fresh Organic Wheat\",\n  \"description\": \"Premium quality organic wheat grown without pesticides\",\n  \"price\": 2500,\n  \"unit\": \"quintal\",\n  \"quantity\": 10,\n  \"category\": \"crops\",\n  \"images\": [\"https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=200&fit=crop\"],\n  \"sellerId\": \"{{farmerId}}\",\n  \"location\": {\n    \"state\": \"Punjab\",\n    \"district\": \"Ludhiana\"\n  },\n  \"rating\": 4.5,\n  \"totalRatings\": 23,\n  \"negotiable\": true,\n  \"minimumOrder\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?category=crops",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "crops"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products by Price Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?minPrice=1000&maxPrice=3000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "1000"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "3000"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Products Sorted by Price",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?sortBy=price_low",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "price_low"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{{productId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{farmerId}}\",\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/{{farmerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "{{farmerId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"buyerId\": \"{{farmerId}}\",\n  \"sellerId\": \"{{farmerId}}\",\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2,\n      \"unitPrice\": 2500,\n      \"totalPrice\": 5000\n    }\n  ],\n  \"totalAmount\": 5000,\n  \"shippingAddress\": {\n    \"name\": \"John Doe\",\n    \"address\": \"123 Main Street\",\n    \"city\": \"Ludhiana\",\n    \"state\": \"Punjab\",\n    \"pincode\": \"141001\",\n    \"mobile\": \"9876543210\"\n  },\n  \"paymentMethod\": \"cod\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Orders for User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{farmerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{{farmerId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Testing",
+      "item": [
+        {
+          "name": "Invalid Farmer Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/farmers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "farmers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Product Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Product\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "404 Route",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/non-existent-route",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "non-existent-route"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

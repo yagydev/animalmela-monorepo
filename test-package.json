@@ -1,0 +1,33 @@
+{
+  "name": "farmers-market-api-test",
+  "version": "1.0.0",
+  "description": "API testing suite for Farmers Market application",
+  "main": "api-test-server.js",
+  "scripts": {
+    "test": "mocha test/api-test.js --timeout 10000",
+    "test:watch": "mocha test/api-test.js --watch --timeout 10000",
+    "start:api": "node api-test-server.js",
+    "test:coverage": "nyc mocha test/api-test.js --timeout 10000"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "cors": "^2.8.5",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "supertest": "^6.3.3",
+    "nyc": "^15.1.0"
+  },
+  "keywords": [
+    "api",
+    "testing",
+    "mongodb",
+    "express",
+    "farmers-market"
+  ],
+  "author": "Farmers Market Team",
+  "license": "MIT"
+}

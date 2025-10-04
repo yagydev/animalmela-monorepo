@@ -55,6 +55,30 @@ const nextConfig = {
           ? 'https://api.kisaanmela.com/api/services/:path*'
           : 'http://localhost:5001/api/services/:path*',
       },
+      {
+        source: '/api/login',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/login'
+          : 'http://localhost:5001/api/login',
+      },
+      {
+        source: '/api/register',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/register'
+          : 'http://localhost:5001/api/register',
+      },
+      {
+        source: '/api/logout',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/logout'
+          : 'http://localhost:5001/api/logout',
+      },
+      {
+        source: '/api/me',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/me'
+          : 'http://localhost:5001/api/me',
+      },
     ];
   },
   async headers() {
