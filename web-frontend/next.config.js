@@ -28,13 +28,33 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'localhost',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
   },
   async rewrites() {
     return [
-      // In production, use the frontend's API routes as proxies
-      // The frontend API routes will proxy to the backend
+      {
+        source: '/api/auth/:path*',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/auth/:path*'
+          : 'http://localhost:5001/api/auth/:path*',
+      },
+      {
+        source: '/api/users/:path*',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/users/:path*'
+          : 'http://localhost:5001/api/users/:path*',
+      },
+      {
+        source: '/api/services/:path*',
+        destination: process.env.NODE_ENV === 'production'
+          ? 'https://api.kisaanmela.com/api/services/:path*'
+          : 'http://localhost:5001/api/services/:path*',
+      },
     ];
   },
   async headers() {

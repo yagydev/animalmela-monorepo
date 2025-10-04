@@ -1,50 +1,35 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
+// User Schema - Enhanced for farmer-buyer marketplace
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Name is required'],
-    trim: true,
-    minlength: [2, 'Name must be at least 2 characters long'],
-    maxlength: [50, 'Name cannot exceed 50 characters']
-  },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
-  },
-  password: {
-    type: String,
-    required: false, // Make password optional
-    minlength: [6, 'Password must be at least 6 characters long'],
-    select: false // Don't include password in queries by default
-  },
-  avatar: {
-    type: String,
-    default: null
-  },
   role: {
     type: String,
-    enum: ['buyer', 'seller', 'service', 'admin'],
+    enum: ['farmer', 'buyer', 'seller', 'service', 'admin'],
+    required: true,
     default: 'buyer'
   },
-  isVerified: {
-    type: Boolean,
-    default: false
-  },
-  lastLogin: {
-    type: Date,
-    default: null
+  name: {
+    type: String,
+    required: true,
+    trim: true
   },
   mobile: {
     type: String,
     required: true,
     unique: true,
     trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: false // Optional if OTP only
   },
   kyc: {
     aadhaar: {
@@ -66,6 +51,10 @@ const userSchema = new mongoose.Schema({
     min: 0,
     max: 5
   },
+  totalRatings: {
+    type: Number,
+    default: 0
+  },
   location: {
     state: {
       type: String,
@@ -75,89 +64,82 @@ const userSchema = new mongoose.Schema({
       type: String,
       trim: true
     },
+    village: {
+      type: String,
+      trim: true
+    },
     pincode: {
       type: String,
       trim: true
     },
-    lat: {
-      type: Number
-    },
-    lng: {
-      type: Number
+    coordinates: {
+      lat: Number,
+      lng: Number
     }
   },
-  languages: [{
+  farmAddress: {
     type: String,
     trim: true
-  }],
-  settings: {
-    notifications: {
-      email: { type: Boolean, default: true },
-      sms: { type: Boolean, default: false },
-      push: { type: Boolean, default: true },
-      marketing: { type: Boolean, default: false }
+  },
+  farmDetails: {
+    size: {
+      type: Number,
+      min: 0
     },
-    privacy: {
-      profileVisibility: { 
-        type: String, 
-        enum: ['public', 'private', 'friends'], 
-        default: 'public' 
-      },
-      showEmail: { type: Boolean, default: false },
-      showPhone: { type: Boolean, default: false }
+    unit: {
+      type: String,
+      enum: ['acres', 'hectares', 'sqft']
     },
-    security: {
-      twoFactorEnabled: { type: Boolean, default: false },
-      loginAlerts: { type: Boolean, default: true }
-    }
+    crops: [String],
+    livestock: [String]
+  },
+  paymentPreferences: {
+    type: [String],
+    enum: ['upi', 'bank_transfer', 'cash', 'wallet'],
+    default: ['upi', 'cash']
+  },
+  profileComplete: {
+    type: Boolean,
+    default: false
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  lastLogin: {
+    type: Date
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
-}, {
-  timestamps: true
 });
-
-// Index for better query performance
-userSchema.index({ email: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) return next();
   
-  try {
-    // Hash password with cost of 12
-    const salt = await bcrypt.genSalt(12);
+  if (this.password) {
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Ensure email is lowercase before saving
-userSchema.pre('save', function(next) {
-  if (this.email) {
-    this.email = this.email.toLowerCase();
   }
   next();
 });
 
-// Instance method to check password
+// Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Instance method to get public profile (without sensitive data)
-userSchema.methods.getPublicProfile = function() {
-  const userObject = this.toObject();
-  delete userObject.password;
-  return userObject;
-};
+// Update timestamp on save
+userSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
-// Static method to find user by email
-userSchema.statics.findByEmail = function(email) {
-  return this.findOne({ email: email.toLowerCase() });
-};
-
-const User = mongoose.models.User || mongoose.model('User', userSchema);
-
-export default User;
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);

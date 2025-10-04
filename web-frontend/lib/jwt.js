@@ -1,60 +1,35 @@
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
 
-/**
- * Generate JWT token
- * @param {Object} payload - The payload to encode
- * @param {string} expiresIn - Token expiration time
- * @returns {string} JWT token
- */
-export function generateToken(payload, expiresIn = JWT_EXPIRES_IN) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn });
-}
+// Generate JWT token
+const generateToken = (payload) => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
+  });
+};
 
-/**
- * Verify JWT token
- * @param {string} token - The token to verify
- * @returns {Object} Decoded token payload
- */
-export function verifyToken(token) {
+// Verify JWT token
+const verifyToken = (token) => {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    throw new Error('Invalid or expired token');
+    throw new Error('Invalid token');
   }
-}
+};
 
-/**
- * Extract token from Authorization header
- * @param {string} authHeader - Authorization header value
- * @returns {string|null} Extracted token or null
- */
-export function extractTokenFromHeader(authHeader) {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null;
+// Extract token from request headers
+const extractToken = (req) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
   }
-  return authHeader.substring(7);
-}
+  return null;
+};
 
-/**
- * Create response with token
- * @param {Object} user - User object
- * @param {number} statusCode - HTTP status code
- * @returns {Object} Response object with token
- */
-export function createTokenResponse(user, statusCode = 200) {
-  const token = generateToken({ 
-    userId: user._id, 
-    email: user.email,
-    role: user.role 
-  });
-
-  return {
-    success: true,
-    message: statusCode === 201 ? 'User created successfully' : 'Login successful',
-    token,
-    user: user.getPublicProfile()
-  };
-}
+module.exports = {
+  generateToken,
+  verifyToken,
+  extractToken
+};

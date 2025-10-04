@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '../../../../lib/database';
+import User from '../../../../models/User';
+import { generateToken } from '../../../../lib/jwt';
 
-// Temporary standalone login API for kisaanmela.com
-// This provides basic authentication until full backend is deployed
-
+// MongoDB-connected login API for kisaanmela.com
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
@@ -24,16 +25,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Demo authentication - In production, this would connect to your database
-    const demoUsers = [
-      { email: 'admin@kisaanmela.com', password: 'admin123', role: 'admin', name: 'Admin User' },
-      { email: 'farmer@kisaanmela.com', password: 'farmer123', role: 'farmer', name: 'Demo Farmer' },
-      { email: 'buyer@kisaanmela.com', password: 'buyer123', role: 'buyer', name: 'Demo Buyer' },
-      { email: 'demo@kisaanmela.com', password: 'demo123', role: 'farmer', name: 'Demo User' }
-    ];
+    // Connect to MongoDB
+    await connectDB();
 
-    // Check if user exists and password matches
-    const user = demoUsers.find(u => u.email === email && u.password === password);
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
     
     if (!user) {
       return NextResponse.json({
@@ -42,14 +38,46 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Create a simple JWT-like token (in production, use proper JWT)
-    const token = Buffer.from(JSON.stringify({
-      id: user.email,
+    // Check if user is active
+    if (!user.isActive) {
+      return NextResponse.json({
+        success: false,
+        message: 'Account is deactivated. Please contact support.'
+      }, { status: 401 });
+    }
+
+    // Check if user has a password (some users might be OTP-only)
+    if (!user.password) {
+      return NextResponse.json({
+        success: false,
+        message: 'Please use OTP login for this account'
+      }, { status: 401 });
+    }
+
+    // Verify password
+    const isPasswordValid = await user.comparePassword(password);
+    
+    if (!isPasswordValid) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid email or password'
+      }, { status: 401 });
+    }
+
+    // Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    // Generate JWT token
+    const tokenPayload = {
+      id: user._id,
       email: user.email,
       name: user.name,
       role: user.role,
-      exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-    })).toString('base64');
+      mobile: user.mobile
+    };
+
+    const token = generateToken(tokenPayload);
 
     // Successful login
     return NextResponse.json({
@@ -57,10 +85,15 @@ export async function POST(request: NextRequest) {
       message: 'Login successful',
       data: {
         user: {
-          id: user.email,
+          id: user._id,
           email: user.email,
           name: user.name,
-          role: user.role
+          role: user.role,
+          mobile: user.mobile,
+          profileComplete: user.profileComplete,
+          location: user.location,
+          rating: user.rating,
+          totalRatings: user.totalRatings
         },
         token: token
       }

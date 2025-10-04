@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
+import { cachedFetch } from '../../lib/apiCache';
 
 interface User {
   _id: string;
@@ -55,20 +56,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (token) {
         const decoded = jwtDecode(token) as any;
         if (decoded.exp * 1000 > Date.now()) {
-          // Token is valid, fetch user data
-          const response = await fetch('/api/me', {
+          // Token is valid, fetch user data with caching
+          const data = await cachedFetch('/api/me', {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
-          });
+          }, 30000); // Cache for 30 seconds
           
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-              setUser(data.user);
-            } else {
-              localStorage.removeItem('token');
-            }
+          if (data.success) {
+            setUser(data.data.user);
           } else {
             localStorage.removeItem('token');
           }
@@ -100,8 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.message || 'Login failed');
       }
 
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
+      localStorage.setItem('token', data.data.token);
+      setUser(data.data.user);
     } catch (error) {
       throw error;
     }
@@ -129,8 +125,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.message || 'Registration failed');
       }
 
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
+      localStorage.setItem('token', data.data.token);
+      setUser(data.data.user);
     } catch (error) {
       throw error;
     }
@@ -221,8 +217,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.error || 'Invalid OTP');
       }
 
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
+      localStorage.setItem('token', data.data.token);
+      setUser(data.data.user);
     } catch (error) {
       throw error;
     }
