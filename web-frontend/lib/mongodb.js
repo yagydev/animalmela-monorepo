@@ -1,45 +1,115 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
-const MONGODB_URI = process.env.MONGODB_URI;
+// MongoDB connection configuration
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/kisaanmela';
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+// Connection options (modern Mongoose 6+ doesn't need deprecated options)
+const connectionOptions = {
+  // These are automatically handled in Mongoose 6+
+  // useNewUrlParser: true,    // Deprecated - handled automatically
+  // useUnifiedTopology: true, // Deprecated - handled automatically
+};
+
+// Connection state tracking
+let isConnected = false;
+
+/**
+ * Connect to MongoDB using modern Mongoose practices
+ * @returns {Promise<void>}
+ */
+async function connectDB() {
+  try {
+    // Prevent multiple connections
+    if (isConnected) {
+      console.log('✅ MongoDB already connected');
+      return;
+    }
+
+    console.log('🔄 Connecting to MongoDB...');
+    
+    // Connect using modern Mongoose 6+ syntax
+    await mongoose.connect(MONGODB_URI, connectionOptions);
+    
+    isConnected = true;
+    console.log('✅ MongoDB connected successfully!');
+    console.log(`📊 Database: ${mongoose.connection.db.databaseName}`);
+    console.log(`🌐 Host: ${mongoose.connection.host}:${mongoose.connection.port}`);
+    
+    // Set max listeners to prevent memory leak warnings
+    mongoose.connection.setMaxListeners(20);
+    
+    // Handle connection events
+    mongoose.connection.on('error', (err) => {
+      console.error('❌ MongoDB connection error:', err);
+      isConnected = false;
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log('⚠️  MongoDB disconnected');
+      isConnected = false;
+    });
+
+    mongoose.connection.on('reconnected', () => {
+      console.log('🔄 MongoDB reconnected');
+      isConnected = true;
+    });
+
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error);
+    isConnected = false;
+    process.exit(1);
+  }
 }
 
 /**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
+ * Disconnect from MongoDB
+ * @returns {Promise<void>}
  */
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function connectDB() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
-  }
-
+async function disconnectDB() {
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
+    if (isConnected) {
+      await mongoose.connection.close();
+      isConnected = false;
+      console.log('✅ MongoDB disconnected successfully');
+    }
+  } catch (error) {
+    console.error('❌ Error disconnecting from MongoDB:', error);
   }
-
-  return cached.conn;
 }
 
-export default connectDB;
+/**
+ * Check if MongoDB is connected
+ * @returns {boolean}
+ */
+function isDBConnected() {
+  return isConnected && mongoose.connection.readyState === 1;
+}
+
+/**
+ * Get connection status
+ * @returns {object}
+ */
+function getConnectionStatus() {
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  
+  return {
+    isConnected: isDBConnected(),
+    state: states[mongoose.connection.readyState],
+    host: mongoose.connection.host,
+    port: mongoose.connection.port,
+    database: mongoose.connection.db?.databaseName
+  };
+}
+
+module.exports = {
+  connectDB,
+  disconnectDB,
+  isDBConnected,
+  getConnectionStatus,
+  mongoose
+};

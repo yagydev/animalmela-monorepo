@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { connectDB } from '../../../../lib/database';
+import User from '../../../../models/User';
+import { generateToken } from '../../../../lib/jwt';
 
-// Temporary standalone register API for kisaanmela.com
+// MongoDB-connected registration API for kisaanmela.com
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password, phone, role } = await request.json();
+    const { name, email, mobile, password, role = 'buyer' } = await request.json();
 
     // Validate required fields
-    if (!name || !email || !password) {
+    if (!name || !email || !mobile) {
       return NextResponse.json({
         success: false,
-        message: 'Name, email, and password are required'
+        message: 'Name, email, and mobile are required'
       }, { status: 400 });
     }
 
@@ -22,51 +25,86 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validate password strength
-    if (password.length < 6) {
+    // Validate mobile format (Indian mobile numbers)
+    const mobileRegex = /^[6-9]\d{9}$/;
+    if (!mobileRegex.test(mobile)) {
       return NextResponse.json({
         success: false,
-        message: 'Password must be at least 6 characters long'
+        message: 'Please enter a valid 10-digit mobile number'
       }, { status: 400 });
     }
 
-    // In a real app, you would:
-    // 1. Check if email already exists
-    // 2. Hash the password
-    // 3. Save to database
-    // 4. Send verification email
+    // Validate role
+    const validRoles = ['farmer', 'buyer', 'seller', 'service', 'admin'];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid role specified'
+      }, { status: 400 });
+    }
 
-    // For demo purposes, simulate successful registration
-    const newUser = {
-      id: Date.now().toString(),
-      name,
-      email,
-      phone: phone || '',
-      role: role || 'farmer',
-      verified: false,
-      createdAt: new Date().toISOString()
+    // Connect to MongoDB
+    await connectDB();
+
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { mobile: mobile }
+      ]
+    });
+
+    if (existingUser) {
+      if (existingUser.email === email.toLowerCase()) {
+        return NextResponse.json({
+          success: false,
+          message: 'User with this email already exists'
+        }, { status: 409 });
+      } else {
+        return NextResponse.json({
+          success: false,
+          message: 'User with this mobile number already exists'
+        }, { status: 409 });
+      }
+    }
+
+    // Create new user
+    const userData = {
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      mobile: mobile.trim(),
+      role: role,
+      password: password || undefined, // Optional password for OTP-only users
+      profileComplete: false,
+      isActive: true
     };
 
-    // Create a simple token
-    const token = Buffer.from(JSON.stringify({
-      id: newUser.id,
-      email: newUser.email,
-      name: newUser.name,
-      role: newUser.role,
-      exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-    })).toString('base64');
+    const user = new User(userData);
+    await user.save();
 
+    // Generate JWT token
+    const tokenPayload = {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      mobile: user.mobile
+    };
+
+    const token = generateToken(tokenPayload);
+
+    // Successful registration
     return NextResponse.json({
       success: true,
-      message: 'Registration successful! Welcome to Kisaan Mela.',
+      message: 'Registration successful',
       data: {
         user: {
-          id: newUser.id,
-          name: newUser.name,
-          email: newUser.email,
-          phone: newUser.phone,
-          role: newUser.role,
-          verified: newUser.verified
+          id: user._id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          mobile: user.mobile,
+          profileComplete: user.profileComplete
         },
         token: token
       }
@@ -74,6 +112,25 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Registration error:', error);
+
+    // Handle MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return NextResponse.json({
+        success: false,
+        message: 'Validation error',
+        errors: errors
+      }, { status: 400 });
+    }
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return NextResponse.json({
+        success: false,
+        message: `User with this ${field} already exists`
+      }, { status: 409 });
+    }
 
     return NextResponse.json({
       success: false,
@@ -84,6 +141,6 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   return NextResponse.json({
-    message: 'Registration endpoint. Use POST method with user details.'
+    message: 'Registration endpoint. Use POST method with user data.'
   }, { status: 405 });
 }

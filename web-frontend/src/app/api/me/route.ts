@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+const { verifyToken } = require('../../../../lib/jwt');
 
 // Get current user profile
 export async function GET(request: NextRequest) {
@@ -17,17 +18,9 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7);
     
     try {
-      // Decode the simple token (in production, use proper JWT verification)
-      const userData = JSON.parse(Buffer.from(token, 'base64').toString());
+      // Verify JWT token
+      const userData = verifyToken(token);
       
-      // Check if token is expired
-      if (userData.exp && Date.now() > userData.exp) {
-        return NextResponse.json({
-          success: false,
-          message: 'Token expired'
-        }, { status: 401 });
-      }
-
       // Return user data
       return NextResponse.json({
         success: true,
@@ -36,7 +29,8 @@ export async function GET(request: NextRequest) {
             id: userData.id,
             email: userData.email,
             name: userData.name,
-            role: userData.role
+            role: userData.role,
+            mobile: userData.mobile
           }
         }
       });
@@ -44,7 +38,7 @@ export async function GET(request: NextRequest) {
     } catch (decodeError) {
       return NextResponse.json({
         success: false,
-        message: 'Invalid token'
+        message: 'Invalid or expired token'
       }, { status: 401 });
     }
 

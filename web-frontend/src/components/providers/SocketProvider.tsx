@@ -20,43 +20,48 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      // Initialize socket connection
-      const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
-        auth: {
-          token: localStorage.getItem('token'),
-        },
-        transports: ['websocket', 'polling'],
-      });
+    // Temporarily disable socket connection to prevent errors
+    // TODO: Enable when socket server is available
+    console.log('Socket connection disabled - no server running');
+    setIsConnected(false);
+    
+    // if (isAuthenticated && user) {
+    //   // Initialize socket connection
+    //   const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001', {
+    //     auth: {
+    //       token: localStorage.getItem('token'),
+    //     },
+    //     transports: ['websocket', 'polling'],
+    //   });
 
-      newSocket.on('connect', () => {
-        console.log('Socket connected');
-        setIsConnected(true);
-      });
+    //   newSocket.on('connect', () => {
+    //     console.log('Socket connected');
+    //     setIsConnected(true);
+    //   });
 
-      newSocket.on('disconnect', () => {
-        console.log('Socket disconnected');
-        setIsConnected(false);
-      });
+    //   newSocket.on('disconnect', () => {
+    //     console.log('Socket disconnected');
+    //     setIsConnected(false);
+    //   });
 
-      newSocket.on('connect_error', (error) => {
-        console.error('Socket connection error:', error);
-        setIsConnected(false);
-      });
+    //   newSocket.on('connect_error', (error) => {
+    //     console.error('Socket connection error:', error);
+    //     setIsConnected(false);
+    //   });
 
-      setSocket(newSocket);
+    //   setSocket(newSocket);
 
-      return () => {
-        newSocket.close();
-      };
-    } else {
-      // Clean up socket if user is not authenticated
-      if (socket) {
-        socket.close();
-        setSocket(null);
-        setIsConnected(false);
-      }
-    }
+    //   return () => {
+    //     newSocket.close();
+    //   };
+    // } else {
+    //   // Clean up socket if user is not authenticated
+    //   if (socket) {
+    //     socket.close();
+    //     setSocket(null);
+    //     setIsConnected(false);
+    //   }
+    // }
   }, [isAuthenticated, user]);
 
   const sendMessage = (conversationId: string, message: string) => {

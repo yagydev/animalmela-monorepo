@@ -12,7 +12,10 @@ import {
   UserCircleIcon,
   HeartIcon,
   ChatBubbleLeftRightIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ShoppingCartIcon,
+  ClipboardDocumentListIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
 import { 
   HeartIcon as HeartIconSolid,
@@ -42,6 +45,8 @@ export function Header() {
 
   const navigation = [
     { name: 'Home', href: '/' },
+    { name: 'Farmers Market', href: '/farmers-market' },
+    { name: 'Farmers Management', href: '/farmers-management' },
     { name: 'Services', href: '/services' },
     { name: 'Pets', href: '/pets' },
     { name: 'About', href: '/about' },
@@ -82,39 +87,8 @@ export function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <SunIcon className="h-5 w-5" />
-              ) : (
-                <MoonIcon className="h-5 w-5" />
-              )}
-            </button>
-
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                {/* Notifications */}
-                <Link
-                  href="/favorites"
-                  className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                  aria-label="Favorites"
-                >
-                  <HeartIcon className="h-5 w-5" />
-                </Link>
-
-                {/* Messages */}
-                <Link
-                  href="/messages"
-                  className="p-2 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                  aria-label="Messages"
-                >
-                  <ChatBubbleLeftRightIcon className="h-5 w-5" />
-                </Link>
-
                 {/* User Menu */}
                 <div className="relative" ref={userMenuRef}>
                   <button 
@@ -146,13 +120,50 @@ export function Header() {
                         Profile
                       </Link>
                       <Link
+                        href="/farmers-market?tab=cart"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        🛒 Shopping Cart
+                      </Link>
+                      <Link
+                        href="/farmers-market?tab=orders"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        📋 My Orders
+                      </Link>
+                      <Link
+                        href="/favorites"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        ❤️ Favorites
+                      </Link>
+                      <Link
+                        href="/messages"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        💬 Messages
+                      </Link>
+                      <hr className="my-1" />
+                      <button
+                        onClick={() => {
+                          toggleTheme();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        {theme === 'dark' ? '☀️ Light Theme' : '🌙 Dark Theme'}
+                      </button>
+                      <Link
                         href="/settings"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         Settings
                       </Link>
-                      <hr className="my-1" />
                       <button
                         onClick={() => {
                           handleLogout();
@@ -236,6 +247,22 @@ export function Header() {
                   </div>
                 </div>
                 <div className="mt-3 space-y-1">
+                  {/* Farmers Market Section */}
+                  <div className="px-3 py-2">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Farmers Market</h3>
+                  </div>
+                  <Link
+                    href="/farmers-management"
+                    className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    ⚙️ Farmers Management
+                  </Link>
+                  
+                  {/* Account Section */}
+                  <div className="px-3 py-2 mt-4">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account</h3>
+                  </div>
                   <Link
                     href="/profile"
                     className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
@@ -244,19 +271,42 @@ export function Header() {
                     Profile
                   </Link>
                   <Link
+                    href="/farmers-market?tab=cart"
+                    className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    🛒 Shopping Cart
+                  </Link>
+                  <Link
+                    href="/farmers-market?tab=orders"
+                    className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    📋 My Orders
+                  </Link>
+                  <Link
                     href="/favorites"
                     className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Favorites
+                    ❤️ Favorites
                   </Link>
                   <Link
                     href="/messages"
                     className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Messages
+                    💬 Messages
                   </Link>
+                  <button
+                    onClick={() => {
+                      toggleTheme();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="text-gray-600 hover:text-gray-900 block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  >
+                    {theme === 'dark' ? '☀️ Light Theme' : '🌙 Dark Theme'}
+                  </button>
                   <Link
                     href="/settings"
                     className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
