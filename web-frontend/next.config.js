@@ -79,6 +79,8 @@ const nextConfig = {
           ? 'https://api.kisaanmela.com/api/me'
           : 'http://localhost:5001/api/me',
       },
+      // Note: farmers-market routes are handled locally by Next.js API routes
+      // No rewrite needed for /api/farmers-market/* - they use local API routes
     ];
   },
   async headers() {
