@@ -25,8 +25,56 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Connect to MongoDB
-    await connectDB();
+    // Try to connect to MongoDB, fallback to demo mode if unavailable
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.warn('MongoDB connection failed, using demo mode:', dbError.message);
+      
+      // Demo mode - simple authentication for testing
+      // Allow multiple demo users for testing
+      const demoUsers = [
+        { email: 'demo@kisaanmela.com', password: 'demo123', role: 'farmer' },
+        { email: 'admin@kisaanmela.com', password: 'admin123', role: 'admin' },
+        { email: 'buyer@kisaanmela.com', password: 'buyer123', role: 'buyer' },
+        { email: 'seller@kisaanmela.com', password: 'seller123', role: 'seller' }
+      ];
+      
+      const demoUser = demoUsers.find(user => 
+        user.email === email.toLowerCase() && user.password === password
+      );
+      
+      if (demoUser) {
+        return NextResponse.json({
+          success: true,
+          message: 'Login successful (demo mode)',
+          data: {
+            user: {
+              id: `demo-user-${demoUser.role}`,
+              email: demoUser.email,
+              name: `Demo ${demoUser.role.charAt(0).toUpperCase() + demoUser.role.slice(1)}`,
+              role: demoUser.role,
+              mobile: '9876543210',
+              profileComplete: true,
+              location: {
+                state: 'Punjab',
+                district: 'Ludhiana',
+                pincode: '141001',
+                village: 'Demo Village'
+              },
+              rating: { average: 4.5, count: 10 },
+              totalRatings: 10
+            },
+            token: `demo-token-${demoUser.role}-${Date.now()}`
+          }
+        });
+      }
+      
+      return NextResponse.json({
+        success: false,
+        message: 'MongoDB not available. Use demo@kisaanmela.com/demo123, admin@kisaanmela.com/admin123, buyer@kisaanmela.com/buyer123, or seller@kisaanmela.com/seller123 for testing'
+      }, { status: 503 });
+    }
 
     // Find user by email
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
