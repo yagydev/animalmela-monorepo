@@ -64,7 +64,7 @@ export function StatsSection() {
         {/* Additional info */}
         <div className="mt-12 text-center">
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Join thousands of pet owners who trust AnimalMela for their pet care needs. 
+            Join thousands of pet owners who trust Kisaanmela for their pet care needs. 
             Our verified sitters have completed over 50,000 successful bookings with an average rating of 4.9/5 stars.
           </p>
         </div>

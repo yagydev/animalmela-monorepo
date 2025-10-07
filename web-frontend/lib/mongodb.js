@@ -57,7 +57,8 @@ async function connectDB() {
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error);
     isConnected = false;
-    process.exit(1);
+    // Don't exit process - let the API route handle the error gracefully
+    throw error;
   }
 }
 

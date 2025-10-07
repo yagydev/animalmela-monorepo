@@ -1,4 +1,4 @@
-// Performance optimization utilities for AnimalMela
+// Performance optimization utilities for Kisaanmela
 
 // Image compression and optimization
 export const optimizeImage = (file: File, maxWidth: number = 800, quality: number = 0.8): Promise<File> => {

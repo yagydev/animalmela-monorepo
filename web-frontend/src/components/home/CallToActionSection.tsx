@@ -53,7 +53,7 @@ export function CallToActionSection() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of pet owners who trust AnimalMela for their pet care needs. 
+            Join thousands of pet owners who trust Kisaanmela for their pet care needs. 
             Sign up today and find the perfect care for your furry friend.
           </p>
         </div>

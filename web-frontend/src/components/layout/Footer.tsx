@@ -79,7 +79,7 @@ export function Footer() {
               <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">A</span>
               </div>
-              <span className="text-xl font-bold">AnimalMela</span>
+              <span className="text-xl font-bold">Kisaanmela</span>
             </div>
             <p className="text-gray-400 mb-6">
               Your pet's best friend. Find trusted pet care services in your area.
@@ -156,7 +156,7 @@ export function Footer() {
 
         {/* Features Section */}
         <div className="mt-12 pt-8 border-t border-gray-800">
-          <h3 className="text-lg font-semibold mb-6 text-center">Why Choose AnimalMela?</h3>
+          <h3 className="text-lg font-semibold mb-6 text-center">Why Choose Kisaanmela?</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature) => (
               <div key={feature.title} className="text-center">
@@ -175,7 +175,7 @@ export function Footer() {
           <div className="text-center">
             <h3 className="text-lg font-semibold mb-2">Stay Updated</h3>
             <p className="text-gray-400 mb-4">
-              Get the latest pet care tips and updates from AnimalMela
+              Get the latest pet care tips and updates from Kisaanmela
             </p>
             <div className="flex max-w-md mx-auto">
               <input
@@ -196,7 +196,7 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 text-sm">
-              © {currentYear} AnimalMela. All rights reserved.
+              © {currentYear} Kisaanmela. All rights reserved.
             </div>
             
             {/* Social Links */}

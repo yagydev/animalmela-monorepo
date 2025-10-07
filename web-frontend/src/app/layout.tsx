@@ -18,32 +18,32 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'AnimalMela.com - Your Pet\'s Best Friend',
-  description: 'Comprehensive pet services platform for pet sitting, walking, grooming, training, veterinary care, and more. Find trusted pet service providers in your area.',
-  keywords: 'pet services, pet sitting, dog walking, pet grooming, pet training, veterinary care, pet adoption',
-  authors: [{ name: 'AnimalMela Team' }],
-  creator: 'AnimalMela.com',
-  publisher: 'AnimalMela.com',
+  title: 'Kisaanmela.com - Farmers\' Marketplace',
+  description: 'Comprehensive farmers\' marketplace for fresh produce, livestock, seeds, equipment, and agricultural services. Connect farmers with buyers in your area.',
+  keywords: 'farmers marketplace, fresh produce, livestock, seeds, equipment, agricultural services, farming, agriculture',
+  authors: [{ name: 'Kisaanmela Team' }],
+  creator: 'Kisaanmela.com',
+  publisher: 'Kisaanmela.com',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://animall.com'),
+  metadataBase: new URL('https://kisaanmela.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'AnimalMela.com - Your Pet\'s Best Friend',
-    description: 'Comprehensive pet services platform for all your pet needs',
-    url: 'https://animall.com',
-    siteName: 'AnimalMela.com',
+    title: 'Kisaanmela.com - Farmers\' Marketplace',
+    description: 'Comprehensive farmers\' marketplace for all your agricultural needs',
+    url: 'https://kisaanmela.com',
+    siteName: 'Kisaanmela.com',
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'AnimalMela.com - Pet Services Platform',
+        alt: 'Kisaanmela.com - Pet Services Platform',
       },
     ],
     locale: 'en_US',
@@ -51,8 +51,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AnimalMela.com - Your Pet\'s Best Friend',
-    description: 'Comprehensive pet services platform for all your pet needs',
+    title: 'Kisaanmela.com - Farmers\' Marketplace',
+    description: 'Comprehensive farmers\' marketplace for all your agricultural needs',
     images: ['/images/og-image.jpg'],
   },
   robots: {

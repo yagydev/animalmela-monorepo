@@ -55,30 +55,8 @@ const nextConfig = {
           ? 'https://api.kisaanmela.com/api/services/:path*'
           : 'http://localhost:5001/api/services/:path*',
       },
-      {
-        source: '/api/login',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/login'
-          : 'http://localhost:5001/api/login',
-      },
-      {
-        source: '/api/register',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/register'
-          : 'http://localhost:5001/api/register',
-      },
-      {
-        source: '/api/logout',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/logout'
-          : 'http://localhost:5001/api/logout',
-      },
-      {
-        source: '/api/me',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/me'
-          : 'http://localhost:5001/api/me',
-      },
+      // Note: /api/login, /api/register, /api/logout, /api/me are handled by local Next.js API routes
+      // No proxy needed - they use local API routes in src/app/api/
       // Note: farmers-market routes are handled locally by Next.js API routes
       // No rewrite needed for /api/farmers-market/* - they use local API routes
     ];

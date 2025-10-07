@@ -97,7 +97,7 @@ export default function ContactPage() {
     },
     {
       question: 'Is my pet covered by insurance?',
-      answer: 'Yes, all services booked through AnimalMela are covered by our comprehensive insurance policy for your peace of mind.'
+      answer: 'Yes, all services booked through Kisaanmela are covered by our comprehensive insurance policy for your peace of mind.'
     },
     {
       question: 'How do I contact customer support?',

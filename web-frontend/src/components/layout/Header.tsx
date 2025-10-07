@@ -59,16 +59,34 @@ export function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+    <header className="bg-gradient-to-r from-white to-blue-50 shadow-lg border-b-2 border-blue-200 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">A</span>
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-earth-600 rounded-full flex items-center justify-center shadow-lg border-2 border-primary-200">
+                <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  {/* Pure Agricultural Logo - Farm/Wheat Symbol */}
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                  {/* Wheat stalks */}
+                  <path d="M10 4h1v12h-1z"/>
+                  <path d="M13 4h1v12h-1z"/>
+                  <path d="M7 6h1v10h-1z"/>
+                  <path d="M16 6h1v10h-1z"/>
+                  {/* Wheat heads - simple dots */}
+                  <circle cx="10" cy="3" r="1"/>
+                  <circle cx="13" cy="3" r="1"/>
+                  <circle cx="7" cy="5" r="1"/>
+                  <circle cx="16" cy="5" r="1"/>
+                  {/* Center circle for farm symbol */}
+                  <circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" strokeWidth="1"/>
+                </svg>
               </div>
-              <span className="text-xl font-bold text-gray-900">AnimalMela</span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold text-gray-900">Kisaanmela</span>
+                <span className="text-xs text-primary-700 font-semibold -mt-1">Farmers' Marketplace</span>
+              </div>
             </Link>
           </div>
 
@@ -187,7 +205,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md"
                 >
                   Sign Up
                 </Link>
@@ -215,7 +233,7 @@ export function Header() {
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gradient-to-b from-white to-blue-50 border-t-2 border-blue-200">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -333,7 +351,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/register"
-                  className="bg-primary-600 hover:bg-primary-700 text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                  className="bg-primary-600 hover:bg-primary-700 text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 shadow-md"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign Up

@@ -71,7 +71,7 @@ export default function AboutPage() {
   ];
 
   const milestones = [
-    { year: '2020', event: 'AnimalMela founded with a mission to connect pet owners with trusted caregivers' },
+    { year: '2020', event: 'Kisaanmela founded with a mission to connect pet owners with trusted caregivers' },
     { year: '2021', event: 'Launched in 5 major cities with 500+ verified pet sitters' },
     { year: '2022', event: 'Reached 10,000+ happy pets milestone' },
     { year: '2023', event: 'Expanded to 25 cities nationwide' },
@@ -92,7 +92,7 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              About AnimalMela
+              About Kisaanmela
             </h1>
             <p className="text-xl text-primary-100 max-w-3xl mx-auto">
               We're passionate about connecting pet owners with trusted, professional caregivers 
@@ -109,7 +109,7 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-lg text-gray-600 mb-6">
-                At AnimalMela, we believe that every pet deserves the best care possible. Our mission is to 
+                At Kisaanmela, we believe that every pet deserves the best care possible. Our mission is to 
                 create a trusted platform that connects pet owners with verified, professional caregivers 
                 who are passionate about animal welfare.
               </p>
@@ -134,7 +134,7 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <div className="bg-white rounded-2xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Why Choose AnimalMela?</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Why Choose Kisaanmela?</h3>
                 <div className="space-y-4">
                   {values.map((value, index) => (
                     <div key={index} className="flex items-start">
@@ -280,7 +280,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold mb-4">Ready to Join Our Community?</h2>
           <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
             Whether you're a pet owner looking for care or a caregiver wanting to help pets, 
-            we'd love to have you as part of the AnimalMela family.
+            we'd love to have you as part of the Kisaanmela family.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
