@@ -4,15 +4,28 @@ const mongoose = require('mongoose');
 const connectDB = async () => {
   try {
     // Use MongoDB Atlas or local MongoDB
-    // In production Docker setup, use the MongoDB container
+    // For Vercel: Use MongoDB Atlas connection string
+    // For Docker: Use local MongoDB container
+    // For development: Use local MongoDB
     const mongoUri = process.env.MONGODB_URI || 
                     process.env.DATABASE_URL || 
-                    (process.env.NODE_ENV === 'production' ? 'mongodb://mongodb:27017/kisaanmela_prod' : 'mongodb://localhost:27017/kisaanmela');
+                    (process.env.NODE_ENV === 'production' ? 
+                      (process.env.VERCEL ? 'mongodb://localhost:27017/kisaanmela_prod' : 'mongodb://mongodb:27017/kisaanmela_prod') : 
+                      'mongodb://localhost:27017/kisaanmela');
+    
+    // Skip connection if in demo mode
+    if (mongoUri === 'demo-mode') {
+      console.log('Demo mode: Skipping MongoDB connection');
+      return null;
+    }
     
     console.log(`Attempting to connect to MongoDB: ${mongoUri.replace(/\/\/.*@/, '//***:***@')}`);
     
     // Modern Mongoose 6+ doesn't need deprecated options
-    const conn = await mongoose.connect(mongoUri);
+    const conn = await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     return conn;
