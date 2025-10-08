@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     // Hash password if provided
     let hashedPassword = undefined;
     if (password) {
-      const bcrypt = require('bcryptjs');
+      const bcrypt = await import('bcryptjs');
       const saltRounds = 10;
       hashedPassword = await bcrypt.hash(password, saltRounds);
     }

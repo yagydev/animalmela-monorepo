@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // MongoDB connection configuration for frontend API routes
 const connectDB = async () => {
@@ -49,6 +49,4 @@ mongoose.connection.on('disconnected', () => {
   console.log('Mongoose disconnected');
 });
 
-module.exports = {
-  connectDB
-};
+export { connectDB };

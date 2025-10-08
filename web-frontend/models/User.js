@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 // User Schema - Enhanced for farmer-buyer marketplace
 const userSchema = new mongoose.Schema({
@@ -142,4 +142,4 @@ userSchema.pre('save', function(next) {
   next();
 });
 
-module.exports = mongoose.models.User || mongoose.model('User', userSchema);
+export default mongoose.models.User || mongoose.model('User', userSchema);

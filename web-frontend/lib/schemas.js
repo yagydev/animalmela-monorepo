@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // Farmer Schema
 const farmerSchema = new mongoose.Schema({
@@ -223,7 +223,4 @@ productSchema.pre('save', function(next) {
 const Farmer = mongoose.models.Farmer || mongoose.model('Farmer', farmerSchema);
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-module.exports = {
-  Farmer,
-  Product
-};
+export { Farmer, Product };

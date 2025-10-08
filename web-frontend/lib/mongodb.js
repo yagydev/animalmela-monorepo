@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 // MongoDB connection configuration
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/kisaanmela';
@@ -107,7 +107,7 @@ function getConnectionStatus() {
   };
 }
 
-module.exports = {
+export {
   connectDB,
   disconnectDB,
   isDBConnected,

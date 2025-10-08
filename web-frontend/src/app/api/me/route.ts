@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-const { verifyToken } = require('../../../../lib/jwt');
+import { verifyToken } from '../../../../lib/jwt';
 
 // Get current user profile
 export async function GET(request: NextRequest) {
