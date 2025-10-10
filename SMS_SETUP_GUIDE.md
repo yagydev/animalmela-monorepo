@@ -1,170 +1,141 @@
-# SMS Service Configuration Guide
+# 📱 SMS Setup Guide for Kisaanmela OTP
 
-This guide explains how to configure SMS services for OTP delivery in the Animall platform.
+## 🚀 Quick Setup Steps
 
-## 🚀 Quick Setup
+### Step 1: Get Fast2SMS API Key (Recommended for India)
 
-### 1. Choose Your SMS Provider
+1. **Visit Fast2SMS**: Go to [https://www.fast2sms.com](https://www.fast2sms.com)
+2. **Sign Up/Login**: Create account or login
+3. **Get API Key**: 
+   - Go to Dashboard → API Keys
+   - Copy your API key (starts with something like `abcd1234...`)
+4. **Add Credits**: Add some credits to your account (₹10-50 is enough for testing)
 
-The system supports multiple SMS providers with automatic fallback:
+### Step 2: Configure Environment Variables
 
-1. **Fast2SMS** (Recommended for India) - Most cost-effective
-2. **Twilio** (International) - Reliable global service
-3. **MSG91** (India-focused) - Good for Indian numbers
+Create or update your `.env.local` file in the `web-frontend` directory:
 
-### 2. Environment Configuration
-
-Add the following variables to your `.env` file:
-
-#### For Fast2SMS (Recommended)
-```env
-SMS_SERVICE_AUTHORIZATION_KEY=your_fast2sms_api_key
+```bash
+# Fast2SMS Configuration
+SMS_SERVICE_AUTHORIZATION_KEY=your_actual_fast2sms_api_key_here
 SMS_SERVICE_API=https://www.fast2sms.com/dev/bulkV2
+
+# MongoDB Configuration
+MONGODB_URI=mongodb://localhost:27017/kisaanmela
 ```
 
-#### For Twilio (International)
-```env
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=+1234567890
-```
+### Step 3: Restart Development Server
 
-#### For MSG91 (India)
-```env
-MSG91_API_KEY=your_msg91_api_key
-MSG91_TEMPLATE_ID=your_template_id
-MSG91_SENDER_ID=your_sender_id
-```
-
-## 📱 Provider Setup Instructions
-
-### Fast2SMS Setup
-
-1. **Sign up** at [Fast2SMS](https://www.fast2sms.com/)
-2. **Get API Key** from your dashboard
-3. **Add funds** to your account (₹0.15 per SMS)
-4. **Set environment variable**:
-   ```env
-   SMS_SERVICE_AUTHORIZATION_KEY=your_api_key_here
-   ```
-
-### Twilio Setup
-
-1. **Sign up** at [Twilio](https://www.twilio.com/)
-2. **Get Account SID and Auth Token** from console
-3. **Purchase a phone number** for sending SMS
-4. **Set environment variables**:
-   ```env
-   TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-   TWILIO_AUTH_TOKEN=your_auth_token_here
-   TWILIO_PHONE_NUMBER=+1234567890
-   ```
-
-### MSG91 Setup
-
-1. **Sign up** at [MSG91](https://msg91.com/)
-2. **Create an OTP template** in your dashboard
-3. **Get API Key and Template ID**
-4. **Set environment variables**:
-   ```env
-   MSG91_API_KEY=your_api_key_here
-   MSG91_TEMPLATE_ID=your_template_id_here
-   MSG91_SENDER_ID=your_sender_id_here
-   ```
-
-## 🔧 Testing SMS Service
-
-### Development Mode
-In development mode, OTPs are logged to console instead of being sent via SMS:
+After adding the API key, restart the development server:
 
 ```bash
-NODE_ENV=development
+# Stop the current server (Ctrl+C)
+# Then restart
+cd web-frontend && npm run dev
 ```
 
-### Production Mode
-In production mode, SMS will be sent via configured providers:
+### Step 4: Test SMS Sending
+
+Test the OTP endpoint:
 
 ```bash
-NODE_ENV=production
-```
-
-### Test SMS Service
-You can test the SMS service configuration by calling the OTP endpoint:
-
-```bash
-curl -X POST http://localhost:5000/api/auth/otp/send \
+curl -X POST http://localhost:3000/api/auth/otp/send \
   -H "Content-Type: application/json" \
-  -d '{"mobile": "9876543210"}'
+  -d '{"mobile":"YOUR_MOBILE_NUMBER"}'
 ```
 
-## 📊 SMS Service Features
+## 🧪 Testing Commands
 
-### Automatic Fallback
-The system automatically tries providers in this order:
-1. Fast2SMS (if configured)
-2. Twilio (if configured)
-3. MSG91 (if configured)
-
-### Rate Limiting
-- Maximum 100 OTPs per day per number
-- 10-minute expiration for OTPs
-- 3 attempts per OTP session
-
-### Error Handling
-- Graceful fallback between providers
-- Detailed error logging
-- Development mode for testing
-
-## 💰 Cost Comparison
-
-| Provider | Cost per SMS | Best For |
-|----------|--------------|----------|
-| Fast2SMS | ₹0.15 | India |
-| Twilio | $0.0075 | International |
-| MSG91 | ₹0.20 | India (templates) |
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-1. **No SMS providers configured**
-   - Check environment variables
-   - Ensure at least one provider is set up
-
-2. **SMS not delivered**
-   - Check provider account balance
-   - Verify phone number format
-   - Check provider-specific logs
-
-3. **API errors**
-   - Verify API keys are correct
-   - Check provider documentation
-   - Ensure proper permissions
-
-### Debug Mode
-Enable debug mode to see detailed SMS service information:
-
-```env
-NODE_ENV=development
+### Test OTP Send
+```bash
+curl -X POST http://localhost:3000/api/auth/otp/send \
+  -H "Content-Type: application/json" \
+  -d '{"mobile":"9876543210"}'
 ```
 
-This will include:
-- Available providers
-- SMS sending results
-- Debug information in API responses
+**Expected Response (with SMS configured):**
+```json
+{
+  "success": true,
+  "message": "SMS sent successfully via Fast2SMS",
+  "provider": "Fast2SMS",
+  "otp": "123456"
+}
+```
 
-## 🔒 Security Notes
+**Expected Response (demo mode):**
+```json
+{
+  "success": true,
+  "message": "OTP sent successfully (demo mode)",
+  "otp": "123456",
+  "demo": true
+}
+```
 
-- Never commit API keys to version control
-- Use environment variables for all sensitive data
-- Regularly rotate API keys
-- Monitor SMS usage for unusual activity
+## 🔧 Troubleshooting
+
+### Issue: "OTP sent successfully (demo mode)"
+**Solution**: Add your Fast2SMS API key to `.env.local` file
+
+### Issue: "SMS sending failed"
+**Possible causes**:
+1. Invalid API key
+2. Insufficient credits in Fast2SMS account
+3. Invalid mobile number format
+4. Network connectivity issues
+
+### Issue: "Invalid mobile number format"
+**Solution**: Use 10-digit Indian mobile numbers (e.g., 9876543210)
+
+## 📋 Fast2SMS API Response Codes
+
+- `return: true` - SMS sent successfully
+- `return: false` - SMS failed (check message for details)
+
+## 🔐 Security Notes
+
+1. **Never commit API keys** to version control
+2. **Use environment variables** for API keys
+3. **Rotate API keys** regularly
+4. **Monitor usage** to prevent abuse
+
+## 💰 Pricing (Approximate)
+
+- **Transactional SMS**: ₹0.25 per SMS
+- **Promotional SMS**: ₹0.15 per SMS
+- **OTP SMS**: ₹0.25 per SMS
+
+## 🎯 Production Checklist
+
+- [ ] Valid Fast2SMS API key configured
+- [ ] Sufficient credits in account
+- [ ] SMS templates approved (if using templates)
+- [ ] Rate limiting implemented
+- [ ] Error handling for failed SMS
+- [ ] Monitoring and alerting setup
 
 ## 📞 Support
 
-For SMS service issues:
-1. Check provider-specific documentation
-2. Verify account status and balance
-3. Check server logs for detailed error messages
-4. Contact provider support if needed
+- **Fast2SMS Support**: [https://www.fast2sms.com/contact](https://www.fast2sms.com/contact)
+- **API Documentation**: [https://docs.fast2sms.com](https://docs.fast2sms.com)
 
+## 🔄 Alternative SMS Services
+
+### Twilio (International)
+```bash
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=your_twilio_phone_number
+```
+
+### MSG91 (India-focused)
+```bash
+MSG91_API_KEY=your_msg91_api_key
+MSG91_TEMPLATE_ID=your_msg91_template_id
+MSG91_SENDER_ID=your_msg91_sender_id
+```
+
+---
+
+**Next Steps**: After configuring Fast2SMS, test the complete OTP flow and then implement the frontend components.

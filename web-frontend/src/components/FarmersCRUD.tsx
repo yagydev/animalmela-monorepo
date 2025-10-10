@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -11,7 +12,7 @@ import {
   PhotoIcon
 } from '@heroicons/react/24/outline';
 // import Image from 'next/image';
-import ImageUploader, { ImageFile } from './ImageUploader';
+import ImageUploader from './ImageUploader';
 import CursorPrompt from './CursorPrompt';
 import { cachedFetch, apiCache } from '../lib/apiCache';
 
@@ -52,14 +53,14 @@ export default function FarmersCRUD({ className = '' }: FarmersCRUDProps) {
     },
     products: [] as string[]
   });
-  const [images, setImages] = useState<ImageFile[]>([]);
+  const [images, setImages] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
   const loadFarmers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await cachedFetch('/api/farmers-market/farmers', {}, 60000); // Cache for 1 minute
-      setFarmers(data.farmers || []);
+      setFarmers((data as any).farmers || []);
     } catch (error) {
       console.error('Error loading farmers:', error);
       // Use demo data if API fails
@@ -142,7 +143,7 @@ export default function FarmersCRUD({ className = '' }: FarmersCRUDProps) {
     });
     
     // Convert existing images to ImageFile format
-    const existingImages: ImageFile[] = farmer.images.map((url, index) => ({
+    const existingImages: any[] = farmer.images.map((url, index) => ({
       id: `existing-${index}`,
       file: new File([], 'existing-image'),
       preview: url,
@@ -268,7 +269,7 @@ export default function FarmersCRUD({ className = '' }: FarmersCRUDProps) {
 
   if (loading) {
     return (
-      <div className={`p-6 ${className}`}>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${className}`}>
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -282,7 +283,7 @@ export default function FarmersCRUD({ className = '' }: FarmersCRUDProps) {
   }
 
   return (
-    <div className={`p-6 ${className}`}>
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -303,32 +304,40 @@ export default function FarmersCRUD({ className = '' }: FarmersCRUDProps) {
         {farmers.map((farmer) => (
           <div key={farmer._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
             {/* Images */}
-            <div className="h-48 bg-gray-100 relative">
-              {farmer.images && farmer.images.length > 0 ? (
-                <div className="relative h-full">
-                  <img
-                    src={farmer.images[0]}
-                    alt={farmer.name}
-                    className="w-full h-full object-cover cursor-zoom-in"
-                    style={{ cursor: 'zoom-in' }}
-                  />
-                  {farmer.images.length > 1 && (
-                    <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                      +{farmer.images.length - 1} more
+            <Link href={`/farmers-management/${farmer._id}`} className="block">
+              <div className="h-48 bg-gray-100 relative cursor-pointer hover:opacity-90 transition-opacity">
+                {farmer.images && farmer.images.length > 0 ? (
+                  <div className="relative h-full">
+                    <img
+                      src={farmer.images[0]}
+                      alt={farmer.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {farmer.images.length > 1 && (
+                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                        +{farmer.images.length - 1} more
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
+                      <div className="opacity-0 hover:opacity-100 transition-opacity duration-200">
+                        <EyeIcon className="h-8 w-8 text-white" />
+                      </div>
                     </div>
-                  )}
-                </div>
-              ) : (
-                <div className="h-full flex items-center justify-center">
-                  <PhotoIcon className="h-12 w-12 text-gray-400" />
-                </div>
-              )}
-            </div>
+                  </div>
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <PhotoIcon className="h-12 w-12 text-gray-400" />
+                  </div>
+                )}
+              </div>
+            </Link>
 
             {/* Content */}
             <div className="p-4">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">{farmer.name}</h3>
+                <Link href={`/farmers-management/${farmer._id}`} className="hover:text-green-600 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900">{farmer.name}</h3>
+                </Link>
                 <div className="flex space-x-1">
                   <button
                     onClick={() => handleEditFarmer(farmer)}
@@ -354,10 +363,10 @@ export default function FarmersCRUD({ className = '' }: FarmersCRUDProps) {
                 </div>
                 <div className="flex items-center space-x-2">
                   <MapPinIcon className="h-4 w-4" />
-                  <span>{farmer.location.district}, {farmer.location.state}</span>
+                  <span>{farmer.location?.district || 'N/A'}, {farmer.location?.state || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="font-medium">Products:</span> {farmer.products.join(', ')}
+                  <span className="font-medium">Products:</span> {farmer.products?.join(', ') || 'N/A'}
                 </div>
               </div>
             </div>

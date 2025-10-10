@@ -219,31 +219,33 @@ export function ProductCard({
           {/* Overlay Actions */}
           <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 flex items-center justify-center">
             <div className="opacity-0 hover:opacity-100 transition-opacity duration-200 flex space-x-2">
-              {onViewDetails && (
-                <button
-                  key="view-details"
-                  onClick={handleViewDetails}
-                  className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50"
-                  title="View Details"
-                >
-                  <EyeIcon className="h-5 w-5 text-gray-600" />
-                </button>
-              )}
-              {onToggleFavorite && (
-                <button
-                  key="toggle-favorite"
-                  onClick={handleToggleFavorite}
-                  disabled={isTogglingFavorite}
-                  className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50"
-                  title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
-                >
-                  {isFavorite ? (
-                    <HeartSolidIcon className="h-5 w-5 text-red-500" />
-                  ) : (
-                    <HeartIcon className="h-5 w-5 text-gray-600" />
-                  )}
-                </button>
-              )}
+              {[
+                onViewDetails && (
+                  <button
+                    key="view-details"
+                    onClick={handleViewDetails}
+                    className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50"
+                    title="View Details"
+                  >
+                    <EyeIcon className="h-5 w-5 text-gray-600" />
+                  </button>
+                ),
+                onToggleFavorite && (
+                  <button
+                    key="toggle-favorite"
+                    onClick={handleToggleFavorite}
+                    disabled={isTogglingFavorite}
+                    className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50"
+                    title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+                  >
+                    {isFavorite ? (
+                      <HeartSolidIcon className="h-5 w-5 text-red-500" />
+                    ) : (
+                      <HeartIcon className="h-5 w-5 text-gray-600" />
+                    )}
+                  </button>
+                )
+              ].filter(Boolean)}
             </div>
           </div>
         </div>
@@ -308,29 +310,32 @@ export function ProductCard({
         {/* Actions */}
         {showActions && (
           <div className="flex space-x-2">
-            {onAddToCart && (
-              <button
-                onClick={handleAddToCart}
-                disabled={isInCart || isAddingToCart}
-                className={`flex-1 px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center space-x-2 ${
-                  isInCart || isAddingToCart
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                }`}
-              >
-                <ShoppingCartIcon className="h-4 w-4" />
-                <span>{isAddingToCart ? 'Adding...' : isInCart ? 'In Cart' : 'Add to Cart'}</span>
-              </button>
-            )}
-            
-            {onViewDetails && (
-              <button
-                onClick={handleViewDetails}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center"
-              >
-                <EyeIcon className="h-4 w-4" />
-              </button>
-            )}
+            {[
+              onAddToCart && (
+                <button
+                  key="add-to-cart"
+                  onClick={handleAddToCart}
+                  disabled={isInCart || isAddingToCart}
+                  className={`flex-1 px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center space-x-2 ${
+                    isInCart || isAddingToCart
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  <ShoppingCartIcon className="h-4 w-4" />
+                  <span>{isAddingToCart ? 'Adding...' : isInCart ? 'In Cart' : 'Add to Cart'}</span>
+                </button>
+              ),
+              onViewDetails && (
+                <button
+                  key="view-details-action"
+                  onClick={handleViewDetails}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center"
+                >
+                  <EyeIcon className="h-4 w-4" />
+                </button>
+              )
+            ].filter(Boolean)}
           </div>
         )}
       </div>

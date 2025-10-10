@@ -5,6 +5,7 @@ class SMSService {
   constructor() {
     this.fast2smsApiKey = process.env.SMS_SERVICE_AUTHORIZATION_KEY;
     this.fast2smsApiUrl = process.env.SMS_SERVICE_API || 'https://www.fast2sms.com/dev/bulkV2';
+    this.fast2smsProductionUrl = 'https://www.fast2sms.com/dev/bulk';
     this.twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
     this.twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
     this.twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
@@ -20,18 +21,27 @@ class SMSService {
    * @returns {Promise<{success: boolean, message: string, provider?: string}>}
    */
   async sendOTP(mobile, otp) {
-    const message = `Your Pashu Marketplace OTP is: ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`;
+    const message = `Your Kisaanmela OTP is: ${otp}. Valid for 10 minutes. Do not share this OTP with anyone.`;
     
     // Try Fast2SMS first (most cost-effective for India)
-    if (this.fast2smsApiKey) {
+    if (this.fast2smsApiKey && this.fast2smsApiKey !== 'your_fast2sms_api_key_here' && this.fast2smsApiKey.length > 10) {
       try {
+        console.log('📱 Attempting to send OTP via Fast2SMS...');
+        console.log('Fast2SMS API Key:', this.fast2smsApiKey.substring(0, 10) + '...');
         const result = await this.sendViaFast2SMS(mobile, message);
         if (result.success) {
+          console.log('✅ OTP sent successfully via Fast2SMS');
           return { ...result, provider: 'Fast2SMS' };
+        } else {
+          console.log('❌ Fast2SMS returned unsuccessful result:', result);
         }
       } catch (error) {
-        console.error('Fast2SMS failed:', error.message);
+        console.error('❌ Fast2SMS failed:', error.message);
+        console.error('Fast2SMS error details:', error);
       }
+    } else {
+      console.warn('⚠️ Fast2SMS API key not configured or invalid');
+      console.warn('Fast2SMS API Key:', this.fast2smsApiKey ? this.fast2smsApiKey.substring(0, 10) + '...' : 'undefined');
     }
 
     // Fallback to Twilio
@@ -71,29 +81,50 @@ class SMSService {
    */
   async sendViaFast2SMS(mobile, message) {
     try {
-      const response = await axios.post(this.fast2smsApiUrl, {
-        route: 'q',
-        message: message,
-        language: 'english',
-        flash: 0,
-        numbers: mobile
-      }, {
-        headers: {
-          'authorization': this.fast2smsApiKey,
-          'Content-Type': 'application/json'
-        }
-      });
+      console.log(`📱 Sending SMS to ${mobile} via Fast2SMS...`);
+      
+      // Try production API first, then fallback to dev API
+      const apiUrls = [this.fast2smsProductionUrl, this.fast2smsApiUrl];
+      
+      for (const apiUrl of apiUrls) {
+        try {
+          console.log(`Trying Fast2SMS API: ${apiUrl}`);
+          const response = await axios.post(apiUrl, {
+            route: 'q',
+            message: message,
+            language: 'english',
+            flash: 0,
+            numbers: mobile
+          }, {
+            headers: {
+              'authorization': this.fast2smsApiKey,
+              'Content-Type': 'application/json'
+            },
+            timeout: 10000 // 10 second timeout
+          });
 
-      if (response.data.return === true) {
-        return {
-          success: true,
-          message: 'SMS sent successfully via Fast2SMS',
-          requestId: response.data.request_id
-        };
-      } else {
-        throw new Error(response.data.message || 'Fast2SMS API error');
+          console.log('Fast2SMS Response:', response.data);
+
+          if (response.data.return === true) {
+            return {
+              success: true,
+              message: 'SMS sent successfully via Fast2SMS',
+              requestId: response.data.request_id
+            };
+          } else {
+            console.log(`Fast2SMS API ${apiUrl} failed:`, response.data.message);
+            continue; // Try next API URL
+          }
+        } catch (apiError) {
+          console.log(`Fast2SMS API ${apiUrl} error:`, apiError.response?.data || apiError.message);
+          continue; // Try next API URL
+        }
       }
+      
+      // If all API URLs failed
+      throw new Error('All Fast2SMS API endpoints failed');
     } catch (error) {
+      console.error('Fast2SMS Error:', error.message);
       throw new Error(`Fast2SMS error: ${error.message}`);
     }
   }
@@ -159,7 +190,22 @@ class SMSService {
    * Check if SMS service is configured
    */
   isConfigured() {
-    return !!(this.fast2smsApiKey || (this.twilioAccountSid && this.twilioAuthToken) || this.msg91ApiKey);
+    // Check for real API keys (not placeholder values)
+    const hasFast2SMS = this.fast2smsApiKey && 
+      this.fast2smsApiKey !== 'your_fast2sms_api_key_here' && 
+      this.fast2smsApiKey.length > 10;
+    
+    const hasTwilio = this.twilioAccountSid && 
+      this.twilioAccountSid !== 'your_twilio_account_sid_here' && 
+      this.twilioAccountSid.startsWith('AC') &&
+      this.twilioAuthToken && 
+      this.twilioAuthToken !== 'your_twilio_auth_token_here';
+    
+    const hasMSG91 = this.msg91ApiKey && 
+      this.msg91ApiKey !== 'your_msg91_api_key_here' && 
+      this.msg91ApiKey.length > 10;
+    
+    return !!(hasFast2SMS || hasTwilio || hasMSG91);
   }
 
   /**
@@ -167,9 +213,28 @@ class SMSService {
    */
   getAvailableProviders() {
     const providers = [];
-    if (this.fast2smsApiKey) providers.push('Fast2SMS');
-    if (this.twilioAccountSid && this.twilioAuthToken) providers.push('Twilio');
-    if (this.msg91ApiKey) providers.push('MSG91');
+    
+    // Check for real API keys (not placeholder values)
+    if (this.fast2smsApiKey && 
+        this.fast2smsApiKey !== 'your_fast2sms_api_key_here' && 
+        this.fast2smsApiKey.length > 10) {
+      providers.push('Fast2SMS');
+    }
+    
+    if (this.twilioAccountSid && 
+        this.twilioAccountSid !== 'your_twilio_account_sid_here' && 
+        this.twilioAccountSid.startsWith('AC') &&
+        this.twilioAuthToken && 
+        this.twilioAuthToken !== 'your_twilio_auth_token_here') {
+      providers.push('Twilio');
+    }
+    
+    if (this.msg91ApiKey && 
+        this.msg91ApiKey !== 'your_msg91_api_key_here' && 
+        this.msg91ApiKey.length > 10) {
+      providers.push('MSG91');
+    }
+    
     return providers;
   }
 }

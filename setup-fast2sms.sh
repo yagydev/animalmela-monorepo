@@ -1,71 +1,69 @@
 #!/bin/bash
 
-# 🚀 Fast2SMS Setup Script for KisaanMela
+# Fast2SMS Setup Script for Kisaanmela OTP Service
+# This script helps configure Fast2SMS for sending OTP SMS
 
-echo "📱 Fast2SMS Setup for KisaanMela OTP"
-echo "=================================="
-echo ""
+echo "🚀 Fast2SMS Setup for Kisaanmela OTP Service"
+echo "=============================================="
 
-# Check if .env file exists
-if [ ! -f ".env" ]; then
-    echo "📄 Creating .env file from env.development..."
-    cp env.development .env
-fi
-
-echo "🔑 Please enter your Fast2SMS API key:"
-echo "   (Get it from: https://www.fast2sms.com/dashboard)"
-echo ""
-read -p "Fast2SMS API Key: " api_key
-
-if [ -z "$api_key" ]; then
-    echo "❌ No API key provided. Exiting..."
-    exit 1
-fi
-
-# Update .env file
-echo "📝 Updating .env file..."
-sed -i '' "s/SMS_SERVICE_AUTHORIZATION_KEY=.*/SMS_SERVICE_AUTHORIZATION_KEY=$api_key/" .env
-
-echo "✅ Fast2SMS API key configured!"
-echo ""
-
-# Test mobile number
-echo "📱 Enter your mobile number for testing (10 digits, Indian number):"
-read -p "Mobile Number: " mobile
-
-if [[ ! $mobile =~ ^[6-9][0-9]{9}$ ]]; then
-    echo "❌ Invalid mobile number format. Please use 10-digit Indian mobile number."
-    exit 1
+# Check if .env.local exists
+if [ ! -f "web-frontend/.env.local" ]; then
+    echo "📝 Creating .env.local file..."
+    cp web-frontend/env.example web-frontend/.env.local
+    echo "✅ Created web-frontend/.env.local"
+else
+    echo "✅ .env.local already exists"
 fi
 
 echo ""
-echo "🚀 Starting OTP server..."
+echo "📋 Setup Instructions:"
+echo "1. Visit: https://www.fast2sms.com/"
+echo "2. Sign up and verify your mobile number"
+echo "3. Go to Dashboard → API"
+echo "4. Copy your API key"
+echo "5. Run: nano web-frontend/.env.local"
+echo "6. Update SMS_SERVICE_AUTHORIZATION_KEY with your actual API key"
+echo "7. Restart dev server: npm run dev"
+echo ""
 
-# Kill existing server
-pkill -f "otp-backend-server" 2>/dev/null || true
-
-# Start server
-node otp-backend-server.js &
-SERVER_PID=$!
-
-echo "⏳ Waiting for server to start..."
-sleep 3
+echo "🔧 Current .env.local SMS configuration:"
+if grep -q "SMS_SERVICE_AUTHORIZATION_KEY" web-frontend/.env.local; then
+    echo "SMS_SERVICE_AUTHORIZATION_KEY found in .env.local"
+    current_key=$(grep "SMS_SERVICE_AUTHORIZATION_KEY" web-frontend/.env.local | cut -d'=' -f2)
+    if [ "$current_key" = "your_fast2sms_api_key_here" ]; then
+        echo "❌ Still using placeholder API key"
+        echo "   Please update with your actual Fast2SMS API key"
+    else
+        echo "✅ API key configured: ${current_key:0:10}..."
+    fi
+else
+    echo "❌ SMS_SERVICE_AUTHORIZATION_KEY not found"
+    echo "   Adding SMS configuration to .env.local..."
+    echo "" >> web-frontend/.env.local
+    echo "# SMS Service Configuration" >> web-frontend/.env.local
+    echo "SMS_SERVICE_AUTHORIZATION_KEY=your_fast2sms_api_key_here" >> web-frontend/.env.local
+    echo "SMS_SERVICE_API=https://www.fast2sms.com/dev/bulkV2" >> web-frontend/.env.local
+    echo "✅ Added SMS configuration"
+fi
 
 echo ""
-echo "🧪 Testing OTP sending to $mobile..."
-
-# Test OTP sending
-response=$(curl -s -X POST http://localhost:5001/api/auth/otp/send \
-  -H "Content-Type: application/json" \
-  -d "{\"mobile\":\"$mobile\"}")
-
-echo "📋 Response:"
-echo "$response" | jq . 2>/dev/null || echo "$response"
-
+echo "🧪 Test OTP API:"
+echo "curl -X POST http://localhost:3000/api/auth/otp/send \\"
+echo "  -H \"Content-Type: application/json\" \\"
+echo "  -d '{\"mobile\": \"9560604508\"}'"
 echo ""
-echo "📱 Check your mobile for the OTP SMS!"
+
+echo "📱 Expected Response (after setup):"
+echo "{"
+echo "  \"success\": true,"
+echo "  \"message\": \"OTP sent successfully via Fast2SMS\","
+echo "  \"provider\": \"Fast2SMS\""
+echo "}"
 echo ""
-echo "🔧 Server is running with PID: $SERVER_PID"
-echo "🛑 To stop server: kill $SERVER_PID"
+
+echo "💰 Cost: ~₹0.50-1.00 per SMS"
+echo "🔒 Security: Never commit API keys to git"
 echo ""
-echo "📖 For more help, see: FAST2SMS_SETUP_GUIDE.md"
+
+echo "✅ Setup script completed!"
+echo "   Next: Update API key in .env.local and restart dev server"

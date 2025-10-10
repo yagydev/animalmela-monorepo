@@ -1,105 +1,89 @@
-# 📱 Fast2SMS Setup Guide for KisaanMela OTP
+# Fast2SMS Setup Guide for Kisaanmela OTP Service
 
-## 🚀 Quick Setup Steps
+## Overview
+Fast2SMS is a cost-effective SMS service provider for India, perfect for sending OTP messages at ~₹0.50-1.00 per SMS.
 
-### Step 1: Get Fast2SMS API Key
+## Step-by-Step Setup
 
-1. **Visit Fast2SMS**: Go to [https://www.fast2sms.com](https://www.fast2sms.com)
-2. **Sign Up/Login**: Create account or login
-3. **Get API Key**: 
-   - Go to Dashboard → API Keys
-   - Copy your API key (starts with something like `abcd1234...`)
-4. **Add Credits**: Add some credits to your account (₹10-50 is enough for testing)
+### 1. Create Fast2SMS Account
+1. Visit: https://www.fast2sms.com/
+2. Click "Sign Up" and create account
+3. Verify your mobile number
+4. Complete profile setup
 
-### Step 2: Configure Environment Variables
+### 2. Get API Key
+1. Login to Fast2SMS dashboard
+2. Go to "API" section
+3. Copy your API key (32 characters)
+4. Example: `ABCD1234EFGH5678IJKL9012MNOP3456`
 
-Update your `.env` file with your Fast2SMS API key:
+### 3. Configure Environment Variables
+Update `web-frontend/.env.local` file:
 
 ```bash
-# Replace YOUR_FAST2SMS_API_KEY_HERE with your actual API key
-SMS_SERVICE_AUTHORIZATION_KEY=your_actual_fast2sms_api_key_here
+# Fast2SMS Configuration
+SMS_SERVICE_AUTHORIZATION_KEY=your_actual_api_key_here
+SMS_SERVICE_API=https://www.fast2sms.com/dev/bulkV2
 ```
 
-### Step 3: Test SMS Sending
-
-After adding the API key, restart the server and test:
-
+### 4. Restart Development Server
 ```bash
-# Kill existing server
-pkill -f "otp-backend-server"
+cd web-frontend
+npm run dev
+```
 
-# Start server with new config
-node otp-backend-server.js &
+## Testing
 
-# Test OTP sending
-curl -X POST http://localhost:5001/api/auth/otp/send \
+### Test OTP API
+```bash
+curl -X POST http://localhost:3000/api/auth/otp/send \
   -H "Content-Type: application/json" \
-  -d '{"mobile":"YOUR_MOBILE_NUMBER"}'
+  -d '{"mobile": "9560604508"}'
 ```
 
-## 🧪 Testing Commands
-
-### Test OTP Send
-```bash
-curl -X POST http://localhost:5001/api/auth/otp/send \
-  -H "Content-Type: application/json" \
-  -d '{"mobile":"9876543210"}' | jq .
+### Expected Response (After Setup)
+```json
+{
+  "success": true,
+  "message": "OTP sent successfully via Fast2SMS",
+  "provider": "Fast2SMS",
+  "requestId": "1234567890"
+}
 ```
 
-### Test OTP Verify
-```bash
-curl -X POST http://localhost:5001/api/auth/otp/verify \
-  -H "Content-Type: application/json" \
-  -d '{"mobile":"9876543210","otp":"123456","name":"Test User"}' | jq .
-```
+## Current Status
+- ✅ OTP API endpoint working
+- ✅ Fast2SMS integration ready
+- ❌ API key not configured (demo mode)
+- 📱 SMS not reaching phone
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### Issue: "OTP logged to console (development mode)"
-**Solution**: Add your Fast2SMS API key to environment variables
+### Common Issues
+1. **Invalid API Key**: Check key format (32 characters)
+2. **Insufficient Balance**: Add credits to Fast2SMS account
+3. **Wrong Number Format**: Use 10-digit format (9560604508)
+4. **Rate Limiting**: Wait between requests
 
-### Issue: "SMS sending failed"
-**Possible causes**:
-1. Invalid API key
-2. Insufficient credits in Fast2SMS account
-3. Invalid mobile number format
-4. Network connectivity issues
+### Debug Steps
+1. Check API key in `.env.local`
+2. Verify Fast2SMS account balance
+3. Test with different mobile number
+4. Check console logs for errors
 
-### Issue: "Invalid mobile number format"
-**Solution**: Use 10-digit Indian mobile numbers (e.g., 9876543210)
+## Cost Information
+- **Setup**: Free
+- **Per SMS**: ₹0.50-1.00
+- **Minimum Recharge**: ₹100
+- **Validity**: 1 year
 
-## 📋 Fast2SMS API Response Codes
+## Security Notes
+- Never commit API keys to git
+- Use environment variables only
+- Monitor usage regularly
+- Rotate keys periodically
 
-- `return: true` - SMS sent successfully
-- `return: false` - SMS failed (check message for details)
-
-## 🔐 Security Notes
-
-1. **Never commit API keys** to version control
-2. **Use environment variables** for API keys
-3. **Rotate API keys** regularly
-4. **Monitor usage** to prevent abuse
-
-## 💰 Pricing (Approximate)
-
-- **Transactional SMS**: ₹0.25 per SMS
-- **Promotional SMS**: ₹0.15 per SMS
-- **OTP SMS**: ₹0.25 per SMS
-
-## 🎯 Production Checklist
-
-- [ ] Valid Fast2SMS API key configured
-- [ ] Sufficient credits in account
-- [ ] SMS templates approved (if using templates)
-- [ ] Rate limiting implemented
-- [ ] Error handling for failed SMS
-- [ ] Monitoring and alerting setup
-
-## 📞 Support
-
-- **Fast2SMS Support**: [https://www.fast2sms.com/contact](https://www.fast2sms.com/contact)
-- **API Documentation**: [https://docs.fast2sms.com](https://docs.fast2sms.com)
-
----
-
-**Next Steps**: After configuring Fast2SMS, test the complete OTP flow and then implement the frontend components.
+## Support
+- Fast2SMS Support: https://www.fast2sms.com/support
+- Documentation: https://www.fast2sms.com/dev/api
+- Status Page: https://status.fast2sms.com/
