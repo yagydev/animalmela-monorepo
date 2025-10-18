@@ -76,6 +76,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+      <head>
+        <script src="/sw-register.js" defer></script>
+      </head>
       <body className="font-sans antialiased bg-gray-50">
         <Providers>
           <div className="min-h-screen flex flex-col">

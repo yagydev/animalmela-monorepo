@@ -445,6 +445,7 @@ const Product = mongoose.models.Product || mongoose.model('Product', productSche
 const Organization = mongoose.models.Organization || mongoose.model('Organization', organizationSchema);
 const NewsUpdate = mongoose.models.NewsUpdate || mongoose.model('NewsUpdate', newsUpdateSchema);
 
+// ES Module exports
 export {
   Event,
   Vendor,

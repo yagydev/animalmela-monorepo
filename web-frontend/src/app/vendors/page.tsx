@@ -15,7 +15,7 @@ export default function VendorsPage() {
       image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop',
       description: 'Premium quality seeds and organic fertilizers for sustainable farming.',
       contact: {
-        phone: '+91-9876543210',
+        phone: '+91-9999778321',
         email: 'info@greenvalleyseeds.com',
         website: 'www.greenvalleyseeds.com'
       },
@@ -32,7 +32,7 @@ export default function VendorsPage() {
       image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop',
       description: 'Modern farming equipment and machinery for efficient agricultural operations.',
       contact: {
-        phone: '+91-9876543211',
+        phone: '+91-9999778322',
         email: 'sales@farmtechequipment.com',
         website: 'www.farmtechequipment.com'
       },
@@ -49,7 +49,7 @@ export default function VendorsPage() {
       image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
       description: 'Certified organic products and sustainable farming solutions.',
       contact: {
-        phone: '+91-9876543212',
+        phone: '+91-9999778323',
         email: 'contact@organicharvest.co.in',
         website: 'www.organicharvest.co.in'
       },
@@ -66,7 +66,7 @@ export default function VendorsPage() {
       image: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=300&fit=crop',
       description: 'Complete livestock management solutions and veterinary services.',
       contact: {
-        phone: '+91-9876543213',
+        phone: '+91-9999778324',
         email: 'support@livestocksolutions.com',
         website: 'www.livestocksolutions.com'
       },
@@ -83,7 +83,7 @@ export default function VendorsPage() {
       image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop',
       description: 'Agricultural loans, insurance, and financial planning for farmers.',
       contact: {
-        phone: '+91-9876543214',
+        phone: '+91-9999778325',
         email: 'loans@agrifinancepartners.com',
         website: 'www.agrifinancepartners.com'
       },
@@ -100,7 +100,7 @@ export default function VendorsPage() {
       image: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop',
       description: 'IoT-based smart irrigation and precision farming technologies.',
       contact: {
-        phone: '+91-9876543215',
+        phone: '+91-9999778326',
         email: 'tech@smartirrigation.com',
         website: 'www.smartirrigation.com'
       },
