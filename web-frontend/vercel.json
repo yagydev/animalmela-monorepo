@@ -7,7 +7,7 @@
   "functions": {
     "web-frontend/src/app/api/**/*.ts": {
       "maxDuration": 30,
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs22.x"
     }
   },
   "regions": ["bom1"],
