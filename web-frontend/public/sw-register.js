@@ -1,5 +1,5 @@
 // Custom service worker registration
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
@@ -22,6 +22,10 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       })
       .catch((registrationError) => {
         console.log('SW registration failed: ', registrationError);
+        // Don't show error to user in development
+        if (process.env.NODE_ENV === 'production') {
+          console.error('Service Worker registration failed:', registrationError);
+        }
       });
   });
 
@@ -31,4 +35,13 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       window.location.reload();
     }
   });
+} else if (process.env.NODE_ENV === 'development') {
+  // Unregister any existing service workers in development
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        registration.unregister();
+      });
+    });
+  }
 }

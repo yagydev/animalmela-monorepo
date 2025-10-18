@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import Link from 'next/link';
 import MelaMap from '@/components/maps/MelaMap';
 import WeatherWidget from '@/components/weather/WeatherWidget';
@@ -116,15 +115,7 @@ export default function EventsPageClient({ initialEvents }: EventsPageClientProp
   };
 
   return (
-    <>
-      <Head>
-        <title>Agricultural Events & Fairs | Kisan Mela</title>
-        <meta name="description" content="Discover upcoming agricultural events, fairs, and exhibitions across India. Connect with farmers, vendors, and agricultural organizations." />
-        <meta name="keywords" content="agricultural events, farmer fairs, kisan mela, agricultural exhibitions, farming events" />
-        <link rel="canonical" href="https://www.kisanmela.com/events" />
-      </Head>
-
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -387,6 +378,5 @@ export default function EventsPageClient({ initialEvents }: EventsPageClientProp
           <EventSchema key={event._id} event={event} />
         ))}
       </div>
-    </>
   );
 }

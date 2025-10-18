@@ -1,4 +1,18 @@
 import EventsPageClient from './EventsPageClient';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Agricultural Events & Fairs | Kisan Mela',
+  description: 'Discover upcoming agricultural events, fairs, and exhibitions across India. Connect with farmers, vendors, and agricultural organizations.',
+  keywords: 'agricultural events, farmer fairs, kisan mela, agricultural exhibitions, farming events',
+  openGraph: {
+    title: 'Agricultural Events & Fairs | Kisan Mela',
+    description: 'Discover upcoming agricultural events, fairs, and exhibitions across India.',
+    url: 'https://www.kisanmela.com/events',
+    siteName: 'Kisan Mela',
+    type: 'website',
+  },
+};
 
 // Server-side data fetching for App Router
 async function getEvents() {
