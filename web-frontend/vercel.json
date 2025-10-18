@@ -1,15 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd web-frontend && npm run build",
-  "outputDirectory": "web-frontend/.next",
-  "installCommand": "npm install --force",
   "framework": "nextjs",
-  "functions": {
-    "web-frontend/src/app/api/**/*.ts": {
-      "maxDuration": 30,
-      "runtime": "nodejs22.x"
-    }
-  },
   "regions": ["bom1"],
   "env": {
     "NODE_ENV": "production"
@@ -18,12 +9,5 @@
     "env": {
       "NODE_ENV": "production"
     }
-  },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-frontend/",
-  "builds": [
-    {
-      "src": "web-frontend/package.json",
-      "use": "@vercel/next"
-    }
-  ]
+  }
 }

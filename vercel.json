@@ -17,10 +17,5 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "web-frontend/src/app/api/**/*.ts": {
-      "runtime": "nodejs22.x"
-    }
   }
 }
