@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
+  "buildCommand": "cd web-frontend && npm run build",
+  "outputDirectory": "web-frontend/.next",
+  "installCommand": "npm install --force",
   "framework": "nextjs",
   "functions": {
-    "src/app/api/**/*.ts": {
+    "web-frontend/src/app/api/**/*.ts": {
       "maxDuration": 30
     }
   },
@@ -17,5 +17,6 @@
     "env": {
       "NODE_ENV": "production"
     }
-  }
+  },
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-frontend/"
 }

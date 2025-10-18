@@ -1,0 +1,21 @@
+# Vercel ignore file for web-frontend
+node_modules
+.next
+.git
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
+*.tsbuildinfo
+coverage
+.nyc_output
+dist
+build
+.cache
+.temp
+.tmp
+*.swp
+*.swo
+*~
