@@ -498,6 +498,235 @@ const productSchema = new mongoose.Schema({
 
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
+// Organization Schema
+const organizationSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  type: {
+    type: String,
+    required: true,
+    enum: ['government', 'ngo', 'private', 'cooperative', 'research']
+  },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    pincode: String,
+    country: {
+      type: String,
+      default: 'India'
+    }
+  },
+  contactInfo: {
+    phone: String,
+    email: String,
+    website: String,
+    contactPerson: String
+  },
+  logo: {
+    url: String,
+    alt: String
+  },
+  image: {
+    url: String,
+    alt: String
+  },
+  socialMedia: {
+    facebook: String,
+    twitter: String,
+    linkedin: String,
+    youtube: String
+  },
+  services: [String],
+  certifications: [String],
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'pending'],
+    default: 'active'
+  },
+  verified: {
+    type: Boolean,
+    default: false
+  }
+}, {
+  timestamps: true
+});
+
+const Organization = mongoose.models.Organization || mongoose.model('Organization', organizationSchema);
+
+// News Update Schema
+const newsUpdateSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
+  excerpt: {
+    type: String,
+    required: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  author: {
+    name: {
+      type: String,
+      required: true
+    },
+    email: String,
+    avatar: String
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['news', 'blog', 'policy', 'technology', 'success_story', 'innovation']
+  },
+  tags: [String],
+  image: {
+    url: String,
+    alt: String,
+    caption: String
+  },
+  gallery: [{
+    url: String,
+    alt: String,
+    caption: String
+  }],
+  status: {
+    type: String,
+    enum: ['draft', 'published', 'archived'],
+    default: 'draft'
+  },
+  featured: {
+    type: Boolean,
+    default: false
+  },
+  publishedAt: Date,
+  views: {
+    type: Number,
+    default: 0
+  },
+  meta: {
+    title: String,
+    description: String,
+    keywords: [String]
+  }
+}, {
+  timestamps: true
+});
+
+const NewsUpdate = mongoose.models.NewsUpdate || mongoose.model('NewsUpdate', newsUpdateSchema);
+
+// Stall Schema
+const stallSchema = new mongoose.Schema({
+  stallNumber: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  location: {
+    type: String,
+    required: true
+  },
+  size: {
+    type: String,
+    required: true,
+    enum: ['small', 'medium', 'large', 'premium']
+  },
+  amenities: [String],
+  price: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  currency: {
+    type: String,
+    default: 'INR'
+  },
+  status: {
+    type: String,
+    enum: ['available', 'booked', 'maintenance'],
+    default: 'available'
+  },
+  bookedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vendor'
+  },
+  bookingDate: Date,
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event'
+  }
+}, {
+  timestamps: true
+});
+
+const Stall = mongoose.models.Stall || mongoose.model('Stall', stallSchema);
+
+// Marketplace User Schema
+const marketplaceUserSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true
+  },
+  vendorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Vendor'
+  },
+  role: {
+    type: String,
+    enum: ['vendor', 'buyer', 'admin'],
+    required: true
+  },
+  permissions: [String],
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  lastLogin: Date,
+  preferences: {
+    notifications: {
+      email: { type: Boolean, default: true },
+      sms: { type: Boolean, default: false },
+      push: { type: Boolean, default: true }
+    },
+    language: {
+      type: String,
+      default: 'en'
+    },
+    currency: {
+      type: String,
+      default: 'INR'
+    }
+  }
+}, {
+  timestamps: true
+});
+
+const MarketplaceUser = mongoose.models.MarketplaceUser || mongoose.model('MarketplaceUser', marketplaceUserSchema);
+
 // Sample data
 const sampleFarmers = [
   {
@@ -977,6 +1206,348 @@ const sampleProducts = [
   }
 ];
 
+const sampleOrganizations = [
+  {
+    name: 'Ministry of Agriculture & Farmers Welfare',
+    slug: 'ministry-of-agriculture-farmers-welfare',
+    description: 'Government organization promoting agricultural development and farmer welfare across India',
+    type: 'government',
+    address: {
+      street: 'Krishi Bhavan',
+      city: 'New Delhi',
+      state: 'Delhi',
+      pincode: '110001',
+      country: 'India'
+    },
+    contactInfo: {
+      phone: '+91-11-2338xxxx',
+      email: 'info@agriculture.gov.in',
+      website: 'https://agriculture.gov.in',
+      contactPerson: 'Agricultural Officer'
+    },
+    logo: {
+      url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=200&h=200&fit=crop',
+      alt: 'Ministry of Agriculture Logo'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=300&fit=crop',
+      alt: 'Ministry of Agriculture'
+    },
+    socialMedia: {
+      facebook: 'ministryofagriculture',
+      twitter: 'agriculturegov',
+      linkedin: 'ministry-of-agriculture'
+    },
+    services: ['Agricultural Policy', 'Farmer Support', 'Research & Development', 'Subsidies'],
+    certifications: ['ISO 9001', 'Government Certified'],
+    status: 'active',
+    verified: true
+  },
+  {
+    name: 'Punjab Agricultural University',
+    slug: 'punjab-agricultural-university',
+    description: 'Premier agricultural research and education institution in Punjab',
+    type: 'research',
+    address: {
+      street: 'PAU Campus',
+      city: 'Ludhiana',
+      state: 'Punjab',
+      pincode: '141004',
+      country: 'India'
+    },
+    contactInfo: {
+      phone: '+91-161-2401960',
+      email: 'info@pau.edu',
+      website: 'https://pau.edu',
+      contactPerson: 'Registrar'
+    },
+    logo: {
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
+      alt: 'PAU Logo'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
+      alt: 'Punjab Agricultural University'
+    },
+    socialMedia: {
+      facebook: 'punjabagriculturaluniversity',
+      twitter: 'pau_ludhiana',
+      linkedin: 'punjab-agricultural-university'
+    },
+    services: ['Agricultural Research', 'Education', 'Extension Services', 'Seed Development'],
+    certifications: ['NAAC A+', 'ICAR Recognition'],
+    status: 'active',
+    verified: true
+  },
+  {
+    name: 'Green Earth Foundation',
+    slug: 'green-earth-foundation',
+    description: 'NGO promoting sustainable agriculture and environmental conservation',
+    type: 'ngo',
+    address: {
+      street: 'Eco Park Road',
+      city: 'Chandigarh',
+      state: 'Punjab',
+      pincode: '160002',
+      country: 'India'
+    },
+    contactInfo: {
+      phone: '+91-172-1234567',
+      email: 'info@greenearth.org',
+      website: 'https://greenearth.org',
+      contactPerson: 'Program Director'
+    },
+    logo: {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=200&h=200&fit=crop',
+      alt: 'Green Earth Foundation Logo'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+      alt: 'Green Earth Foundation'
+    },
+    socialMedia: {
+      facebook: 'greenearthfoundation',
+      twitter: 'greenearthngo',
+      linkedin: 'green-earth-foundation'
+    },
+    services: ['Environmental Education', 'Sustainable Farming', 'Community Development', 'Conservation'],
+    certifications: ['FCRA Registration', '80G Certificate'],
+    status: 'active',
+    verified: true
+  }
+];
+
+const sampleNewsUpdates = [
+  {
+    title: 'New Agricultural Policy Announced for 2024',
+    slug: 'new-agricultural-policy-announced-2024',
+    excerpt: 'Government announces comprehensive new policies to support farmers and promote sustainable agricultural practices',
+    content: 'The Government of India has announced a comprehensive new agricultural policy for 2024 that focuses on sustainable farming practices, digital agriculture, and farmer welfare. The policy includes increased subsidies for organic farming, better crop insurance schemes, and enhanced support for small and marginal farmers. This policy aims to double farmer income by 2025 while promoting environmentally friendly agricultural practices.',
+    author: {
+      name: 'Agricultural Reporter',
+      email: 'reporter@agriculture.gov.in',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop'
+    },
+    category: 'policy',
+    tags: ['policy', 'government', 'agriculture', 'sustainability'],
+    image: {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop',
+      alt: 'Agricultural Policy',
+      caption: 'New agricultural policy announcement'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&h=600&fit=crop',
+        alt: 'Policy Meeting',
+        caption: 'Policy makers discussing agricultural reforms'
+      }
+    ],
+    status: 'published',
+    featured: true,
+    publishedAt: new Date('2024-01-15'),
+    views: 1250,
+    meta: {
+      title: 'New Agricultural Policy 2024 | Government Announcements',
+      description: 'Comprehensive new agricultural policy announced by the government',
+      keywords: ['agricultural policy', 'government', 'farmers', 'sustainability']
+    }
+  },
+  {
+    title: 'Success Story: Organic Farming Transforms Village Economy',
+    slug: 'success-story-organic-farming-transforms-village',
+    excerpt: 'How a small village in Punjab adopted organic farming and increased their income by 300%',
+    content: 'The village of Model Town in Ludhiana district has become a shining example of how organic farming can transform rural economies. Led by progressive farmer Rajesh Kumar, the village has completely transitioned to organic farming methods over the past five years. The results have been remarkable - farmers have seen a 300% increase in their income while improving soil health and reducing input costs. The village now exports organic produce to major cities and has become a model for other farming communities.',
+    author: {
+      name: 'Rural Development Reporter',
+      email: 'rural@kisaanmela.com',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop'
+    },
+    category: 'success_story',
+    tags: ['success story', 'organic farming', 'village development', 'income increase'],
+    image: {
+      url: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&h=600&fit=crop',
+      alt: 'Organic Farm Success',
+      caption: 'Organic farming success in Model Town village'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&h=600&fit=crop',
+        alt: 'Organic Vegetables',
+        caption: 'Fresh organic vegetables from the village'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=600&fit=crop',
+        alt: 'Happy Farmers',
+        caption: 'Farmers celebrating their success'
+      }
+    ],
+    status: 'published',
+    featured: true,
+    publishedAt: new Date('2024-02-10'),
+    views: 890,
+    meta: {
+      title: 'Organic Farming Success Story | Village Transformation',
+      description: 'How organic farming transformed a village economy in Punjab',
+      keywords: ['organic farming', 'success story', 'village development', 'income']
+    }
+  },
+  {
+    title: 'Innovation Hub: AI-Powered Crop Monitoring System',
+    slug: 'innovation-hub-ai-powered-crop-monitoring',
+    excerpt: 'New AI technology helps farmers monitor crop health and predict yields with 95% accuracy',
+    content: 'A revolutionary AI-powered crop monitoring system has been developed by agricultural researchers at Punjab Agricultural University. This system uses satellite imagery, drone technology, and machine learning algorithms to monitor crop health, detect diseases early, and predict yields with 95% accuracy. The system has been successfully tested on over 1000 farms across Punjab and has helped farmers increase their yields by 25% while reducing pesticide use by 40%. The technology is now being made available to farmers at subsidized rates through government schemes.',
+    author: {
+      name: 'Technology Reporter',
+      email: 'tech@kisaanmela.com',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop'
+    },
+    category: 'innovation',
+    tags: ['innovation', 'AI', 'technology', 'crop monitoring', 'yield prediction'],
+    image: {
+      url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&h=600&fit=crop',
+      alt: 'AI Crop Monitoring',
+      caption: 'AI-powered crop monitoring system in action'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&h=600&fit=crop',
+        alt: 'Drone Technology',
+        caption: 'Drone technology for crop monitoring'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop',
+        alt: 'Data Analysis',
+        caption: 'AI analyzing crop data'
+      }
+    ],
+    status: 'published',
+    featured: true,
+    publishedAt: new Date('2024-03-05'),
+    views: 2100,
+    meta: {
+      title: 'AI Crop Monitoring System | Agricultural Innovation',
+      description: 'Revolutionary AI technology for crop monitoring and yield prediction',
+      keywords: ['AI', 'crop monitoring', 'agricultural technology', 'innovation']
+    }
+  },
+  {
+    title: 'Farmer Story: From Struggling to Successful Entrepreneur',
+    slug: 'farmer-story-struggling-to-successful-entrepreneur',
+    excerpt: 'Priya Sharma shares her journey from a struggling farmer to a successful agricultural entrepreneur',
+    content: 'Priya Sharma\'s story is one of determination, innovation, and success. Starting with just 2 acres of land in Karnal, Haryana, she faced numerous challenges including crop failures, market fluctuations, and lack of access to modern farming techniques. However, through her determination and willingness to learn, she transformed her small farm into a thriving agricultural business. Today, she runs a successful organic farming operation, supplies fresh produce to major cities, and mentors other women farmers in her community. Her story inspires thousands of farmers across the country.',
+    author: {
+      name: 'Women Empowerment Reporter',
+      email: 'women@kisaanmela.com',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop'
+    },
+    category: 'blog',
+    tags: ['farmer story', 'women empowerment', 'entrepreneurship', 'success'],
+    image: {
+      url: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&h=600&fit=crop',
+      alt: 'Priya Sharma',
+      caption: 'Priya Sharma in her organic farm'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=600&fit=crop',
+        alt: 'Fresh Produce',
+        caption: 'Fresh organic produce from Priya\'s farm'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=800&h=600&fit=crop',
+        alt: 'Women Farmers',
+        caption: 'Priya mentoring other women farmers'
+      }
+    ],
+    status: 'published',
+    featured: false,
+    publishedAt: new Date('2024-03-20'),
+    views: 650,
+    meta: {
+      title: 'Farmer Success Story | Women in Agriculture',
+      description: 'Inspiring story of a woman farmer\'s journey to success',
+      keywords: ['farmer story', 'women empowerment', 'agricultural entrepreneurship']
+    }
+  }
+];
+
+const sampleStalls = [
+  {
+    stallNumber: 'A-001',
+    location: 'Main Pavilion',
+    size: 'premium',
+    amenities: ['Electricity', 'Water', 'Storage', 'Display Rack'],
+    price: 5000,
+    currency: 'INR',
+    status: 'booked',
+    bookingDate: new Date('2024-12-15')
+  },
+  {
+    stallNumber: 'A-002',
+    location: 'Main Pavilion',
+    size: 'large',
+    amenities: ['Electricity', 'Water', 'Storage'],
+    price: 4000,
+    currency: 'INR',
+    status: 'booked',
+    bookingDate: new Date('2024-12-15')
+  },
+  {
+    stallNumber: 'B-001',
+    location: 'Secondary Pavilion',
+    size: 'medium',
+    amenities: ['Electricity', 'Water'],
+    price: 3000,
+    currency: 'INR',
+    status: 'available'
+  },
+  {
+    stallNumber: 'B-002',
+    location: 'Secondary Pavilion',
+    size: 'medium',
+    amenities: ['Electricity', 'Water'],
+    price: 3000,
+    currency: 'INR',
+    status: 'available'
+  },
+  {
+    stallNumber: 'C-001',
+    location: 'Outdoor Area',
+    size: 'small',
+    amenities: ['Electricity'],
+    price: 2000,
+    currency: 'INR',
+    status: 'available'
+  },
+  {
+    stallNumber: 'C-002',
+    location: 'Outdoor Area',
+    size: 'small',
+    amenities: ['Electricity'],
+    price: 2000,
+    currency: 'INR',
+    status: 'available'
+  },
+  {
+    stallNumber: 'D-001',
+    location: 'Food Court',
+    size: 'large',
+    amenities: ['Electricity', 'Water', 'Gas Connection', 'Storage'],
+    price: 4500,
+    currency: 'INR',
+    status: 'available'
+  },
+  {
+    stallNumber: 'D-002',
+    location: 'Food Court',
+    size: 'medium',
+    amenities: ['Electricity', 'Water', 'Gas Connection'],
+    price: 3500,
+    currency: 'INR',
+    status: 'available'
+  }
+];
+
 // Main seeding function
 async function seedDatabase() {
   try {
@@ -996,6 +1567,10 @@ async function seedDatabase() {
     await Event.deleteMany({});
     await Vendor.deleteMany({});
     await Product.deleteMany({});
+    await Organization.deleteMany({});
+    await NewsUpdate.deleteMany({});
+    await Stall.deleteMany({});
+    await MarketplaceUser.deleteMany({});
     console.log('✅ Cleared existing data');
 
     // Seed Users
@@ -1038,6 +1613,63 @@ async function seedDatabase() {
     }
     console.log('✅ Linked products to vendors');
 
+    // Seed Organizations
+    console.log('🏢 Seeding organizations...');
+    const organizations = await Organization.insertMany(sampleOrganizations);
+    console.log(`✅ Created ${organizations.length} organizations`);
+
+    // Seed News Updates
+    console.log('📰 Seeding news updates...');
+    const newsUpdates = await NewsUpdate.insertMany(sampleNewsUpdates);
+    console.log(`✅ Created ${newsUpdates.length} news updates`);
+
+    // Seed Stalls
+    console.log('🏪 Seeding stalls...');
+    const stalls = await Stall.insertMany(sampleStalls);
+    console.log(`✅ Created ${stalls.length} stalls`);
+
+    // Link booked stalls to vendors
+    const bookedStalls = stalls.filter(s => s.status === 'booked');
+    for (let i = 0; i < bookedStalls.length && i < vendors.length; i++) {
+      await Stall.findByIdAndUpdate(bookedStalls[i]._id, {
+        bookedBy: vendors[i]._id,
+        event: events[0]._id // Link to first event
+      });
+    }
+    console.log('✅ Linked booked stalls to vendors');
+
+    // Seed Marketplace Users (skip for now due to index issues)
+    console.log('👤 Skipping marketplace users (index conflict)...');
+    // const marketplaceUsers = [];
+    // for (let i = 0; i < users.length; i++) {
+    //   const user = users[i];
+    //   const marketplaceUser = {
+    //     userId: user._id,
+    //     role: user.role === 'farmer' ? 'vendor' : user.role === 'admin' ? 'admin' : 'buyer',
+    //     permissions: user.role === 'admin' ? ['read', 'write', 'delete', 'admin'] : ['read', 'write'],
+    //     isActive: true,
+    //     lastLogin: new Date(),
+    //     preferences: {
+    //       notifications: {
+    //         email: true,
+    //         sms: false,
+    //         push: true
+    //       },
+    //       language: 'en',
+    //       currency: 'INR'
+    //     }
+    //   };
+      
+    //   // Link vendor role users to vendors
+    //   if (user.role === 'farmer' && vendors[i % vendors.length]) {
+    //     marketplaceUser.vendorId = vendors[i % vendors.length]._id;
+    //   }
+      
+    //   marketplaceUsers.push(marketplaceUser);
+    // }
+    // const createdMarketplaceUsers = await MarketplaceUser.insertMany(marketplaceUsers);
+    // console.log(`✅ Created ${createdMarketplaceUsers.length} marketplace users`);
+
     console.log('🎉 Database seeding completed successfully!');
     console.log('\n📊 Summary:');
     console.log(`- Users: ${users.length}`);
@@ -1045,11 +1677,23 @@ async function seedDatabase() {
     console.log(`- Events: ${events.length}`);
     console.log(`- Vendors: ${vendors.length}`);
     console.log(`- Products: ${createdProducts.length}`);
+    console.log(`- Organizations: ${organizations.length}`);
+    console.log(`- News Updates: ${newsUpdates.length}`);
+    console.log(`- Stalls: ${stalls.length}`);
+    console.log(`- Marketplace Users: 0 (skipped due to index conflict)`);
 
     console.log('\n🔑 Demo Login Credentials:');
     console.log('Farmer: rajesh@kisaanmela.com / farmer123');
     console.log('Buyer: sunita@kisaanmela.com / buyer123');
     console.log('Admin: admin@kisaanmela.com / admin123');
+
+    console.log('\n📱 Available Features:');
+    console.log('- Events Management with Gallery and Registration');
+    console.log('- Marketplace with Buy/Sell functionality');
+    console.log('- Training & Learning with Workshops and Subsidies');
+    console.log('- Vendors with Stall Booking and Catalog Management');
+    console.log('- News & Blogs with Farmer Stories and Innovation Hub');
+    console.log('- Contact Form with full functionality');
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);
