@@ -4,6 +4,7 @@ import './globals.css';
 import { Providers } from '@/components/providers/Providers';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import ChatBot from '@/components/ChatBot';
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({ 
@@ -108,6 +109,7 @@ export default function RootLayout({
               },
             }}
           />
+          <ChatBot />
         </Providers>
       </body>
     </html>

@@ -15,56 +15,63 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
-    services: [
-      { name: 'Pet Sitting', href: '/services/pet-sitting' },
-      { name: 'Dog Walking', href: '/services/dog-walking' },
-      { name: 'Pet Grooming', href: '/services/grooming' },
-      { name: 'Pet Training', href: '/services/training' },
-      { name: 'Veterinary Care', href: '/services/veterinary' },
+    marketplace: [
+      { name: 'Buy Seeds & Tools', href: '/marketplace?category=seeds' },
+      { name: 'Sell Produce', href: '/marketplace/sell' },
+      { name: 'Organic Products', href: '/marketplace?category=organic' },
+      { name: 'Livestock', href: '/marketplace?category=livestock' },
+      { name: 'Equipment', href: '/marketplace?category=equipment' },
+    ],
+    events: [
+      { name: 'Upcoming Melas', href: '/events?filter=upcoming' },
+      { name: 'Past Highlights', href: '/events?filter=past' },
+      { name: 'Photo Gallery', href: '/events/gallery' },
+      { name: 'Book Stall', href: '/vendors/book-stall' },
+      { name: 'Event Registration', href: '/events/register' },
+    ],
+    learning: [
+      { name: 'Workshops', href: '/training/workshops' },
+      { name: 'Subsidy Guidance', href: '/training/subsidies' },
+      { name: 'Agri Tech Updates', href: '/training/tech' },
+      { name: 'Farmer Stories', href: '/news/farmer-stories' },
+      { name: 'Innovation Hub', href: '/news/innovation' },
     ],
     company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'How It Works', href: '/how-it-works' },
-      { name: 'Safety & Trust', href: '/safety' },
+      { name: 'About Kisan Mela', href: '/about' },
+      { name: 'Partner with Us', href: '/partners' },
+      { name: 'Press Kit', href: '/press' },
       { name: 'Careers', href: '/careers' },
-      { name: 'Press', href: '/press' },
+      { name: 'Support', href: '/support' },
     ],
-    support: [
-      { name: 'Help Center', href: '/help' },
-      { name: 'Contact Us', href: '/contact' },
-      { name: 'Trust & Safety', href: '/trust-safety' },
-      { name: 'Terms of Service', href: '/terms' },
+    legal: [
       { name: 'Privacy Policy', href: '/privacy' },
-    ],
-    community: [
-      { name: 'Pet Stories', href: '/stories' },
-      { name: 'Pet Tips', href: '/tips' },
-      { name: 'Community Guidelines', href: '/guidelines' },
-      { name: 'Pet Events', href: '/events' },
-      { name: 'Blog', href: '/blog' },
+      { name: 'Terms of Use', href: '/terms' },
+      { name: 'Cookie Policy', href: '/cookies' },
+      { name: 'Refund Policy', href: '/refunds' },
+      { name: 'Contact Us', href: '/contact' },
     ],
   };
 
   const features = [
     {
       icon: HeartIcon,
-      title: 'Trusted Care',
-      description: 'Verified pet sitters and walkers with background checks',
+      title: 'Trusted Marketplace',
+      description: 'Verified farmers and vendors with quality assurance',
     },
     {
       icon: ChatBubbleLeftRightIcon,
       title: '24/7 Support',
-      description: 'Round-the-clock customer support for peace of mind',
+      description: 'Round-the-clock customer support for farmers and vendors',
     },
     {
       icon: ShieldCheckIcon,
-      title: 'Pet Insurance',
-      description: 'Comprehensive insurance coverage for your pets',
+      title: 'Secure Transactions',
+      description: 'Safe and secure payment processing for all transactions',
     },
     {
       icon: StarIcon,
-      title: 'Verified Reviews',
-      description: 'Real reviews from real pet owners',
+      title: 'Community Verified',
+      description: 'Real reviews from farmers and agricultural experts',
     },
   ];
 
@@ -82,31 +89,31 @@ export function Footer() {
               <span className="text-xl font-bold">Kisaanmela</span>
             </div>
             <p className="text-gray-400 mb-6">
-              Your pet's best friend. Find trusted pet care services in your area.
+              Connecting farmers with buyers. Your trusted agricultural marketplace.
             </p>
             
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <MapPinIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-gray-400">123 Pet Street, Pet City, PC 12345</span>
+                <span className="text-gray-400">Agricultural Hub, Farm District, FD 110001</span>
               </div>
               <div className="flex items-center space-x-3">
                 <PhoneIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-gray-400">+1 (555) 123-4567</span>
+                <span className="text-gray-400">+91 98765 43210</span>
               </div>
               <div className="flex items-center space-x-3">
                 <EnvelopeIcon className="h-5 w-5 text-gray-400" />
-                <span className="text-gray-400">hello@animall.com</span>
+                <span className="text-gray-400">hello@kisaanmela.com</span>
               </div>
             </div>
           </div>
 
-          {/* Services */}
+          {/* Marketplace */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Services</h3>
+            <h3 className="text-lg font-semibold mb-4">Marketplace</h3>
             <ul className="space-y-2">
-              {footerLinks.services.map((link) => (
+              {footerLinks.marketplace.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -136,11 +143,28 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Learning & Events */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Support</h3>
+            <h3 className="text-lg font-semibold mb-4">Learning & Events</h3>
             <ul className="space-y-2">
-              {footerLinks.support.map((link) => (
+              {footerLinks.learning.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-gray-400 hover:text-white transition-colors duration-200"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2">
+              {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -175,7 +199,7 @@ export function Footer() {
           <div className="text-center">
             <h3 className="text-lg font-semibold mb-2">Stay Updated</h3>
             <p className="text-gray-400 mb-4">
-              Get the latest pet care tips and updates from Kisaanmela
+              Get the latest agricultural updates, market prices, and farming tips from Kisaanmela
             </p>
             <div className="flex max-w-md mx-auto">
               <input

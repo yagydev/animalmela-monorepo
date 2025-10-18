@@ -61,13 +61,13 @@ export default function ContactPage() {
     {
       icon: PhoneIcon,
       title: 'Call Us',
-      details: ['+1 (555) 123-4567', 'Mon-Fri: 8AM-8PM', 'Sat-Sun: 9AM-6PM'],
+      details: ['+91-9999778321', 'Mon-Fri: 8AM-8PM', 'Sat-Sun: 9AM-6PM'],
       action: 'Call Now'
     },
     {
       icon: EnvelopeIcon,
       title: 'Email Us',
-      details: ['hello@animall.com', 'support@animall.com', 'careers@animall.com'],
+      details: ['hello@kisaanmela.com', 'support@kisaanmela.com', 'careers@kisaanmela.com'],
       action: 'Send Email'
     },
     {

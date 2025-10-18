@@ -1,6 +1,6 @@
-# Animall Frontend
+# Kisaan Mela Frontend
 
-A modern, responsive web application built with Next.js 14, TypeScript, and Tailwind CSS for the Animall pet services platform.
+A modern, responsive web application built with Next.js 14, TypeScript, and Tailwind CSS for the Kisaan Mela agricultural marketplace platform.
 
 ## Features
 
@@ -51,7 +51,7 @@ A modern, responsive web application built with Next.js 14, TypeScript, and Tail
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd animall-platform/frontend
+   cd kisaan-mela-platform/frontend
    ```
 
 2. **Install dependencies**
@@ -218,4 +218,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-For support, email support@animall.com or create an issue in the repository.
+For support, email support@kisaanmela.com or create an issue in the repository.
