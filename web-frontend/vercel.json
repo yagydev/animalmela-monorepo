@@ -6,7 +6,8 @@
   "framework": "nextjs",
   "functions": {
     "web-frontend/src/app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "runtime": "nodejs18.x"
     }
   },
   "regions": ["bom1"],
@@ -18,5 +19,11 @@
       "NODE_ENV": "production"
     }
   },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-frontend/"
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./web-frontend/",
+  "builds": [
+    {
+      "src": "web-frontend/package.json",
+      "use": "@vercel/next"
+    }
+  ]
 }

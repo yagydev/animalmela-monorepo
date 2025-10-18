@@ -18,6 +18,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Force dynamic rendering for all pages
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
