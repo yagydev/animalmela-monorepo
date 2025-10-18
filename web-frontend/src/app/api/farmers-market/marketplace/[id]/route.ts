@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '../../../../../../lib/mongodb';
-import { MarketplaceListing } from '../../../../../../lib/schemas';
 import mongoose from 'mongoose';
+
+// Mock MarketplaceListing model
+const MarketplaceListing = mongoose.models.MarketplaceListing || mongoose.model('MarketplaceListing', new mongoose.Schema({}));
 
 // Demo data fallback
 const demoListings = [

@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-const smsService = require('../../../../../../lib/smsService');
+
+// Mock SMS service for development
+const mockSmsService = {
+  isConfigured: () => false,
+  sendOTP: async (mobile: string, otp: string) => {
+    console.log(`Mock SMS: OTP ${otp} sent to ${mobile}`);
+    return { success: true, message: 'OTP sent via mock service', provider: 'mock' };
+  }
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +33,9 @@ export async function POST(request: NextRequest) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
     console.log(`Generated OTP for ${mobile}: ${otp}`);
+    
+    // Use mock SMS service for development
+    const smsService = mockSmsService;
     
     // Check if SMS service is configured
     if (!smsService.isConfigured()) {

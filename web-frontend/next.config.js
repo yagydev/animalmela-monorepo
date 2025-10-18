@@ -5,21 +5,18 @@ const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
   skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
 });
 
 const nextConfig = {
   i18n,
-  output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-  experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../'),
   },
   images: {
     remotePatterns: [
@@ -32,7 +29,7 @@ const nextConfig = {
         hostname: 'kisaanmela-uploads.s3.us-east-1.amazonaws.com',
       },
       {
-        protocol: 'https',
+        protocol: 'http',
         hostname: 'localhost',
       },
       {
@@ -41,32 +38,6 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/auth/:path*',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/auth/:path*'
-          : 'http://localhost:5001/api/auth/:path*',
-      },
-      {
-        source: '/api/users/:path*',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/users/:path*'
-          : 'http://localhost:5001/api/users/:path*',
-      },
-      {
-        source: '/api/services/:path*',
-        destination: process.env.NODE_ENV === 'production'
-          ? 'https://api.kisaanmela.com/api/services/:path*'
-          : 'http://localhost:5001/api/services/:path*',
-      },
-      // Note: /api/login, /api/register, /api/logout, /api/me are handled by local Next.js API routes
-      // No proxy needed - they use local API routes in src/app/api/
-      // Note: farmers-market routes are handled locally by Next.js API routes
-      // No rewrite needed for /api/farmers-market/* - they use local API routes
-    ];
   },
   async headers() {
     return [
@@ -88,10 +59,6 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
           },
         ],
       },

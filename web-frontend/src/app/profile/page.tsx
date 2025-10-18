@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { ProfileEditModal } from '@/components/ProfileEditModal';
-import { cachedFetch } from '@/lib/apiCache';
 import { 
   PencilIcon,
   UserCircleIcon,
@@ -56,12 +55,17 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const data = await cachedFetch('/api/me', {
+      const response = await fetch('/api/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
-      }, 30000); // Cache for 30 seconds
+      });
 
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await response.json();
       if (data.success) {
         setProfile(data.user);
       } else {

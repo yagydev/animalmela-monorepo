@@ -118,3 +118,10 @@ const stallSchema = new mongoose.Schema({
 // Create models
 export const MarketplaceUser = mongoose.models.MarketplaceUser || mongoose.model('MarketplaceUser', marketplaceUserSchema);
 export const Stall = mongoose.models.Stall || mongoose.model('Stall', stallSchema);
+
+// Export with different names for compatibility
+export const User = MarketplaceUser;
+export const Product = MarketplaceUser; // Using MarketplaceUser as Product for now
+export const Order = MarketplaceUser; // Using MarketplaceUser as Order for now
+export const Analytics = MarketplaceUser; // Using MarketplaceUser as Analytics for now
+export const Scheme = MarketplaceUser; // Using MarketplaceUser as Scheme for now

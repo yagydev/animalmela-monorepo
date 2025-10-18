@@ -1,100 +1,75 @@
-// Simple API cache to prevent duplicate calls
+// API Cache utility for client-side caching
 interface CacheEntry {
   data: any;
   timestamp: number;
-  ttl: number; // Time to live in milliseconds
+  ttl: number;
 }
 
 class APICache {
   private cache = new Map<string, CacheEntry>();
-  private pendingRequests = new Map<string, Promise<any>>();
 
-  // Default TTL: 30 seconds
-  private defaultTTL = 30 * 1000;
-
-  private isExpired(entry: CacheEntry): boolean {
-    return Date.now() - entry.timestamp > entry.ttl;
-  }
-
-  async get<T>(key: string, fetcher: () => Promise<T>, ttl?: number): Promise<T> {
-    // Check if request is already pending
-    if (this.pendingRequests.has(key)) {
-      return this.pendingRequests.get(key)!;
-    }
-
-    // Check cache
-    const cached = this.cache.get(key);
-    if (cached && !this.isExpired(cached)) {
-      return cached.data;
-    }
-
-    // Create new request
-    const request = fetcher().then((data) => {
-      // Cache the result
-      this.cache.set(key, {
-        data,
-        timestamp: Date.now(),
-        ttl: ttl || this.defaultTTL
-      });
-
-      // Remove from pending requests
-      this.pendingRequests.delete(key);
-
-      return data;
-    }).catch((error) => {
-      // Remove from pending requests on error
-      this.pendingRequests.delete(key);
-      throw error;
+  set(key: string, data: any, ttl: number = 300000) { // 5 minutes default
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
     });
-
-    // Store pending request
-    this.pendingRequests.set(key, request);
-
-    return request;
   }
 
-  // Clear cache for a specific key
-  clear(key: string): void {
-    this.cache.delete(key);
-    this.pendingRequests.delete(key);
+  get(key: string): any | null {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+
+    const now = Date.now();
+    if (now - entry.timestamp > entry.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return entry.data;
   }
 
-  // Clear all cache
-  clearAll(): void {
+  clear() {
     this.cache.clear();
-    this.pendingRequests.clear();
   }
 
-  // Get cache stats
-  getStats() {
-    return {
-      cacheSize: this.cache.size,
-      pendingRequests: this.pendingRequests.size,
-      keys: Array.from(this.cache.keys())
-    };
+  delete(key: string) {
+    this.cache.delete(key);
   }
 }
 
-// Export singleton instance
-export const apiCache = new APICache();
+const apiCache = new APICache();
 
-// Helper function for API calls with caching
-export async function cachedFetch<T>(
+export async function cachedFetch(
   url: string, 
-  options?: RequestInit, 
-  ttl?: number
-): Promise<T> {
-  const cacheKey = `${url}:${JSON.stringify(options || {})}`;
+  options: RequestInit = {}, 
+  ttl: number = 300000
+): Promise<any> {
+  const cacheKey = `${url}-${JSON.stringify(options)}`;
   
-  return apiCache.get(
-    cacheKey,
-    async () => {
-      const response = await fetch(url, options);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    },
-    ttl
-  );
+  // Check cache first
+  const cached = apiCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  try {
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Cache the result
+    apiCache.set(cacheKey, data, ttl);
+    
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
+
+export { apiCache };

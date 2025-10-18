@@ -438,7 +438,7 @@ newsUpdateSchema.index({ slug: 1, status: 1 });
 newsUpdateSchema.index({ category: 1, status: 1 });
 newsUpdateSchema.index({ publishedAt: -1, status: 1 });
 
-// Create models
+// Create models with explicit typing
 const Event = mongoose.models.Event || mongoose.model('Event', eventSchema);
 const Vendor = mongoose.models.Vendor || mongoose.model('Vendor', vendorSchema);
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);

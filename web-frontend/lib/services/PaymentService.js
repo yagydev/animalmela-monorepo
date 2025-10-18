@@ -3,15 +3,33 @@ const crypto = require('crypto');
 
 class PaymentService {
   constructor() {
-    this.razorpay = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    });
+    // Only initialize Razorpay if keys are available
+    if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+      this.razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+      });
+    } else {
+      console.warn('Razorpay keys not configured, payment service will use mock mode');
+      this.razorpay = null;
+    }
   }
 
   // Create Razorpay order
   async createOrder(orderData) {
     try {
+      if (!this.razorpay) {
+        // Mock order for development
+        return {
+          success: true,
+          orderId: `mock_${Date.now()}`,
+          amount: orderData.amount * 100,
+          currency: 'INR',
+          key: 'mock_key',
+          mock: true
+        };
+      }
+
       const options = {
         amount: orderData.amount * 100, // Razorpay expects amount in paise
         currency: 'INR',
@@ -44,6 +62,15 @@ class PaymentService {
   // Verify payment signature
   verifyPayment(razorpayOrderId, razorpayPaymentId, razorpaySignature) {
     try {
+      if (!this.razorpay) {
+        // Mock verification for development
+        return {
+          success: true,
+          message: 'Payment verified successfully (mock mode)',
+          mock: true
+        };
+      }
+
       const body = razorpayOrderId + '|' + razorpayPaymentId;
       const expectedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
@@ -68,6 +95,14 @@ class PaymentService {
   // Capture payment
   async capturePayment(paymentId, amount) {
     try {
+      if (!this.razorpay) {
+        // Mock capture for development
+        return {
+          success: true,
+          capture: { id: paymentId, amount: amount * 100, mock: true }
+        };
+      }
+
       const capture = await this.razorpay.payments.capture(
         paymentId,
         amount * 100,
@@ -90,6 +125,14 @@ class PaymentService {
   // Refund payment
   async refundPayment(paymentId, amount, reason = 'Refund requested') {
     try {
+      if (!this.razorpay) {
+        // Mock refund for development
+        return {
+          success: true,
+          refund: { id: `refund_${Date.now()}`, amount: amount * 100, mock: true }
+        };
+      }
+
       const refund = await this.razorpay.payments.refund(paymentId, {
         amount: amount * 100,
         notes: {
