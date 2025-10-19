@@ -66,6 +66,13 @@ interface NavItemProps {
 }
 
 function NavItemComponent({ item, isActive, showDropdown, onToggleDropdown, onCloseDropdown }: NavItemProps) {
+  const handleClick = (e: React.MouseEvent) => {
+    if (item.children) {
+      e.preventDefault();
+      onToggleDropdown();
+    }
+  };
+
   return (
     <div className="relative">
       <Link
@@ -75,7 +82,9 @@ function NavItemComponent({ item, isActive, showDropdown, onToggleDropdown, onCl
             ? 'text-green-700 bg-green-50' 
             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
         }`}
-        onClick={item.children ? onToggleDropdown : undefined}
+        onClick={handleClick}
+        onMouseEnter={item.children ? onToggleDropdown : undefined}
+        onMouseLeave={item.children ? onCloseDropdown : undefined}
       >
         <span className="text-base">{item.icon}</span>
         <span>{item.name}</span>

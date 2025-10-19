@@ -413,9 +413,12 @@ export default function WorkshopsPage() {
                 </div>
 
                 {/* Action Button */}
-                <button className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium">
-                  Register Now
-                </button>
+                <Link
+                  href={`/training/workshops/${workshop.id}`}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium text-center block"
+                >
+                  View Details & Register
+                </Link>
               </div>
             </div>
           ))}
@@ -465,3 +468,4 @@ export default function WorkshopsPage() {
     </div>
   );
 }
+

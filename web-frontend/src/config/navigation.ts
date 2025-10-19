@@ -89,6 +89,17 @@ export const navigationConfig: NavigationConfig = {
           name: "Agri Tech Updates",
           path: "/training/tech",
           description: "Latest agricultural technology"
+        },
+        {
+          name: "My Progress",
+          path: "/training/progress",
+          description: "Track your learning journey",
+          highlight: true
+        },
+        {
+          name: "Application Tracking",
+          path: "/training/subsidies/tracking",
+          description: "Monitor subsidy applications"
         }
       ]
     },

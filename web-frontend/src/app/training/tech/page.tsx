@@ -401,10 +401,13 @@ export default function TechPage() {
                   </div>
 
                   {/* Action Button */}
-                  <button className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center">
+                  <Link
+                    href={`/training/tech/${resource.id}`}
+                    className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
+                  >
                     <span>View Resource</span>
                     <ArrowRightIcon className="h-4 w-4 ml-2" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             );
@@ -431,8 +434,32 @@ export default function TechPage() {
           </div>
         )}
 
+        {/* Progress Tracking CTA */}
+        <div className="mt-12 bg-blue-50 rounded-lg p-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Track Your Learning Progress</h2>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Monitor your agricultural technology learning journey and celebrate your achievements.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/training/progress"
+                className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                View My Progress
+              </Link>
+              <Link
+                href="/training/workshops"
+                className="px-6 py-3 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+              >
+                Join Workshops
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Newsletter Signup */}
-        <div className="mt-12 bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg p-8">
+        <div className="mt-8 bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg p-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Stay Updated with Agri Tech</h2>
             <p className="text-green-100 mb-6 max-w-2xl mx-auto">
@@ -454,3 +481,4 @@ export default function TechPage() {
     </div>
   );
 }
+
