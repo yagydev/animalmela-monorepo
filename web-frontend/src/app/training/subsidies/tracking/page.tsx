@@ -11,7 +11,7 @@ import {
   ArrowRightIcon,
   MagnifyingGlassIcon,
   EyeIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   ExclamationTriangleIcon,
   CalendarIcon,
   UserIcon
@@ -300,7 +300,7 @@ export default function SubsidyTrackingPage() {
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                   <div className="flex space-x-3">
                     <button className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                      <DownloadIcon className="h-4 w-4 mr-2" />
+                      <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
                       Download Documents
                     </button>
                     <button className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">

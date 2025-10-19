@@ -19,7 +19,8 @@ import {
   StarIcon,
   TrophyIcon,
   FireIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
