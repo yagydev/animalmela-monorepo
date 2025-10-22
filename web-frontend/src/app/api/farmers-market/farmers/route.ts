@@ -1,109 +1,134 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '../../../../../lib/mongodb';
-import { Farmer } from '../../../../../lib/schemas';
+import mongoose from 'mongoose';
 
-// Demo data fallback
-const demoFarmers = [
-  {
-    _id: '1',
-    name: 'Rajesh Kumar',
-    email: 'rajesh@example.com',
-    mobile: '9876543210',
-    location: {
-      state: 'Punjab',
-      district: 'Ludhiana',
-      pincode: '141001',
-      village: 'Village A'
-    },
-    products: ['Wheat', 'Rice', 'Corn'],
-    images: [
-      'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=200&fit=crop',
-      'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=200&fit=crop'
-    ],
-    rating: { average: 4.5, count: 12 },
-    createdAt: new Date().toISOString(),
-    isActive: true
-  },
-  {
-    _id: '2',
-    name: 'Priya Sharma',
-    email: 'priya@example.com',
-    mobile: '9876543211',
-    location: {
-      state: 'Haryana',
-      district: 'Karnal',
-      pincode: '132001',
-      village: 'Village B'
-    },
-    products: ['Rice', 'Vegetables', 'Fruits'],
-    images: [
-      'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=200&fit=crop'
-    ],
-    rating: { average: 4.2, count: 8 },
-    createdAt: new Date().toISOString(),
-    isActive: true
-  },
-  {
-    _id: '3',
-    name: 'Amit Singh',
-    email: 'amit@example.com',
-    mobile: '9876543212',
-    location: {
-      state: 'Uttar Pradesh',
-      district: 'Meerut',
-      pincode: '250001',
-      village: 'Village C'
-    },
-    products: ['Sugarcane', 'Potatoes', 'Onions'],
-    images: [
-      'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=300&h=200&fit=crop'
-    ],
-    rating: { average: 4.8, count: 15 },
-    createdAt: new Date().toISOString(),
-    isActive: true
+// MongoDB connection
+const connectDB = async () => {
+  if (mongoose.connections[0].readyState) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kisaanmela');
+  } catch (error) {
+    console.error('Database connection error:', error);
   }
-];
+};
+
+// Farmer Schema
+const farmerSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Farmer name is required'],
+    trim: true,
+    minlength: [2, 'Name must be at least 2 characters'],
+    maxlength: [100, 'Name cannot exceed 100 characters']
+  },
+  email: {
+    type: String,
+    required: [true, 'Email is required'],
+    unique: true,
+    lowercase: true,
+    trim: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+  },
+  mobile: {
+    type: String,
+    required: [true, 'Mobile number is required'],
+    trim: true,
+    match: [/^[6-9]\d{9}$/, 'Please enter a valid 10-digit mobile number']
+  },
+  location: {
+    state: {
+      type: String,
+      required: [true, 'State is required'],
+      trim: true
+    },
+    district: {
+      type: String,
+      required: [true, 'District is required'],
+      trim: true
+    },
+    pincode: {
+      type: String,
+      required: [true, 'Pincode is required'],
+      trim: true,
+      match: [/^\d{6}$/, 'Please enter a valid 6-digit pincode']
+    },
+    village: {
+      type: String,
+      required: [true, 'Village is required'],
+      trim: true
+    }
+  },
+  products: [{
+    type: String,
+    trim: true
+  }],
+  images: [{
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v: string) {
+        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(v) || 
+               /^https?:\/\/images\.unsplash\.com\/.+$/i.test(v);
+      },
+      message: 'Please provide a valid image URL'
+    }
+  }],
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  rating: {
+    average: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5
+    },
+    count: {
+      type: Number,
+      default: 0
+    }
+  }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Virtual for farmer's full address
+farmerSchema.virtual('fullAddress').get(function() {
+  return `${this.location.village}, ${this.location.district}, ${this.location.state} - ${this.location.pincode}`;
+});
+
+const Farmer = mongoose.models.Farmer || mongoose.model('Farmer', farmerSchema);
 
 export async function GET() {
   try {
-    // Try to connect to MongoDB first
-    try {
-      await connectDB();
-      const farmers = await Farmer.find({ isActive: true })
-        .select('-__v')
-        .sort({ createdAt: -1 });
-      
-      return NextResponse.json({
-        success: true,
-        farmers: farmers,
-        count: farmers.length
-      });
-    } catch (dbError) {
-      console.warn('MongoDB connection failed, using demo data:', dbError.message);
-      
-      // Fallback to demo data
-      return NextResponse.json({
-        success: true,
-        farmers: demoFarmers,
-        count: demoFarmers.length,
-        message: 'Using demo data - MongoDB not available'
-      });
-    }
+    await connectDB();
+    
+    const farmers = await Farmer.find({ isActive: true })
+      .select('-__v')
+      .sort({ createdAt: -1 });
+    
+    return NextResponse.json({
+      success: true,
+      farmers: farmers,
+      count: farmers.length
+    });
   } catch (error) {
     console.error('Error fetching farmers:', error);
     
-    // Final fallback to demo data
     return NextResponse.json({
-      success: true,
-      farmers: demoFarmers,
-      count: demoFarmers.length,
-      message: 'Using demo data due to error'
-    });
+      success: false,
+      error: 'Failed to fetch farmers',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const data = await request.json();
     
     // Validate required fields
@@ -117,48 +142,28 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    try {
-      await connectDB();
-      
-      // Check if farmer with email already exists
-      const existingFarmer = await Farmer.findOne({ email: data.email });
-      if (existingFarmer) {
-        return NextResponse.json({
-          success: false,
-          error: 'Farmer with this email already exists'
-        }, { status: 409 });
-      }
-      
-      const newFarmer = new Farmer(data);
-      await newFarmer.save();
-      
+    // Check if farmer with email already exists
+    const existingFarmer = await Farmer.findOne({ email: data.email });
+    if (existingFarmer) {
       return NextResponse.json({
-        success: true,
-        farmer: newFarmer,
-        message: 'Farmer created successfully'
-      }, { status: 201 });
-    } catch (dbError) {
-      console.warn('MongoDB connection failed for POST:', dbError.message);
-      
-      // Simulate successful creation with demo data
-      const newFarmer = {
-        _id: Math.random().toString(36).substr(2, 9),
-        ...data,
-        createdAt: new Date().toISOString(),
-        isActive: true
-      };
-      
-      return NextResponse.json({
-        success: true,
-        farmer: newFarmer,
-        message: 'Farmer created successfully (demo mode)'
-      }, { status: 201 });
+        success: false,
+        error: 'Farmer with this email already exists'
+      }, { status: 409 });
     }
+    
+    const newFarmer = new Farmer(data);
+    await newFarmer.save();
+    
+    return NextResponse.json({
+      success: true,
+      farmer: newFarmer,
+      message: 'Farmer created successfully'
+    }, { status: 201 });
   } catch (error) {
     console.error('Error creating farmer:', error);
     
     // Handle validation errors
-    if (error.name === 'ValidationError') {
+    if (error instanceof mongoose.Error.ValidationError) {
       const validationErrors = Object.values(error.errors).map((err: any) => err.message);
       return NextResponse.json({
         success: false,
@@ -170,7 +175,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       success: false,
       error: 'Failed to create farmer',
-      message: error.message 
+      message: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

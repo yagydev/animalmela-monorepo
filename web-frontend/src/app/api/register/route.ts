@@ -93,20 +93,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Hash password if provided
-    let hashedPassword = undefined;
-    if (password) {
-      const bcrypt = await import('bcryptjs');
-      const saltRounds = 10;
-      hashedPassword = await bcrypt.hash(password, saltRounds);
-    }
-
-    // Create new user
+    // Create new user (password will be hashed by the pre-save hook)
     const newUser = new User({
       name: name.trim(),
       email: email.toLowerCase().trim(),
       mobile: mobile.trim(),
-      password: hashedPassword,
+      password: password, // Let the pre-save hook handle hashing
       role: role,
       isActive: true,
       profileComplete: false,

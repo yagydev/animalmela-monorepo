@@ -1,83 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 
-// Mock vendors data for development
-const mockVendors = [
-  {
-    _id: 'vendor-1',
-    vendorName: 'Green Valley Farms',
-    slug: 'green-valley-farms',
-    stallNumber: 'A-001',
-    productType: 'organic',
-    description: 'Premium organic produce from certified farms',
-    contactInfo: {
-      name: 'Rajesh Kumar',
-      phone: '+91-9999778321',
-      email: 'rajesh@greenvalley.com',
-      website: 'https://greenvalley.com'
-    },
-    location: {
-      address: 'Farm Road 1',
-      city: 'Delhi',
-      state: 'Delhi',
-      pincode: '110001'
-    },
-    image: {
-      url: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop',
-      alt: 'Green Valley Farms'
-    },
-    gallery: [],
-    products: [],
-    rating: { average: 4.5, count: 12 },
-    status: 'active',
-    verified: true,
-    socialMedia: {
-      facebook: 'greenvalleyfarms',
-      instagram: 'greenvalleyfarms',
-      twitter: 'greenvalleyfarms'
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    _id: 'vendor-2',
-    vendorName: 'Fresh Harvest Co.',
-    slug: 'fresh-harvest-co',
-    stallNumber: 'A-002',
-    productType: 'vegetables',
-    description: 'Fresh vegetables and fruits from local farms',
-    contactInfo: {
-      name: 'Priya Sharma',
-      phone: '+91-9999778322',
-      email: 'priya@freshharvest.com',
-      website: 'https://freshharvest.com'
-    },
-    location: {
-      address: 'Market Street 2',
-      city: 'Pune',
-      state: 'Maharashtra',
-      pincode: '411001'
-    },
-    image: {
-      url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
-      alt: 'Fresh Harvest Co.'
-    },
-    gallery: [],
-    products: [],
-    rating: { average: 4.2, count: 8 },
-    status: 'active',
-    verified: true,
-    socialMedia: {
-      facebook: 'freshharvestco',
-      instagram: 'freshharvestco'
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+// MongoDB connection
+const connectDB = async () => {
+  if (mongoose.connections[0].readyState) return;
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kisaanmela');
+  } catch (error) {
+    console.error('Database connection error:', error);
   }
-];
+};
+
+// Vendor Schema
+const vendorSchema = new mongoose.Schema({
+  vendorName: { type: String, required: true, trim: true },
+  slug: { type: String, required: true, unique: true, lowercase: true },
+  stallNumber: { type: String, required: true },
+  productType: { 
+    type: String, 
+    required: true,
+    enum: ['crops', 'vegetables', 'fruits', 'livestock', 'dairy', 'seeds', 'equipment', 'organic', 'processed']
+  },
+  description: { type: String, required: true },
+  contactInfo: {
+    name: String,
+    phone: String,
+    email: String,
+    website: String
+  },
+  location: {
+    address: String,
+    city: String,
+    state: String,
+    pincode: String
+  },
+  image: {
+    url: String,
+    alt: String
+  },
+  gallery: [{
+    url: String,
+    alt: String
+  }],
+  rating: {
+    average: { type: Number, default: 0, min: 0, max: 5 },
+    count: { type: Number, default: 0 }
+  },
+  status: { type: String, enum: ['active', 'inactive', 'pending'], default: 'active' },
+  verified: { type: Boolean, default: false },
+  socialMedia: {
+    facebook: String,
+    instagram: String,
+    twitter: String,
+    youtube: String
+  }
+}, { timestamps: true });
+
+const Vendor = mongoose.models.Vendor || mongoose.model('Vendor', vendorSchema);
 
 // GET /api/cms/vendors - Get all vendors
 export async function GET(request: NextRequest) {
   try {
+    await connectDB();
+    
     const { searchParams } = new URL(request.url);
     const populate = searchParams.get('populate') || '*';
     const filters = searchParams.get('filters') || '{}';
@@ -100,49 +85,47 @@ export async function GET(request: NextRequest) {
       if (verified !== null) filterObj.verified = verified === 'true';
     }
 
-    // Apply filters to mock data
-    let filteredVendors = [...mockVendors];
-
-    // Filter by status
+    // Build MongoDB query
+    const query: any = {};
+    
     if (filterObj.status) {
-      filteredVendors = filteredVendors.filter(vendor => vendor.status === filterObj.status);
+      query.status = filterObj.status;
     }
-
-    // Filter by product type
+    
     if (filterObj.productType) {
-      filteredVendors = filteredVendors.filter(vendor => vendor.productType === filterObj.productType);
+      query.productType = filterObj.productType;
     }
-
-    // Filter by verified
+    
     if (filterObj.verified !== undefined) {
-      filteredVendors = filteredVendors.filter(vendor => vendor.verified === filterObj.verified);
+      query.verified = filterObj.verified;
     }
 
-    // Apply sorting
+    // Build sort object
+    let sortObj: any = {};
     if (sort.includes(':')) {
       const [field, order] = sort.split(':');
-      filteredVendors.sort((a, b) => {
-        const aVal = (a as any)[field];
-        const bVal = (b as any)[field];
-        
-        if (aVal < bVal) return order === 'desc' ? 1 : -1;
-        if (aVal > bVal) return order === 'desc' ? -1 : 1;
-        return 0;
-      });
+      sortObj[field] = order === 'desc' ? -1 : 1;
     }
 
     // Apply pagination
     const skip = (page - 1) * pageSize;
-    const paginatedVendors = filteredVendors.slice(skip, skip + pageSize);
+
+    const vendors = await Vendor.find(query)
+      .sort(sortObj)
+      .skip(skip)
+      .limit(pageSize)
+      .lean();
+
+    const total = await Vendor.countDocuments(query);
 
     return NextResponse.json({
-      data: paginatedVendors,
+      data: vendors,
       meta: {
         pagination: {
           page,
           pageSize,
-          pageCount: Math.ceil(filteredVendors.length / pageSize),
-          total: filteredVendors.length
+          pageCount: Math.ceil(total / pageSize),
+          total
         }
       }
     });
@@ -159,12 +142,14 @@ export async function GET(request: NextRequest) {
 // POST /api/cms/vendors - Create new vendor
 export async function POST(request: NextRequest) {
   try {
+    await connectDB();
+    
     const body = await request.json();
     const { data } = body;
 
-    if (!data.vendorName || !data.description || !data.productType) {
+    if (!data.vendorName || !data.productType || !data.description) {
       return NextResponse.json(
-        { error: 'Vendor name, description, and product type are required' },
+        { error: 'Vendor name, product type, and description are required' },
         { status: 400 }
       );
     }
@@ -178,16 +163,13 @@ export async function POST(request: NextRequest) {
         .replace(/^-+|-+$/g, '');
     };
 
-    const newVendor = {
-      _id: `vendor-${Date.now()}`,
+    const vendorData = {
       ...data,
-      slug: data.slug || createSlug(data.vendorName),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      slug: data.slug || createSlug(data.vendorName)
     };
 
-    // Add to mock data (in real app, this would save to database)
-    mockVendors.push(newVendor);
+    const newVendor = new Vendor(vendorData);
+    await newVendor.save();
 
     return NextResponse.json({
       data: newVendor

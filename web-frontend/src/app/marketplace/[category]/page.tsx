@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { ChevronRightIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { useParams } from 'next/navigation';
+import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 
 interface Listing {
   _id: string;
@@ -32,12 +32,26 @@ interface MarketplaceData {
   };
 }
 
-const categories = [
-  { id: 'all', name: 'All Items', icon: '🛒', count: 0 },
-  { id: 'equipment', name: 'Equipment', icon: '🚜', count: 0 },
-  { id: 'livestock', name: 'Livestock', icon: '🐄', count: 0 },
-  { id: 'product', name: 'Produce', icon: '🌾', count: 0 },
-];
+const categoryInfo = {
+  equipment: {
+    name: 'Agricultural Equipment',
+    icon: '🚜',
+    description: 'Farm machinery, tools, and equipment for agricultural operations',
+    placeholder: 'Search tractors, harvesters, irrigation systems...'
+  },
+  livestock: {
+    name: 'Livestock & Cattle',
+    icon: '🐄',
+    description: 'Cattle, poultry, and other farm animals',
+    placeholder: 'Search cows, buffaloes, goats, chickens...'
+  },
+  product: {
+    name: 'Agricultural Produce',
+    icon: '🌾',
+    description: 'Fresh fruits, vegetables, grains, and other farm produce',
+    placeholder: 'Search wheat, rice, vegetables, fruits...'
+  }
+};
 
 const conditions = [
   { id: 'all', name: 'All Conditions' },
@@ -52,8 +66,10 @@ const sortOptions = [
   { id: 'name', name: 'Name: A to Z' },
 ];
 
-export default function MarketplacePage() {
-  const searchParams = useSearchParams();
+export default function CategoryMarketplacePage() {
+  const params = useParams();
+  const category = params.category as string;
+  
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,14 +77,33 @@ export default function MarketplacePage() {
   const [showFilters, setShowFilters] = useState(false);
   
   // Filter states
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [selectedCondition, setSelectedCondition] = useState(searchParams.get('condition') || 'all');
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'createdAt');
+  const [selectedCondition, setSelectedCondition] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [location, setLocation] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Validate category
+  if (!categoryInfo[category as keyof typeof categoryInfo]) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Category Not Found</h1>
+          <p className="text-gray-600 mb-4">The category you're looking for doesn't exist.</p>
+          <Link
+            href="/marketplace"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+          >
+            Back to Marketplace
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const categoryData = categoryInfo[category as keyof typeof categoryInfo];
 
   // Fetch listings
   const fetchListings = async (page = 1) => {
@@ -77,7 +112,6 @@ export default function MarketplacePage() {
       setError(null);
       
       const params = new URLSearchParams();
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
       if (selectedCondition !== 'all') params.append('condition', selectedCondition);
       if (searchQuery) params.append('search', searchQuery);
       if (minPrice) params.append('minPrice', minPrice);
@@ -87,7 +121,7 @@ export default function MarketplacePage() {
       params.append('page', page.toString());
       params.append('limit', '12');
 
-      const response = await fetch(`/api/marketplace?${params.toString()}`);
+      const response = await fetch(`/api/marketplace/${category}?${params.toString()}`);
       const result: MarketplaceData = await response.json();
 
       if (result.success) {
@@ -107,7 +141,7 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     fetchListings(1);
-  }, [selectedCategory, selectedCondition, searchQuery, minPrice, maxPrice, location, sortBy]);
+  }, [selectedCondition, searchQuery, minPrice, maxPrice, location, sortBy]);
 
   const handleSearch = () => {
     fetchListings(1);
@@ -119,7 +153,6 @@ export default function MarketplacePage() {
   };
 
   const clearFilters = () => {
-    setSelectedCategory('all');
     setSelectedCondition('all');
     setSearchQuery('');
     setMinPrice('');
@@ -135,18 +168,29 @@ export default function MarketplacePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Marketplace</h1>
-              <p className="mt-2 text-gray-600">
-                Buy and sell agricultural equipment, livestock, and produce
-              </p>
+              <div className="flex items-center mb-2">
+                <Link
+                  href="/marketplace"
+                  className="text-green-600 hover:text-green-700 text-sm font-medium"
+                >
+                  Marketplace
+                </Link>
+                <span className="mx-2 text-gray-400">/</span>
+                <span className="text-sm text-gray-600">{categoryData.name}</span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+                <span className="mr-3">{categoryData.icon}</span>
+                {categoryData.name}
+              </h1>
+              <p className="mt-2 text-gray-600">{categoryData.description}</p>
             </div>
             <div className="mt-4 lg:mt-0">
               <Link
-                href="/marketplace/sell"
+                href={`/marketplace/sell?category=${category}`}
                 className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors duration-200"
               >
                 <span className="mr-2">📝</span>
-                Sell Your Items
+                Sell {categoryData.name}
               </Link>
             </div>
           </div>
@@ -154,26 +198,6 @@ export default function MarketplacePage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category Tabs */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  selectedCategory === category.id
-                    ? 'bg-green-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                }`}
-              >
-                <span className="mr-2">{category.icon}</span>
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -183,7 +207,7 @@ export default function MarketplacePage() {
                 <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search items, locations..."
+                  placeholder={categoryData.placeholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -433,20 +457,28 @@ export default function MarketplacePage() {
         {!loading && !error && listings.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-500 mb-4">
-              <span className="text-6xl">🔍</span>
+              <span className="text-6xl">{categoryData.icon}</span>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No listings found
+              No {categoryData.name.toLowerCase()} found
             </h3>
             <p className="text-gray-600 mb-4">
-              Try adjusting your search criteria or browse all categories.
+              Try adjusting your search criteria or check back later for new listings.
             </p>
-            <button
-              onClick={clearFilters}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-            >
-              Clear Filters
-            </button>
+            <div className="space-x-4">
+              <button
+                onClick={clearFilters}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+              >
+                Clear Filters
+              </button>
+              <Link
+                href={`/marketplace/sell?category=${category}`}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg inline-block"
+              >
+                Sell {categoryData.name}
+              </Link>
+            </div>
           </div>
         )}
       </div>

@@ -1022,6 +1022,186 @@ const sampleEvents = [
       description: 'Learn organic farming techniques from experts',
       keywords: ['organic', 'farming', 'workshop', 'sustainable']
     }
+  },
+  {
+    title: 'Modern Irrigation Techniques Workshop',
+    slug: 'modern-irrigation-techniques-workshop',
+    description: 'Master water-efficient irrigation methods including drip irrigation, sprinkler systems, and smart farming',
+    content: 'Learn about modern irrigation techniques that can help you save water and increase crop yields. Topics include drip irrigation system design, water usage optimization, smart irrigation controllers, and cost-benefit analysis.',
+    date: new Date('2024-12-20'),
+    endDate: new Date('2024-12-20'),
+    location: {
+      name: 'Krishi Vigyan Kendra',
+      address: 'KVK Campus, Punjab',
+      city: 'Ludhiana',
+      state: 'Punjab',
+      pincode: '141004',
+      coordinates: { lat: 30.9010, lng: 75.8573 }
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=800&h=600&fit=crop',
+      alt: 'Modern Irrigation Workshop',
+      caption: 'Water-Efficient Farming Techniques'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=300&fit=crop',
+        alt: 'Drip Irrigation',
+        caption: 'Drip irrigation system demonstration'
+      }
+    ],
+    status: 'published',
+    featured: true,
+    tags: ['irrigation', 'water-management', 'technology'],
+    meta: {
+      title: 'Modern Irrigation Techniques Workshop | Water Management',
+      description: 'Learn water-efficient irrigation methods for better crop yields',
+      keywords: ['irrigation', 'water management', 'farming technology']
+    }
+  },
+  {
+    title: 'Digital Marketing for Farmers',
+    slug: 'digital-marketing-for-farmers',
+    description: 'Learn to market your produce online, build your brand, and reach customers directly',
+    content: 'Comprehensive training on digital marketing strategies for farmers. Learn social media marketing, building online presence, direct-to-consumer sales, and digital payment methods.',
+    date: new Date('2024-12-25'),
+    endDate: new Date('2024-12-25'),
+    location: {
+      name: 'Online Workshop',
+      address: 'Virtual Event',
+      city: 'Online',
+      state: 'India',
+      pincode: '000000',
+      coordinates: { lat: 0, lng: 0 }
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+      alt: 'Digital Marketing Workshop',
+      caption: 'Online Marketing for Farmers'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
+        alt: 'Digital Marketing',
+        caption: 'Digital marketing strategies for farmers'
+      }
+    ],
+    status: 'published',
+    featured: false,
+    tags: ['marketing', 'digital', 'online', 'business'],
+    meta: {
+      title: 'Digital Marketing for Farmers | Online Business',
+      description: 'Learn digital marketing strategies to grow your farming business',
+      keywords: ['digital marketing', 'online business', 'farmer marketing']
+    }
+  },
+  {
+    title: 'Livestock Health Management Training',
+    slug: 'livestock-health-management-training',
+    description: 'Comprehensive training on animal health, disease prevention, and veterinary care basics',
+    content: 'Learn about common livestock diseases, preventive healthcare measures, basic veterinary procedures, and nutrition and feeding management for healthy animals.',
+    date: new Date('2025-01-05'),
+    endDate: new Date('2025-01-05'),
+    location: {
+      name: 'Veterinary College',
+      address: 'Vet College Campus, Mumbai',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      pincode: '400001',
+      coordinates: { lat: 19.0760, lng: 72.8777 }
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=600&fit=crop',
+      alt: 'Livestock Health Training',
+      caption: 'Animal Health Management'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+        alt: 'Livestock Care',
+        caption: 'Proper livestock care techniques'
+      }
+    ],
+    status: 'published',
+    featured: true,
+    tags: ['livestock', 'health', 'veterinary', 'animal-care'],
+    meta: {
+      title: 'Livestock Health Management Training | Animal Care',
+      description: 'Comprehensive training on livestock health and veterinary care',
+      keywords: ['livestock', 'animal health', 'veterinary care', 'farming']
+    }
+  },
+  {
+    title: 'Government Schemes & Subsidies Workshop',
+    slug: 'government-schemes-subsidies-workshop',
+    description: 'Understand various government agricultural schemes, subsidies, and how to apply for them',
+    content: 'Learn about PM-KISAN scheme details, crop insurance programs, equipment subsidy schemes, and the complete application process and documentation required.',
+    date: new Date('2025-01-10'),
+    endDate: new Date('2025-01-10'),
+    location: {
+      name: 'District Agriculture Office',
+      address: 'DAO Office, UP',
+      city: 'Lucknow',
+      state: 'Uttar Pradesh',
+      pincode: '226001',
+      coordinates: { lat: 26.8467, lng: 80.9462 }
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&h=600&fit=crop',
+      alt: 'Government Schemes Workshop',
+      caption: 'Government Agricultural Schemes'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
+        alt: 'Government Office',
+        caption: 'Government agricultural office'
+      }
+    ],
+    status: 'published',
+    featured: false,
+    tags: ['government', 'subsidies', 'schemes', 'policy'],
+    meta: {
+      title: 'Government Schemes & Subsidies Workshop | Policy Guide',
+      description: 'Learn about government agricultural schemes and subsidy programs',
+      keywords: ['government schemes', 'agricultural subsidies', 'policy', 'farmers']
+    }
+  },
+  {
+    title: 'Precision Agriculture & IoT Technology',
+    slug: 'precision-agriculture-iot-technology',
+    description: 'Explore cutting-edge technologies like IoT sensors, drones, and data analytics in farming',
+    content: 'Discover IoT sensors for soil monitoring, drone technology in agriculture, data analytics and interpretation, and smart farming automation systems.',
+    date: new Date('2025-01-15'),
+    endDate: new Date('2025-01-15'),
+    location: {
+      name: 'IIT Delhi Campus',
+      address: 'IIT Delhi, Hauz Khas',
+      city: 'New Delhi',
+      state: 'Delhi',
+      pincode: '110016',
+      coordinates: { lat: 28.5455, lng: 77.1927 }
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&h=600&fit=crop',
+      alt: 'Precision Agriculture Workshop',
+      caption: 'IoT and Smart Farming Technology'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop',
+        alt: 'IoT Sensors',
+        caption: 'IoT sensors for agriculture'
+      }
+    ],
+    status: 'published',
+    featured: true,
+    tags: ['technology', 'IoT', 'precision-agriculture', 'smart-farming'],
+    meta: {
+      title: 'Precision Agriculture & IoT Technology | Smart Farming',
+      description: 'Explore cutting-edge IoT and precision agriculture technologies',
+      keywords: ['precision agriculture', 'IoT', 'smart farming', 'technology']
+    }
   }
 ];
 
@@ -1106,6 +1286,166 @@ const sampleVendors = [
     socialMedia: {
       facebook: 'https://facebook.com/freshdairy',
       instagram: 'https://instagram.com/freshdairy'
+    }
+  },
+  {
+    vendorName: 'Punjab Seeds & Equipment',
+    slug: 'punjab-seeds-equipment',
+    stallNumber: 'C-003',
+    productType: 'seeds',
+    description: 'High-quality seeds, fertilizers, and agricultural equipment for modern farming',
+    contactInfo: {
+      name: 'Amit Singh',
+      phone: '9876543212',
+      email: 'amit@punjabseeds.com',
+      website: 'https://punjabseeds.com'
+    },
+    location: {
+      address: 'Industrial Area',
+      city: 'Meerut',
+      state: 'Uttar Pradesh',
+      pincode: '250001'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=300&fit=crop',
+      alt: 'Punjab Seeds & Equipment'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=300&fit=crop',
+        alt: 'Seed Storage'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+        alt: 'Farming Equipment'
+      }
+    ],
+    rating: {
+      average: 4.8,
+      count: 15
+    },
+    status: 'active',
+    verified: true,
+    socialMedia: {
+      facebook: 'https://facebook.com/punjabseeds',
+      instagram: 'https://instagram.com/punjabseeds'
+    }
+  },
+  {
+    vendorName: 'Bihar Spice Traders',
+    slug: 'bihar-spice-traders',
+    stallNumber: 'D-004',
+    productType: 'processed',
+    description: 'Premium spices, lentils, and processed food products from Bihar',
+    contactInfo: {
+      name: 'Sunita Devi',
+      phone: '9876543213',
+      email: 'sunita@biharspices.com',
+      website: 'https://biharspices.com'
+    },
+    location: {
+      address: 'Spice Market',
+      city: 'Patna',
+      state: 'Bihar',
+      pincode: '800001'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=300&fit=crop',
+      alt: 'Bihar Spice Traders'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=300&fit=crop',
+        alt: 'Spice Collection'
+      }
+    ],
+    rating: {
+      average: 4.3,
+      count: 10
+    },
+    status: 'active',
+    verified: true,
+    socialMedia: {
+      facebook: 'https://facebook.com/biharspices',
+      instagram: 'https://instagram.com/biharspices'
+    }
+  },
+  {
+    vendorName: 'Gujarat Cotton & Oilseeds',
+    slug: 'gujarat-cotton-oilseeds',
+    stallNumber: 'E-005',
+    productType: 'crops',
+    description: 'Premium cotton, groundnuts, sesame, and oilseeds from Gujarat',
+    contactInfo: {
+      name: 'Vikram Patel',
+      phone: '9876543214',
+      email: 'vikram@gujaratcotton.com',
+      website: 'https://gujaratcotton.com'
+    },
+    location: {
+      address: 'Cotton Market',
+      city: 'Ahmedabad',
+      state: 'Gujarat',
+      pincode: '380001'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+      alt: 'Gujarat Cotton & Oilseeds'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+        alt: 'Cotton Fields'
+      }
+    ],
+    rating: {
+      average: 4.6,
+      count: 20
+    },
+    status: 'active',
+    verified: true,
+    socialMedia: {
+      facebook: 'https://facebook.com/gujaratcotton',
+      instagram: 'https://instagram.com/gujaratcotton'
+    }
+  },
+  {
+    vendorName: 'Maharashtra Livestock Farm',
+    slug: 'maharashtra-livestock-farm',
+    stallNumber: 'F-006',
+    productType: 'livestock',
+    description: 'Healthy cattle, poultry, and farm animals with proper documentation',
+    contactInfo: {
+      name: 'Ravi Deshmukh',
+      phone: '9876543215',
+      email: 'ravi@mahlivestock.com',
+      website: 'https://mahlivestock.com'
+    },
+    location: {
+      address: 'Livestock Market',
+      city: 'Pune',
+      state: 'Maharashtra',
+      pincode: '411001'
+    },
+    image: {
+      url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+      alt: 'Maharashtra Livestock Farm'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+        alt: 'Cattle Farm'
+      }
+    ],
+    rating: {
+      average: 4.7,
+      count: 18
+    },
+    status: 'active',
+    verified: true,
+    socialMedia: {
+      facebook: 'https://facebook.com/mahlivestock',
+      instagram: 'https://instagram.com/mahlivestock'
     }
   }
 ];
@@ -1203,6 +1543,223 @@ const sampleProducts = [
     tags: ['fresh', 'milk', 'daily'],
     status: 'active',
     featured: false
+  },
+  {
+    name: 'Organic Wheat Seeds',
+    slug: 'organic-wheat-seeds',
+    description: 'High-yield organic wheat seeds for better crop production',
+    price: 150,
+    currency: 'INR',
+    unit: 'kg',
+    category: 'seeds',
+    subcategory: 'wheat',
+    image: {
+      url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=300&fit=crop',
+      alt: 'Organic Wheat Seeds'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&h=300&fit=crop',
+        alt: 'Wheat Seeds'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 500,
+      minOrder: 10
+    },
+    quality: 'premium',
+    organic: true,
+    certifications: ['Organic Certification', 'Seed Certification'],
+    tags: ['organic', 'seeds', 'wheat', 'high-yield'],
+    status: 'active',
+    featured: true
+  },
+  {
+    name: 'Premium Turmeric Powder',
+    slug: 'premium-turmeric-powder',
+    description: 'Pure turmeric powder from Bihar, rich in curcumin',
+    price: 200,
+    currency: 'INR',
+    unit: 'kg',
+    category: 'processed',
+    subcategory: 'spices',
+    image: {
+      url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=300&fit=crop',
+      alt: 'Premium Turmeric Powder'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&h=300&fit=crop',
+        alt: 'Turmeric Powder'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 100,
+      minOrder: 1
+    },
+    quality: 'premium',
+    organic: false,
+    certifications: ['FSSAI', 'AGMARK'],
+    tags: ['turmeric', 'spices', 'curcumin', 'bihar'],
+    status: 'active',
+    featured: false
+  },
+  {
+    name: 'Cotton Bales',
+    slug: 'cotton-bales',
+    description: 'Premium quality cotton bales from Gujarat',
+    price: 4500,
+    currency: 'INR',
+    unit: 'quintal',
+    category: 'crops',
+    subcategory: 'cotton',
+    image: {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+      alt: 'Cotton Bales'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+        alt: 'Cotton Fields'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 50,
+      minOrder: 1
+    },
+    quality: 'premium',
+    organic: false,
+    certifications: ['Cotton Corporation of India'],
+    tags: ['cotton', 'bales', 'gujarat', 'premium'],
+    status: 'active',
+    featured: true
+  },
+  {
+    name: 'Healthy Jersey Cow',
+    slug: 'healthy-jersey-cow',
+    description: 'Healthy Jersey cow with proper vaccination and documentation',
+    price: 45000,
+    currency: 'INR',
+    unit: 'piece',
+    category: 'livestock',
+    subcategory: 'cattle',
+    image: {
+      url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+      alt: 'Healthy Jersey Cow'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&h=300&fit=crop',
+        alt: 'Jersey Cow'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 5,
+      minOrder: 1
+    },
+    quality: 'premium',
+    organic: false,
+    certifications: ['Veterinary Certificate', 'Breed Certificate'],
+    tags: ['cattle', 'jersey', 'dairy', 'healthy'],
+    status: 'active',
+    featured: true
+  },
+  {
+    name: 'Fresh Organic Spinach',
+    slug: 'fresh-organic-spinach',
+    description: 'Fresh organic spinach leaves, rich in iron and vitamins',
+    price: 40,
+    currency: 'INR',
+    unit: 'kg',
+    category: 'vegetables',
+    subcategory: 'leafy-greens',
+    image: {
+      url: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop',
+      alt: 'Fresh Organic Spinach'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=300&fit=crop',
+        alt: 'Spinach Leaves'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 80,
+      minOrder: 1
+    },
+    quality: 'premium',
+    organic: true,
+    certifications: ['Organic Certification', 'FSSAI'],
+    tags: ['organic', 'spinach', 'leafy-greens', 'vitamins'],
+    status: 'active',
+    featured: false
+  },
+  {
+    name: 'Groundnut Oil',
+    slug: 'groundnut-oil',
+    description: 'Pure groundnut oil extracted from premium groundnuts',
+    price: 180,
+    currency: 'INR',
+    unit: 'litre',
+    category: 'processed',
+    subcategory: 'oil',
+    image: {
+      url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+      alt: 'Groundnut Oil'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+        alt: 'Oil Bottles'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 200,
+      minOrder: 1
+    },
+    quality: 'standard',
+    organic: false,
+    certifications: ['FSSAI', 'AGMARK'],
+    tags: ['oil', 'groundnut', 'cooking', 'pure'],
+    status: 'active',
+    featured: false
+  },
+  {
+    name: 'Fresh Organic Carrots',
+    slug: 'fresh-organic-carrots',
+    description: 'Fresh organic carrots, rich in beta-carotene and vitamins',
+    price: 60,
+    currency: 'INR',
+    unit: 'kg',
+    category: 'vegetables',
+    subcategory: 'root-vegetables',
+    image: {
+      url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
+      alt: 'Fresh Organic Carrots'
+    },
+    gallery: [
+      {
+        url: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=300&fit=crop',
+        alt: 'Carrots'
+      }
+    ],
+    availability: {
+      inStock: true,
+      quantity: 120,
+      minOrder: 1
+    },
+    quality: 'premium',
+    organic: true,
+    certifications: ['Organic Certification', 'FSSAI'],
+    tags: ['organic', 'carrots', 'beta-carotene', 'vitamins'],
+    status: 'active',
+    featured: true
   }
 ];
 

@@ -1,484 +1,228 @@
-'use client';
+import React from 'react';
+import { Metadata } from 'next';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { 
-  ComputerDesktopIcon,
-  DevicePhoneMobileIcon,
-  CpuChipIcon,
-  CloudIcon,
-  ChartBarIcon,
-  CogIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  ArrowRightIcon,
-  PlayIcon,
-  BookOpenIcon,
-  AcademicCapIcon
-} from '@heroicons/react/24/outline';
+export const metadata: Metadata = {
+  title: 'Agri Tech Updates - Kisaanmela',
+  description: 'Latest agricultural technology updates and innovations for farmers',
+};
 
-interface TechResource {
-  id: string;
-  title: string;
-  description: string;
-  type: 'article' | 'video' | 'course' | 'tool';
-  category: string;
-  duration: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  image: string;
-  author: string;
-  publishDate: string;
-  views: number;
-  rating: number;
-  tags: string[];
-  content: string;
-}
+const AgriTechPage: React.FC = () => {
+  const techUpdates = [
+    {
+      id: 1,
+      title: 'Smart Irrigation Systems',
+      description: 'IoT-based irrigation systems that monitor soil moisture and weather conditions to optimize water usage.',
+      category: 'Water Management',
+      date: '2024-01-15',
+      readTime: '5 min read',
+      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop',
+      featured: true,
+    },
+    {
+      id: 2,
+      title: 'Drone Technology for Crop Monitoring',
+      description: 'Advanced drone systems equipped with multispectral cameras for precision agriculture and crop health monitoring.',
+      category: 'Precision Agriculture',
+      date: '2024-01-12',
+      readTime: '7 min read',
+      image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=400&h=300&fit=crop',
+      featured: true,
+    },
+    {
+      id: 3,
+      title: 'AI-Powered Pest Detection',
+      description: 'Machine learning algorithms that can identify pest infestations early through image recognition technology.',
+      category: 'Crop Protection',
+      date: '2024-01-10',
+      readTime: '6 min read',
+      image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop',
+      featured: false,
+    },
+    {
+      id: 4,
+      title: 'Blockchain in Supply Chain',
+      description: 'Transparent and traceable agricultural supply chains using blockchain technology for better food safety.',
+      category: 'Supply Chain',
+      date: '2024-01-08',
+      readTime: '8 min read',
+      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
+      featured: false,
+    },
+    {
+      id: 5,
+      title: 'Vertical Farming Solutions',
+      description: 'Indoor farming systems that maximize crop yield in limited spaces using LED lighting and hydroponics.',
+      category: 'Urban Farming',
+      date: '2024-01-05',
+      readTime: '9 min read',
+      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop',
+      featured: false,
+    },
+    {
+      id: 6,
+      title: 'Robotic Harvesting Systems',
+      description: 'Automated harvesting robots that can identify and pick ripe fruits and vegetables with precision.',
+      category: 'Automation',
+      date: '2024-01-03',
+      readTime: '6 min read',
+      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop',
+      featured: false,
+    },
+  ];
 
-const mockTechResources: TechResource[] = [
-  {
-    id: '1',
-    title: 'IoT Sensors for Smart Farming',
-    description: 'Learn how to implement IoT sensors for monitoring soil moisture, temperature, and crop health.',
-    type: 'article',
-    category: 'IoT & Sensors',
-    duration: '15 min read',
-    difficulty: 'intermediate',
-    image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=400&fit=crop',
-    author: 'Dr. Vikram Mehta',
-    publishDate: '2024-01-15',
-    views: 1250,
-    rating: 4.8,
-    tags: ['IoT', 'sensors', 'monitoring', 'automation'],
-    content: 'Comprehensive guide on implementing IoT sensors in agricultural settings...'
-  },
-  {
-    id: '2',
-    title: 'Drone Technology in Agriculture',
-    description: 'Master the use of drones for crop monitoring, spraying, and field analysis.',
-    type: 'video',
-    category: 'Drones & UAVs',
-    duration: '45 min',
-    difficulty: 'beginner',
-    image: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=600&h=400&fit=crop',
-    author: 'Capt. Rajesh Singh',
-    publishDate: '2024-01-20',
-    views: 2100,
-    rating: 4.7,
-    tags: ['drones', 'monitoring', 'spraying', 'aerial'],
-    content: 'Step-by-step video tutorial on drone operations in agriculture...'
-  },
-  {
-    id: '3',
-    title: 'Machine Learning for Crop Prediction',
-    description: 'Use AI and machine learning to predict crop yields and optimize farming decisions.',
-    type: 'course',
-    category: 'AI & Machine Learning',
-    duration: '3 hours',
-    difficulty: 'advanced',
-    image: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&h=400&fit=crop',
-    author: 'Prof. Sunita Sharma',
-    publishDate: '2024-01-25',
-    views: 890,
-    rating: 4.9,
-    tags: ['AI', 'machine learning', 'prediction', 'analytics'],
-    content: 'Comprehensive course on applying machine learning in agriculture...'
-  },
-  {
-    id: '4',
-    title: 'Blockchain in Supply Chain',
-    description: 'Understand how blockchain technology can improve agricultural supply chain transparency.',
-    type: 'article',
-    category: 'Blockchain',
-    duration: '20 min read',
-    difficulty: 'intermediate',
-    image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=400&fit=crop',
-    author: 'Amit Patel',
-    publishDate: '2024-02-01',
-    views: 1560,
-    rating: 4.6,
-    tags: ['blockchain', 'supply chain', 'transparency', 'traceability'],
-    content: 'Exploring blockchain applications in agricultural supply chains...'
-  },
-  {
-    id: '5',
-    title: 'Precision Agriculture Tools',
-    description: 'Comprehensive guide to precision agriculture tools and technologies.',
-    type: 'tool',
-    category: 'Precision Agriculture',
-    duration: '30 min',
-    difficulty: 'beginner',
-    image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&h=400&fit=crop',
-    author: 'Dr. Priya Singh',
-    publishDate: '2024-02-05',
-    views: 1780,
-    rating: 4.8,
-    tags: ['precision agriculture', 'tools', 'GPS', 'mapping'],
-    content: 'Interactive tool for learning precision agriculture techniques...'
-  },
-  {
-    id: '6',
-    title: 'Digital Marketing for Farmers',
-    description: 'Learn digital marketing strategies specifically designed for agricultural businesses.',
-    type: 'course',
-    category: 'Digital Marketing',
-    duration: '2 hours',
-    difficulty: 'beginner',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
-    author: 'Marketing Expert Team',
-    publishDate: '2024-02-10',
-    views: 3200,
-    rating: 4.7,
-    tags: ['marketing', 'digital', 'social media', 'e-commerce'],
-    content: 'Complete course on digital marketing for agricultural businesses...'
-  }
-];
-
-const categories = [
-  'All',
-  'IoT & Sensors',
-  'Drones & UAVs',
-  'AI & Machine Learning',
-  'Blockchain',
-  'Precision Agriculture',
-  'Digital Marketing'
-];
-
-const types = [
-  { value: 'all', label: 'All Types' },
-  { value: 'article', label: 'Articles' },
-  { value: 'video', label: 'Videos' },
-  { value: 'course', label: 'Courses' },
-  { value: 'tool', label: 'Tools' }
-];
-
-const difficulties = [
-  { value: 'all', label: 'All Levels' },
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' }
-];
-
-export default function TechPage() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filteredResources = mockTechResources.filter(resource => {
-    const matchesCategory = selectedCategory === 'All' || resource.category === selectedCategory;
-    const matchesType = selectedType === 'all' || resource.type === selectedType;
-    const matchesDifficulty = selectedDifficulty === 'all' || resource.difficulty === selectedDifficulty;
-    const matchesSearch = resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resource.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    return matchesCategory && matchesType && matchesDifficulty && matchesSearch;
-  });
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'article':
-        return BookOpenIcon;
-      case 'video':
-        return PlayIcon;
-      case 'course':
-        return AcademicCapIcon;
-      case 'tool':
-        return CogIcon;
-      default:
-        return BookOpenIcon;
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'article':
-        return 'bg-blue-100 text-blue-800';
-      case 'video':
-        return 'bg-red-100 text-red-800';
-      case 'course':
-        return 'bg-green-100 text-green-800';
-      case 'tool':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner':
-        return 'bg-green-100 text-green-800';
-      case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'advanced':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const formatViews = (views: number) => {
-    if (views >= 1000) {
-      return `${(views / 1000).toFixed(1)}k`;
-    }
-    return views.toString();
-  };
+  const categories = ['All', 'Water Management', 'Precision Agriculture', 'Crop Protection', 'Supply Chain', 'Urban Farming', 'Automation'];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Agri Tech Updates</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Stay updated with the latest agricultural technologies, tools, and innovations that are transforming farming practices.
+              Stay updated with the latest agricultural technology innovations, smart farming solutions, and digital tools that are transforming modern agriculture.
             </p>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Resources</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search resources..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-              </div>
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                {types.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Difficulty */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
-              <select
-                value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                {difficulties.map(difficulty => (
-                  <option key={difficulty.value} value={difficulty.value}>{difficulty.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Resources Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredResources.map((resource) => {
-            const TypeIcon = getTypeIcon(resource.type);
-            return (
-              <div key={resource.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-                {/* Image */}
-                <div className="h-48 bg-gray-100 relative">
-                  <Image
-                    src={resource.image}
-                    alt={resource.title}
-                    fill
-                    className="object-cover"
-                  />
+        {/* Featured Articles */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Featured Technology Updates</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {techUpdates.filter(update => update.featured).map((update) => (
+              <div key={update.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative">
+                  <img src={update.image} alt={update.title} className="w-full h-48 object-cover" />
                   <div className="absolute top-4 left-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(resource.type)}`}>
-                      {resource.type.charAt(0).toUpperCase() + resource.type.slice(1)}
-                    </span>
-                  </div>
-                  <div className="absolute top-4 right-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(resource.difficulty)}`}>
-                      {resource.difficulty.charAt(0).toUpperCase() + resource.difficulty.slice(1)}
+                    <span className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full">
+                      {update.category}
                     </span>
                   </div>
                 </div>
-
-                {/* Content */}
                 <div className="p-6">
-                  <div className="mb-3">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{resource.title}</h3>
-                    <p className="text-gray-600 text-sm line-clamp-2">{resource.description}</p>
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <span>{update.date}</span>
+                    <span className="mx-2">•</span>
+                    <span>{update.readTime}</span>
                   </div>
-
-                  {/* Meta Info */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <TypeIcon className="h-4 w-4 mr-2" />
-                      <span>{resource.author}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <ChartBarIcon className="h-4 w-4 mr-2" />
-                      <span>{resource.duration}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <span className="mr-2">{formatDate(resource.publishDate)}</span>
-                      <span>•</span>
-                      <span className="ml-2">{formatViews(resource.views)} views</span>
-                    </div>
-                  </div>
-
-                  {/* Rating */}
-                  <div className="flex items-center mb-4">
-                    <div className="flex items-center">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <svg
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(resource.rating) ? 'text-yellow-400' : 'text-gray-300'
-                          }`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                    </div>
-                    <span className="ml-2 text-sm text-gray-600">
-                      {resource.rating}
-                    </span>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {resource.tags.slice(0, 3).map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {resource.tags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                        +{resource.tags.length - 3}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Action Button */}
-                  <Link
-                    href={`/training/tech/${resource.id}`}
-                    className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
-                  >
-                    <span>View Resource</span>
-                    <ArrowRightIcon className="h-4 w-4 ml-2" />
-                  </Link>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{update.title}</h3>
+                  <p className="text-gray-600 mb-4">{update.description}</p>
+                  <button className="text-green-600 hover:text-green-700 font-medium">
+                    Read More →
+                  </button>
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {/* No Results */}
-        {filteredResources.length === 0 && (
-          <div className="text-center py-16">
-            <ComputerDesktopIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No resources found</h3>
-            <p className="text-gray-600 mb-6">Try adjusting your filters or check back later for new resources.</p>
-            <button
-              onClick={() => {
-                setSelectedCategory('All');
-                setSelectedType('all');
-                setSelectedDifficulty('all');
-                setSearchTerm('');
-              }}
-              className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-            >
-              Clear Filters
-            </button>
+        {/* Category Filter */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter by Category</h3>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  category === 'All'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
-        {/* Progress Tracking CTA */}
-        <div className="mt-12 bg-blue-50 rounded-lg p-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Track Your Learning Progress</h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Monitor your agricultural technology learning journey and celebrate your achievements.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/training/progress"
-                className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                View My Progress
-              </Link>
-              <Link
-                href="/training/workshops"
-                className="px-6 py-3 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-              >
-                Join Workshops
-              </Link>
-            </div>
+        {/* All Articles */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">All Technology Updates</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {techUpdates.map((update) => (
+              <div key={update.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="relative">
+                  <img src={update.image} alt={update.title} className="w-full h-40 object-cover" />
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2 py-1 bg-green-600 text-white text-xs font-medium rounded-full">
+                      {update.category}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center text-xs text-gray-500 mb-2">
+                    <span>{update.date}</span>
+                    <span className="mx-2">•</span>
+                    <span>{update.readTime}</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{update.title}</h3>
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">{update.description}</p>
+                  <button className="text-green-600 hover:text-green-700 text-sm font-medium">
+                    Read More →
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* Newsletter Signup */}
-        <div className="mt-8 bg-gradient-to-r from-green-600 to-green-800 text-white rounded-lg p-8">
+        <div className="bg-green-50 rounded-lg p-8 mb-8">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Stay Updated with Agri Tech</h2>
-            <p className="text-green-100 mb-6 max-w-2xl mx-auto">
-              Get the latest agricultural technology updates, innovations, and insights delivered to your inbox.
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Stay Updated with Agri Tech</h2>
+            <p className="text-gray-600 mb-6">
+              Get the latest agricultural technology updates delivered to your inbox every week.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <div className="max-w-md mx-auto flex gap-2">
               <input
                 type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg border-0 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
+                placeholder="Enter your email address"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
-              <button className="px-6 py-3 bg-white text-green-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              <button className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors font-medium">
                 Subscribe
               </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tech Resources */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Technology Resources</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="flex justify-center mb-3">
+                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+              </div>
+              <h3 className="font-semibold mb-2">Tech Guides</h3>
+              <p className="text-gray-600 text-sm">Comprehensive guides on implementing agricultural technology</p>
+            </div>
+            <div className="text-center">
+              <div className="flex justify-center mb-3">
+                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <h3 className="font-semibold mb-2">Video Tutorials</h3>
+              <p className="text-gray-600 text-sm">Step-by-step video tutorials for agricultural technology</p>
+            </div>
+            <div className="text-center">
+              <div className="flex justify-center mb-3">
+                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <h3 className="font-semibold mb-2">Expert Community</h3>
+              <p className="text-gray-600 text-sm">Connect with agricultural technology experts and farmers</p>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
+export default AgriTechPage;
