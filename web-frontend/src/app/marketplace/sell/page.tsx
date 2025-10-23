@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { 
   PhotoIcon, 
   MapPinIcon, 
@@ -236,12 +237,21 @@ export default function SellListingPage() {
                 List your agricultural equipment, livestock, or produce for sale
               </p>
             </div>
-            <button
-              onClick={() => router.back()}
-              className="text-gray-600 hover:text-gray-900"
-            >
-              ← Back
-            </button>
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/marketplace/sell/enhanced"
+                className="inline-flex items-center px-4 py-2 border border-green-600 text-sm font-medium rounded-md text-green-600 bg-white hover:bg-green-50 transition-colors duration-200"
+              >
+                <span className="mr-2">✨</span>
+                AI-Assisted Listing
+              </Link>
+              <button
+                onClick={() => router.back()}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                ← Back
+              </button>
+            </div>
           </div>
         </div>
       </div>
