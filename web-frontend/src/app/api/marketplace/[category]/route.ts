@@ -10,8 +10,8 @@ export async function GET(
   try {
     await dbConnect();
     
-    const { category } = params;
-    const { searchParams } = new URL(request.url);
+    const { category } = await params;
+    const { searchParams } = request.nextUrl;
     
     // Validate category
     if (!['equipment', 'livestock', 'product'].includes(category)) {
@@ -118,7 +118,7 @@ export async function POST(
   try {
     await dbConnect();
     
-    const { category } = params;
+    const { category } = await params;
     const body = await request.json();
     
     // Validate category

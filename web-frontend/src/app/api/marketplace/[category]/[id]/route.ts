@@ -11,7 +11,7 @@ export async function GET(
   try {
     await dbConnect();
     
-    const { category, id } = params;
+    const { category, id } = await params;
     
     // Validate category
     if (!['equipment', 'livestock', 'product'].includes(category)) {
@@ -91,7 +91,7 @@ export async function PUT(
   try {
     await dbConnect();
     
-    const { category, id } = params;
+    const { category, id } = await params;
     const body = await request.json();
     
     // Validate category
@@ -172,7 +172,7 @@ export async function DELETE(
   try {
     await dbConnect();
     
-    const { category, id } = params;
+    const { category, id } = await params;
     
     // Validate category
     if (!['equipment', 'livestock', 'product'].includes(category)) {
