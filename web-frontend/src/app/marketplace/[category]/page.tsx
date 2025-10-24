@@ -141,7 +141,8 @@ export default function CategoryMarketplacePage() {
 
   useEffect(() => {
     fetchListings(1);
-  }, [selectedCondition, searchQuery, minPrice, maxPrice, location, sortBy]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, selectedCondition, searchQuery, minPrice, maxPrice, location, sortBy]);
 
   const handleSearch = () => {
     fetchListings(1);
