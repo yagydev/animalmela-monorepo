@@ -206,7 +206,7 @@ export default function EventRegistrationPage() {
                         <div className="mt-1 text-xs text-gray-600">
                           <div className="flex items-center">
                             <CalendarIcon className="h-3 w-3 mr-1" />
-                            {new Date(event.date).toLocaleDateString()}
+                            {new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                           </div>
                           <div className="flex items-center">
                             <MapPinIcon className="h-3 w-3 mr-1" />
