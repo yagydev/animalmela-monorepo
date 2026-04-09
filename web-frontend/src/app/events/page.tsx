@@ -33,10 +33,25 @@ type CmsEvent = {
 };
 
 async function getCmsEvents(): Promise<CmsEvent[]> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
+
+  if (!baseUrl) {
+    return [];
+  }
+
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/cms/events?populate=*&filters[status]=published&sort=date:asc`, {
-      cache: 'no-store' // Ensure fresh data on each request
-    });
+    const response = await fetch(
+      `${baseUrl}/api/cms/events?populate=*&filters[status]=published&sort=date:asc`,
+      {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(8000)
+      }
+    );
+    if (!response.ok) {
+      return [];
+    }
     const data = await response.json();
     return data.data || [];
   } catch (error) {
