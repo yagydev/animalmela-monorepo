@@ -37,6 +37,10 @@ const eventSchema = new mongoose.Schema({
     alt: String,
     caption: String
   }],
+  organizerUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  stallCapacity: { type: Number, required: true, min: 0, default: 0 },
+  pricePerStall: { type: Number, required: true, min: 0, default: 0 },
+  stallsBooked: { type: Number, default: 0, min: 0 },
   status: { type: String, enum: ['draft', 'published', 'archived'], default: 'draft' },
   featured: { type: Boolean, default: false },
   tags: [String],

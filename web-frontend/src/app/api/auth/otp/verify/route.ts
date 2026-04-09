@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyOtp } from '../../../../../../lib/otpStore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,20 +12,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, verify OTP against stored value
-    // For now, we'll accept any 6-digit OTP
-    if (otp === '123456') {
-      return NextResponse.json({
-        success: true,
-        message: 'OTP verified successfully'
-      });
-    } else {
+    const result = verifyOtp(mobile, otp);
+    if (!result.ok) {
       return NextResponse.json(
-        { success: false, error: 'Invalid OTP' },
+        { success: false, error: result.reason || 'Invalid OTP' },
         { status: 400 }
       );
     }
 
+    return NextResponse.json({
+      success: true,
+      message: 'OTP verified successfully',
+    });
   } catch (error) {
     console.error('OTP verify error:', error);
     return NextResponse.json(

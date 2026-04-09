@@ -11,7 +11,7 @@ const router = express.Router();
 
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '30d'
   });
 };
@@ -53,7 +53,7 @@ router.post('/register', async (req, res) => {
     // Generate verification token
     const verificationToken = jwt.sign(
       { userId: user._id, email },
-      process.env.JWT_SECRET_KEY,
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -180,7 +180,7 @@ router.get('/verify-email', async (req, res) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     await db('users')
       .where('id', decoded.userId)
@@ -221,7 +221,7 @@ router.post('/forgot-password', async (req, res) => {
     // Generate reset token
     const resetToken = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET_KEY,
+      process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
@@ -265,7 +265,7 @@ router.get('/validate-reset-token', async (req, res) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Check if user exists
     const user = await User.findById(decoded.userId);
@@ -303,7 +303,7 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Check if user exists
     const user = await User.findById(decoded.userId);

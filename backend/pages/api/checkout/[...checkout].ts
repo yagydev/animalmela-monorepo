@@ -20,7 +20,7 @@ const authenticateUser = (req: NextApiRequest) => {
     throw new Error('No token provided');
   }
   
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || 'fallback-secret') as any;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
   return decoded.userId;
 };
 

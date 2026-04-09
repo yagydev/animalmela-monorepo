@@ -72,6 +72,27 @@ const eventSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization'
   },
+  organizerUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  stallCapacity: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0
+  },
+  pricePerStall: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0
+  },
+  stallsBooked: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
   vendors: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Vendor'

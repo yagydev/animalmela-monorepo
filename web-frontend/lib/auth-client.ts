@@ -218,12 +218,3 @@ export const updateProfile = async (profileData: Partial<User>): Promise<AuthRes
     };
   }
 };
-
-// Demo credentials for testing
-export const DEMO_CREDENTIALS = {
-  admin: { email: 'admin@kisaanmela.com', password: 'admin123' },
-  farmer: { email: 'farmer@kisaanmela.com', password: 'farmer123' },
-  buyer: { email: 'buyer@kisaanmela.com', password: 'buyer123' },
-  demo: { email: 'demo@kisaanmela.com', password: 'demo123' },
-  test: { email: 'test@kisaanmela.com', password: 'test123' }
-};
