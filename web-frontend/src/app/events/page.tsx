@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { fetchEvents as fetchMvpEvents } from '../../lib/mvpApi';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -62,7 +61,6 @@ async function getCmsEvents(): Promise<CmsEvent[]> {
 
 export default async function EventsPage() {
   const initialEvents = await getCmsEvents();
-  const mvpEvents = await fetchMvpEvents();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,43 +74,6 @@ export default async function EventsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <section className="rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold text-green-900">Marketplace-ready events</h2>
-              <p className="text-sm text-green-700">Fast stall booking and lead-centric events from MVP.</p>
-            </div>
-            <Link
-              href="/vendors/book-stall"
-              className="rounded-md bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800"
-            >
-              Book Stall
-            </Link>
-          </div>
-          {mvpEvents.length === 0 ? (
-            <p className="mt-4 text-sm text-gray-600">No marketplace-ready events available right now.</p>
-          ) : (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {mvpEvents.map((event) => (
-                <article key={event.id} className="rounded-lg border border-green-100 bg-white p-4 shadow-sm">
-                  <h3 className="text-base font-semibold text-gray-900">{event.title}</h3>
-                  <p className="mt-1 text-sm text-gray-600 line-clamp-2">{event.description}</p>
-                  <div className="mt-2 text-sm text-gray-700">
-                    <p>📍 {event.location}</p>
-                    <p>🗓 {new Date(event.startDate).toLocaleDateString('en-IN')}</p>
-                  </div>
-                  <Link
-                    href={`/mvp/events/${event.id}`}
-                    className="mt-3 inline-flex rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-                  >
-                    View & Book
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
-
         <section className="rounded-xl border border-gray-200 bg-white p-5">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold text-gray-900">Community events</h2>

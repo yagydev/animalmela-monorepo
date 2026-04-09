@@ -1,9 +1,8 @@
 export type AppRole = 'guest' | 'farmer' | 'vendor';
-export type DomainOwner = 'backend' | 'backend-mvp' | 'web-frontend';
+export type DomainOwner = 'backend' | 'web-frontend';
 export type FeatureDomain =
   | 'core'
   | 'events'
-  | 'mvp'
   | 'marketplace'
   | 'training'
   | 'vendors'
@@ -31,8 +30,6 @@ export const routeMatrix: RouteMatrixItem[] = [
   { path: '/events/past', label: 'Past Highlights', roles: allRoles, feature: 'events', owner: 'web-frontend' },
   { path: '/events/gallery', label: 'Photo Gallery', roles: allRoles, feature: 'events', owner: 'web-frontend' },
   { path: '/events/register', label: 'Join Mela', roles: ['farmer'], feature: 'events', owner: 'web-frontend', cta: true, highlight: true, icon: '🎪' },
-  { path: '/mvp/events', label: 'MVP Events', roles: allRoles, feature: 'mvp', owner: 'backend-mvp', icon: '📅' },
-  { path: '/mvp/leads', label: 'Lead Marketplace', roles: ['vendor', 'farmer'], feature: 'mvp', owner: 'backend-mvp', icon: '🤝' },
   { path: '/marketplace', label: 'Marketplace', roles: allRoles, feature: 'marketplace', owner: 'web-frontend', icon: '🛒' },
   { path: '/marketplace/equipment', label: 'Agricultural Equipment', roles: allRoles, feature: 'marketplace', owner: 'web-frontend', icon: '🚜' },
   { path: '/marketplace/livestock', label: 'Livestock & Cattle', roles: allRoles, feature: 'marketplace', owner: 'web-frontend', icon: '🐄' },
@@ -47,7 +44,7 @@ export const routeMatrix: RouteMatrixItem[] = [
   { path: '/training/progress', label: 'My Progress', roles: ['farmer'], feature: 'training', owner: 'web-frontend', highlight: true },
   { path: '/training/subsidies/tracking', label: 'Subsidy Tracking', roles: ['farmer'], feature: 'training', owner: 'web-frontend' },
   { path: '/vendors', label: 'Vendors', roles: ['vendor'], feature: 'vendors', owner: 'web-frontend', icon: '🏪' },
-  { path: '/vendors/book-stall', label: 'Book Stall / Advertise', roles: ['vendor'], feature: 'vendors', owner: 'backend-mvp', cta: true, highlight: true },
+  { path: '/vendors/book-stall', label: 'Book Stall / Advertise', roles: ['vendor'], feature: 'vendors', owner: 'backend', cta: true, highlight: true },
   { path: '/vendors/catalog', label: 'Upload Catalog', roles: ['vendor'], feature: 'vendors', owner: 'backend', icon: '📦' },
   { path: '/vendors/dashboard', label: 'Analytics Dashboard', roles: ['vendor'], feature: 'vendors', owner: 'backend', icon: '📊' },
   { path: '/news', label: 'News & Blogs', roles: allRoles, feature: 'news', owner: 'web-frontend', icon: '📰' },
@@ -64,7 +61,7 @@ export const routeMatrix: RouteMatrixItem[] = [
 export const headerMatrix = [
   {
     path: '/events',
-    children: ['/events/upcoming', '/events/past', '/events/gallery', '/events/register', '/mvp/events']
+    children: ['/events/upcoming', '/events/past', '/events/gallery', '/events/register']
   },
   {
     path: '/marketplace',
@@ -75,8 +72,7 @@ export const headerMatrix = [
       '/marketplace/product',
       '/marketplace/buy',
       '/marketplace/sell',
-      '/marketplace/organic',
-      '/mvp/leads'
+      '/marketplace/organic'
     ]
   },
   {

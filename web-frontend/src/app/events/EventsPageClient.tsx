@@ -5,7 +5,6 @@ import Link from 'next/link';
 import MelaMap from '@/components/maps/MelaMap';
 import WeatherWidget from '@/components/weather/WeatherWidget';
 import EventSchema from '@/components/seo/EventSchema';
-import type { EventItem as MvpEventItem } from '@/components/mvp/EventCard';
 
 interface Event {
   _id: string;
@@ -44,10 +43,9 @@ interface Event {
 
 interface EventsPageClientProps {
   initialEvents: Event[];
-  mvpEvents: MvpEventItem[];
 }
 
-export default function EventsPageClient({ initialEvents, mvpEvents }: EventsPageClientProps) {
+export default function EventsPageClient({ initialEvents }: EventsPageClientProps) {
   const [events, setEvents] = useState<Event[]>(initialEvents);
   const [loading, setLoading] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -134,46 +132,6 @@ export default function EventsPageClient({ initialEvents, mvpEvents }: EventsPag
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Unified MVP + Core Events */}
-          {mvpEvents.length > 0 && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 mb-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-green-900">Marketplace-ready Events</h2>
-                  <p className="text-sm text-green-700">
-                    Unified from MVP flow: book stalls faster and connect with buyers.
-                  </p>
-                </div>
-                <Link
-                  href="/vendors/book-stall"
-                  className="inline-flex items-center justify-center rounded-md bg-green-700 px-4 py-2 text-sm font-medium text-white hover:bg-green-800"
-                >
-                  Book Stall
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mvpEvents.slice(0, 3).map((event) => (
-                  <article key={event.id} className="rounded-xl border border-green-100 bg-white p-4 shadow-sm">
-                    <h3 className="text-base font-semibold text-gray-900">{event.title}</h3>
-                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">{event.description}</p>
-                    <div className="mt-2 text-sm text-gray-700">
-                      <p>📍 {event.location}</p>
-                      <p>🗓 {new Date(event.startDate).toLocaleDateString('en-IN')}</p>
-                    </div>
-                    <div className="mt-3">
-                      <Link
-                        href={`/mvp/events/${event.id}`}
-                        className="inline-flex items-center rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-                      >
-                        View & Book
-                      </Link>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Filters */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Filter Events</h2>
