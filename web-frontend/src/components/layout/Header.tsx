@@ -1,16 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { navigationConfig } from '@/config/navigation';
+import { isRouteVisibleForRole } from '@/config/appMatrix';
 
 export function Header() {
   const pathname = usePathname();
-  const [openMenu, setOpenMenu] = useState(null);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [desktopOpenMenu, setDesktopOpenMenu] = useState<string | null>(null);
+  const [mobileOpenMenu, setMobileOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth context
+  const safePathname = pathname ?? '';
   
   // Determine user role (this would come from auth context in real app)
   const userRole: 'guest' | 'farmer' | 'vendor' = isLoggedIn ? 'farmer' : 'guest';
@@ -18,36 +22,78 @@ export function Header() {
   // Filter navigation items based on user role
   const getVisibleNavItems = () => {
     return navigationConfig.unified.filter(item => 
-      !item.roles || item.roles.includes(userRole)
+      isRouteVisibleForRole(item.path, userRole)
     ).map(item => ({
       ...item,
       children: item.children?.filter(child => 
-        !child.roles || child.roles.includes(userRole)
+        isRouteVisibleForRole(child.path, userRole)
       )
     }));
   };
 
   const nav = getVisibleNavItems();
 
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!headerRef.current?.contains(event.target as Node)) {
+        setDesktopOpenMenu(null);
+        setUserMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setDesktopOpenMenu(null);
+        setUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    setDesktopOpenMenu(null);
+    setMobileOpenMenu(null);
+    setMobileOpen(false);
+    setUserMenuOpen(false);
+  }, [safePathname]);
+
   return (
     <>
       {/* Top Microbar */}
       <div className="bg-gray-800 text-white text-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-8">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+          <div className="flex justify-between items-center min-h-10 py-1 gap-3 flex-wrap">
+            <div className="flex items-center space-x-4 min-w-0">
+              <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>📞</span>
                 <span>+91-9999778321</span>
               </div>
-              <div className="hidden md:flex items-center space-x-2">
+              <div className="hidden md:flex items-center space-x-2 whitespace-nowrap">
                 <span>💬</span>
                 <span>WhatsApp Support</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+              <Link
+                href="/events/register"
+                className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-green-600 hover:bg-green-700 px-2.5 py-1 text-xs font-medium text-white transition-colors duration-200"
+              >
+                🎪 Join Mela
+              </Link>
+              <Link
+                href="/vendors/book-stall"
+                className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-blue-600 hover:bg-blue-700 px-2.5 py-1 text-xs font-medium text-white transition-colors duration-200"
+              >
+                🏪 Book Stall
+              </Link>
               <div className="relative">
-                <select className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <select className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-1 pr-8 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                   <option value="en">🇺🇸 English</option>
                   <option value="hi">🇮🇳 Hindi</option>
                   <option value="mr">🇮🇳 Marathi</option>
@@ -63,167 +109,187 @@ export function Header() {
       </div>
 
       {/* Main Header */}
-      <header className="bg-green-800 text-white shadow-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
-          <Link href="/" className="text-2xl font-bold tracking-wide">
-            KisaanMela
-          </Link>
+      <header ref={headerRef} className="bg-green-800 text-white shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[auto,1fr,auto] items-center gap-2 lg:gap-3 py-3">
+            <Link href="/" className="text-2xl lg:text-[1.65rem] xl:text-3xl font-extrabold tracking-wide whitespace-nowrap justify-self-start">
+              KisaanMela
+            </Link>
 
-          {/* Desktop Nav */}
-          <ul className="hidden lg:flex gap-8 items-center">
-            {nav.map((item) => (
-              <li
-                key={item.path}
-                className="relative group"
-                onMouseEnter={() => setOpenMenu(item.name)}
-                onMouseLeave={() => setOpenMenu(null)}
-              >
-                {item.children && item.children.length > 0 ? (
-                  <>
-                    <button
-                      className={`transition-colors duration-200 hover:text-yellow-400 ${
-                        pathname.includes(item.path.toLowerCase()) || 
-                        item.children.some(child => pathname === child.path)
-                          ? 'text-yellow-400 font-semibold'
-                          : ''
-                      }`}
-                    >
-                      {item.icon && <span className="mr-1">{item.icon}</span>}
-                      {item.name} ▾
-                    </button>
+            {/* Desktop Nav */}
+            <nav className="hidden lg:flex min-w-0 justify-center">
+              <ul className="flex gap-2 xl:gap-4 items-center whitespace-nowrap px-1">
+                {nav.map((item) => {
+                  const visibleChildren = (item.children ?? []).filter(
+                    (child) => child.path !== item.path
+                  );
+                  const itemActive =
+                    safePathname === item.path || safePathname.startsWith(`${item.path}/`);
+                  const childActive = Boolean(
+                    visibleChildren.some((child) => safePathname === child.path)
+                  );
+                  const hasChildren = visibleChildren.length > 0;
+                  const isOpen = desktopOpenMenu === item.name;
 
-                    <ul
-                      className={`absolute left-0 mt-2 bg-white text-green-800 rounded-md shadow-lg w-48 transform transition-all duration-300 ease-in-out ${
-                        openMenu === item.name
-                          ? 'opacity-100 translate-y-0 visible'
-                          : 'opacity-0 -translate-y-2 invisible'
-                      }`}
+                  return (
+                    <li
+                      key={item.path}
+                      className="relative shrink-0"
+                      onMouseEnter={() => hasChildren && setDesktopOpenMenu(item.name)}
+                      onMouseLeave={() => hasChildren && setDesktopOpenMenu(null)}
                     >
-                      {item.children.map((child) => (
-                        <li key={child.path}>
-                          <Link
-                            href={child.path}
-                            className={`block px-4 py-2 hover:bg-green-50 rounded ${
-                              pathname === child.path
-                                ? 'bg-green-100 text-green-800 font-semibold'
-                                : ''
-                            } ${child.highlight ? 'font-semibold text-green-700' : ''}`}
-                            onClick={() => setOpenMenu(null)}
+                      {hasChildren ? (
+                        <>
+                          <button
+                            type="button"
+                            aria-haspopup="menu"
+                            aria-expanded={isOpen}
+                            className={`px-1 py-1 rounded-md transition-colors duration-200 hover:text-yellow-300 whitespace-nowrap text-[13px] xl:text-base ${
+                              itemActive || childActive ? 'text-yellow-400 font-semibold' : ''
+                            }`}
+                            onClick={() =>
+                              setDesktopOpenMenu(isOpen ? null : item.name)
+                            }
                           >
-                            {child.icon && <span className="mr-2">{child.icon}</span>}
-                            {child.name}
-                            {child.cta && <span className="ml-2 text-xs bg-green-100 text-green-800 px-1 rounded">CTA</span>}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
+                            {item.name} ▾
+                          </button>
+
+                          <ul
+                            role="menu"
+                            className={`absolute left-0 top-full mt-0 bg-white text-green-800 rounded-md shadow-lg min-w-[14rem] z-[60] border border-green-100 transition-all duration-150 origin-top ${
+                              isOpen
+                                ? 'opacity-100 translate-y-0 visible'
+                                : 'opacity-0 -translate-y-1 invisible pointer-events-none'
+                            }`}
+                          >
+                            <li>
+                              <Link
+                                href={item.path}
+                                className={`block px-4 py-2 hover:bg-green-50 rounded font-medium ${
+                                  safePathname === item.path ? 'bg-green-100 text-green-800' : ''
+                                }`}
+                                onClick={() => setDesktopOpenMenu(null)}
+                              >
+                                {item.name} Overview
+                              </Link>
+                            </li>
+                            {visibleChildren.map((child) => (
+                              <li key={child.path}>
+                                <Link
+                                  href={child.path}
+                                  className={`block px-4 py-2 hover:bg-green-50 rounded ${
+                                    safePathname === child.path
+                                      ? 'bg-green-100 text-green-800 font-semibold'
+                                      : ''
+                                  } ${child.highlight ? 'font-semibold text-green-700' : ''}`}
+                                  onClick={() => setDesktopOpenMenu(null)}
+                                >
+                                  {child.icon && <span className="mr-2">{child.icon}</span>}
+                                  {child.name}
+                                {child.cta && (
+                                    <span className="ml-2 text-[10px] bg-green-100 text-green-800 px-1 rounded">
+                                      CTA
+                                    </span>
+                                  )}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      ) : (
+                        <Link
+                          href={item.path}
+                          className={`px-1 py-1 rounded-md hover:text-yellow-300 transition-colors duration-200 whitespace-nowrap text-[13px] xl:text-base ${
+                            safePathname === item.path ? 'text-yellow-400 font-semibold' : ''
+                          }`}
+                        >
+                          {item.name}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            {/* CTA Buttons & User Menu */}
+            <div className="hidden lg:flex items-center space-x-2 xl:space-x-3 shrink-0 justify-self-end pl-2">
+              <div className="flex items-center space-x-2">
+                {isLoggedIn ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center space-x-2 text-white hover:text-yellow-400 transition-colors duration-200"
+                    >
+                      <span>👤</span>
+                      <span>Profile</span>
+                      <span>▼</span>
+                    </button>
+                    {userMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white text-green-800 rounded-md shadow-lg py-2 z-[60]">
+                        <Link
+                          href="/profile"
+                          className="block px-4 py-2 hover:bg-green-50 rounded"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          My Profile
+                        </Link>
+                        <Link
+                          href="/dashboard"
+                          className="block px-4 py-2 hover:bg-green-50 rounded"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Dashboard
+                        </Link>
+                        <Link
+                          href="/settings"
+                          className="block px-4 py-2 hover:bg-green-50 rounded"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Settings
+                        </Link>
+                        <hr className="my-2" />
+                        <button
+                          onClick={() => {
+                            setIsLoggedIn(false);
+                            setUserMenuOpen(false);
+                          }}
+                          className="block w-full text-left px-4 py-2 hover:bg-green-50 rounded text-red-600"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <Link
-                    href={item.path}
-                    className={`hover:text-yellow-400 transition-colors duration-200 ${
-                      pathname === item.path ? 'text-yellow-400 font-semibold' : ''
-                    }`}
-                  >
-                    {item.icon && <span className="mr-1">{item.icon}</span>}
-                    {item.name}
-                  </Link>
+                  <>
+                    <Link
+                      href="/login"
+                      className="text-white hover:text-yellow-400 px-1.5 xl:px-3 py-2 rounded-md text-[11px] xl:text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="bg-green-600 hover:bg-green-700 text-white px-2.5 xl:px-4 py-2 rounded-lg text-[11px] xl:text-sm font-medium transition-colors duration-200 shadow-md whitespace-nowrap"
+                    >
+                      Sign Up
+                    </Link>
+                  </>
                 )}
-              </li>
-            ))}
-          </ul>
+              </div>
+            </div>
 
-          {/* CTA Buttons & User Menu */}
-          <div className="hidden lg:flex items-center space-x-3">
-            <div className="flex items-center space-x-2">
-              <Link
-                href="/events/register"
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md flex items-center space-x-2"
-              >
-                <span>🎪</span>
-                <span>Join Mela</span>
-              </Link>
-              <Link
-                href="/vendors/book-stall"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md flex items-center space-x-2"
-              >
-                <span>🏪</span>
-                <span>Book Stall</span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-2">
-              {isLoggedIn ? (
-                <div className="relative">
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center space-x-2 text-white hover:text-yellow-400 transition-colors duration-200"
-                  >
-                    <span>👤</span>
-                    <span>Profile</span>
-                    <span>▼</span>
-                  </button>
-                  {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white text-green-800 rounded-md shadow-lg py-2 z-50">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 hover:bg-green-50 rounded"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        My Profile
-                      </Link>
-                      <Link
-                        href="/dashboard"
-                        className="block px-4 py-2 hover:bg-green-50 rounded"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        Dashboard
-                      </Link>
-                      <Link
-                        href="/settings"
-                        className="block px-4 py-2 hover:bg-green-50 rounded"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        Settings
-                      </Link>
-                      <hr className="my-2" />
-                      <button
-                        onClick={() => {
-                          setIsLoggedIn(false);
-                          setUserMenuOpen(false);
-                        }}
-                        className="block w-full text-left px-4 py-2 hover:bg-green-50 rounded text-red-600"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-white hover:text-yellow-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md"
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
+            {/* Mobile Menu Button */}
+            <button
+              className="lg:hidden text-white"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              aria-label="Toggle mobile menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? '✕' : '☰'}
+            </button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden text-white"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? '✕' : '☰'}
-          </button>
         </div>
       </header>
 
@@ -231,60 +297,82 @@ export function Header() {
       {mobileOpen && (
         <div className="lg:hidden bg-green-900 text-white">
           <ul className="flex flex-col gap-2 px-6 pb-4 transition-all">
-            {nav.map((item) => (
-              <li key={item.path} className="border-b border-green-700 pb-2">
-                {item.children && item.children.length > 0 ? (
-                  <>
-                    <button
-                      className="w-full flex justify-between items-center"
-                      onClick={() =>
-                        setOpenMenu(openMenu === item.name ? null : item.name)
-                      }
-                    >
-                      <span>
-                        {item.icon && <span className="mr-1">{item.icon}</span>}
-                        {item.name}
-                      </span>
-                      <span>{openMenu === item.name ? '−' : '+'}</span>
-                    </button>
-                    {openMenu === item.name && (
-                      <ul className="pl-4 flex flex-col gap-1 transition-all">
-                        {item.children.map((child) => (
-                          <li key={child.path}>
+            {nav.map((item) => {
+              const visibleChildren = (item.children ?? []).filter(
+                (child) => child.path !== item.path
+              );
+              const hasChildren = visibleChildren.length > 0;
+              const isMobileOpen = mobileOpenMenu === item.name;
+              return (
+                <li key={item.path} className="border-b border-green-700 pb-2">
+                  {hasChildren ? (
+                    <>
+                      <button
+                        className="w-full flex justify-between items-center"
+                        onClick={() =>
+                          setMobileOpenMenu(isMobileOpen ? null : item.name)
+                        }
+                      >
+                        <span>
+                          {item.icon && <span className="mr-1">{item.icon}</span>}
+                          {item.name}
+                        </span>
+                        <span>{isMobileOpen ? '−' : '+'}</span>
+                      </button>
+                      {isMobileOpen && (
+                        <ul className="pl-4 flex flex-col gap-1 transition-all">
+                          <li>
                             <Link
-                              href={child.path}
-                              className={`block py-1 hover:text-yellow-400 transition-colors duration-200 ${
-                                pathname === child.path
-                                  ? 'text-yellow-400 font-semibold'
-                                  : ''
-                              } ${child.highlight ? 'font-semibold text-yellow-300' : ''}`}
+                              href={item.path}
+                              className={`block py-1 hover:text-yellow-400 transition-colors duration-200 font-medium ${
+                                safePathname === item.path ? 'text-yellow-400 font-semibold' : ''
+                              }`}
                               onClick={() => setMobileOpen(false)}
                             >
-                              {child.icon && <span className="mr-2">{child.icon}</span>}
-                              {child.name}
-                              {child.cta && <span className="ml-2 text-xs bg-yellow-400 text-green-800 px-1 rounded">CTA</span>}
+                              {item.name} Overview
                             </Link>
                           </li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    href={item.path}
-                    className={`block py-1 hover:text-yellow-400 transition-colors duration-200 ${
-                      pathname === item.path ? 'text-yellow-400 font-semibold' : ''
-                    }`}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {item.icon && <span className="mr-1">{item.icon}</span>}
-                    {item.name}
-                  </Link>
-                )}
-              </li>
-            ))}
+                          {visibleChildren.map((child) => (
+                            <li key={child.path}>
+                              <Link
+                                href={child.path}
+                                className={`block py-1 hover:text-yellow-400 transition-colors duration-200 ${
+                                  safePathname === child.path
+                                    ? 'text-yellow-400 font-semibold'
+                                    : ''
+                                } ${child.highlight ? 'font-semibold text-yellow-300' : ''}`}
+                                onClick={() => setMobileOpen(false)}
+                              >
+                                {child.icon && <span className="mr-2">{child.icon}</span>}
+                                {child.name}
+                                {child.cta && (
+                                  <span className="ml-2 text-xs bg-yellow-400 text-green-800 px-1 rounded">
+                                    CTA
+                                  </span>
+                                )}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={item.path}
+                      className={`block py-1 hover:text-yellow-400 transition-colors duration-200 ${
+                        safePathname === item.path ? 'text-yellow-400 font-semibold' : ''
+                      }`}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {item.icon && <span className="mr-1">{item.icon}</span>}
+                      {item.name}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
-          
+
           {/* Mobile CTA Buttons */}
           <div className="px-6 pb-4 border-t border-green-700 pt-4">
             <div className="flex flex-col space-y-2">
