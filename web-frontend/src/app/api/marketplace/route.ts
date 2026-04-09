@@ -2,15 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import MarketplaceListing from '@/lib/models/MarketplaceListing';
 import MarketplaceUser from '@/lib/models/MarketplaceUser';
-
-function isDbUnavailableError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return (
-    message.includes('ECONNREFUSED') ||
-    message.includes('buffering timed out') ||
-    message.includes('ServerSelectionError')
-  );
-}
+import { isDbUnavailableError, describeError, emptyListingsResponse } from '@/lib/dbErrors';
 
 // GET /api/marketplace - Fetch all listings with filters
 export async function GET(request: NextRequest) {
@@ -100,27 +92,19 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Marketplace API Error:', error);
+    const { name, message } = describeError(error);
+    console.error(`[marketplace] GET failed: ${name}: ${message}`);
 
     if (isDbUnavailableError(error)) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-        pagination: {
-          currentPage: 1,
-          totalPages: 0,
-          totalCount: 0,
-          hasNextPage: false,
-          hasPrevPage: false,
-          limit: 12
-        },
-        warning: 'Database is unavailable. Showing empty results.'
-      });
+      return NextResponse.json(emptyListingsResponse());
     }
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch listings' },
-      { status: 500 }
+      {
+        ...emptyListingsResponse(12, 'Failed to fetch listings. Please try again shortly.'),
+        errorCode: name,
+      },
+      { status: 200 }
     );
   }
 }
@@ -198,9 +182,18 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Create Listing Error:', error);
+    const { name, message } = describeError(error);
+    console.error(`[marketplace] POST failed: ${name}: ${message}`);
+
+    if (isDbUnavailableError(error)) {
+      return NextResponse.json(
+        { success: false, error: 'Database is unavailable. Please try again shortly.' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Failed to create listing' },
+      { success: false, error: 'Failed to create listing', errorCode: name },
       { status: 500 }
     );
   }

@@ -37,8 +37,7 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
   category: {
     type: String,
     required: true,
-    enum: ['equipment', 'livestock', 'product'],
-    index: true
+    enum: ['equipment', 'livestock', 'product']
   },
   condition: {
     type: String,
@@ -49,8 +48,7 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
   price: {
     type: Number,
     required: true,
-    min: 0,
-    index: true
+    min: 0
   },
   images: [{
     type: String,
@@ -59,8 +57,7 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
   location: {
     type: String,
     required: true,
-    trim: true,
-    index: true
+    trim: true
   },
   sellerId: {
     type: String,

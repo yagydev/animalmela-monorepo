@@ -1,37 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import MarketplaceListing from '@/lib/models/MarketplaceListing';
+import { isDbUnavailableError, describeError, emptyListingsResponse } from '@/lib/dbErrors';
 
-function isDbUnavailableError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-  return (
-    message.includes('ECONNREFUSED') ||
-    message.includes('buffering timed out') ||
-    message.includes('ServerSelectionError')
-  );
-}
+const VALID_CATEGORIES = ['equipment', 'livestock', 'product'] as const;
 
 // GET /api/marketplace/[category] - Fetch listings by category
 export async function GET(
   request: NextRequest,
-  { params }: { params: { category: string } }
+  { params }: { params: { category: string } | Promise<{ category: string }> }
 ) {
+  // Validate category BEFORE touching the database so bad requests
+  // don't waste a connection and always return a predictable 400.
+  const resolvedParams = await Promise.resolve(params);
+  const category = resolvedParams?.category;
+
+  if (!category || !VALID_CATEGORIES.includes(category as typeof VALID_CATEGORIES[number])) {
+    return NextResponse.json(
+      { success: false, error: 'Invalid category' },
+      { status: 400 }
+    );
+  }
+
+  const { searchParams } = request.nextUrl;
+  const limit = Math.max(1, Math.min(parseInt(searchParams.get('limit') || '12'), 100));
+
   try {
     await dbConnect();
-    
-    const { category } = await params;
-    const { searchParams } = request.nextUrl;
-    
-    // Validate category
-    if (!['equipment', 'livestock', 'product'].includes(category)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid category' },
-        { status: 400 }
-      );
-    }
 
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '12');
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const condition = searchParams.get('condition');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
@@ -111,27 +108,21 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Category API Error:', error);
+    const { name, message } = describeError(error);
+    console.error(`[marketplace/${category}] GET failed: ${name}: ${message}`);
 
     if (isDbUnavailableError(error)) {
-      return NextResponse.json({
-        success: true,
-        data: [],
-        pagination: {
-          currentPage: 1,
-          totalPages: 0,
-          totalCount: 0,
-          hasNextPage: false,
-          hasPrevPage: false,
-          limit: 12
-        },
-        warning: 'Database is unavailable. Showing empty results.'
-      });
+      return NextResponse.json(emptyListingsResponse(limit));
     }
 
+    // Never 500 the storefront — degrade gracefully and surface the reason
+    // in a warning so the UI can show an empty state instead of crashing.
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch listings' },
-      { status: 500 }
+      {
+        ...emptyListingsResponse(limit, 'Failed to fetch listings. Please try again shortly.'),
+        errorCode: name,
+      },
+      { status: 200 }
     );
   }
 }
@@ -139,16 +130,17 @@ export async function GET(
 // POST /api/marketplace/[category] - Create new listing in specific category
 export async function POST(
   request: NextRequest,
-  { params }: { params: { category: string } }
+  { params }: { params: { category: string } | Promise<{ category: string }> }
 ) {
   try {
     await dbConnect();
-    
-    const { category } = await params;
+
+    const resolvedParams = await Promise.resolve(params);
+    const category = resolvedParams?.category;
     const body = await request.json();
     
     // Validate category
-    if (!['equipment', 'livestock', 'product'].includes(category)) {
+    if (!category || !VALID_CATEGORIES.includes(category as typeof VALID_CATEGORIES[number])) {
       return NextResponse.json(
         { success: false, error: 'Invalid category' },
         { status: 400 }
@@ -196,9 +188,18 @@ export async function POST(
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Create Category Listing Error:', error);
+    const { name, message } = describeError(error);
+    console.error(`[marketplace] POST failed: ${name}: ${message}`);
+
+    if (isDbUnavailableError(error)) {
+      return NextResponse.json(
+        { success: false, error: 'Database is unavailable. Please try again shortly.' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Failed to create listing' },
+      { success: false, error: 'Failed to create listing', errorCode: name },
       { status: 500 }
     );
   }
