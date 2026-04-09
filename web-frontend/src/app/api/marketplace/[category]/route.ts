@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import MarketplaceListing from '@/lib/models/MarketplaceListing';
 
+function isDbUnavailableError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes('ECONNREFUSED') ||
+    message.includes('buffering timed out') ||
+    message.includes('ServerSelectionError')
+  );
+}
+
 // GET /api/marketplace/[category] - Fetch listings by category
 export async function GET(
   request: NextRequest,
@@ -103,6 +112,23 @@ export async function GET(
 
   } catch (error) {
     console.error('Category API Error:', error);
+
+    if (isDbUnavailableError(error)) {
+      return NextResponse.json({
+        success: true,
+        data: [],
+        pagination: {
+          currentPage: 1,
+          totalPages: 0,
+          totalCount: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+          limit: 12
+        },
+        warning: 'Database is unavailable. Showing empty results.'
+      });
+    }
+
     return NextResponse.json(
       { success: false, error: 'Failed to fetch listings' },
       { status: 500 }

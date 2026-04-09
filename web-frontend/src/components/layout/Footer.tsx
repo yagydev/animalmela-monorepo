@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { footerMatrix, getRoute } from '@/config/appMatrix';
 import { 
   HeartIcon,
   ChatBubbleLeftRightIcon,
@@ -13,44 +14,15 @@ import {
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    marketplace: [
-      { name: 'Buy Seeds & Tools', href: '/marketplace?category=seeds' },
-      { name: 'Sell Produce', href: '/marketplace/sell' },
-      { name: 'Organic Products', href: '/marketplace?category=organic' },
-      { name: 'Livestock', href: '/marketplace?category=livestock' },
-      { name: 'Equipment', href: '/marketplace?category=equipment' },
-    ],
-    events: [
-      { name: 'Upcoming Melas', href: '/events?filter=upcoming' },
-      { name: 'Past Highlights', href: '/events?filter=past' },
-      { name: 'Photo Gallery', href: '/events/gallery' },
-      { name: 'Book Stall', href: '/vendors/book-stall' },
-      { name: 'Event Registration', href: '/events/register' },
-    ],
-    learning: [
-      { name: 'Workshops', href: '/training/workshops' },
-      { name: 'Subsidy Guidance', href: '/training/subsidies' },
-      { name: 'Agri Tech Updates', href: '/training/tech' },
-      { name: 'Farmer Stories', href: '/news/farmer-stories' },
-      { name: 'Innovation Hub', href: '/news/innovation' },
-    ],
-    company: [
-      { name: 'About Kisan Mela', href: '/about' },
-      { name: 'Partner with Us', href: '/partners' },
-      { name: 'Press Kit', href: '/press' },
-      { name: 'Careers', href: '/careers' },
-      { name: 'Support', href: '/support' },
-    ],
-    legal: [
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Use', href: '/terms' },
-      { name: 'Cookie Policy', href: '/cookies' },
-      { name: 'Refund Policy', href: '/refunds' },
-      { name: 'Contact Us', href: '/contact' },
-    ],
-  };
+  const footerLinks = Object.fromEntries(
+    Object.entries(footerMatrix).map(([section, paths]) => [
+      section,
+      paths.map((path) => {
+        const route = getRoute(path);
+        return { name: route.label, href: route.path };
+      })
+    ])
+  ) as Record<string, { name: string; href: string }[]>;
 
   const features = [
     {
@@ -226,7 +198,7 @@ export function Footer() {
             {/* Social Links */}
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a
-                href="#"
+                href="/contact"
                 className="text-gray-400 hover:text-white transition-colors duration-200"
                 aria-label="Facebook"
               >
@@ -235,7 +207,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-gray-400 hover:text-white transition-colors duration-200"
                 aria-label="Twitter"
               >
@@ -244,7 +216,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-gray-400 hover:text-white transition-colors duration-200"
                 aria-label="Instagram"
               >
@@ -253,7 +225,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="text-gray-400 hover:text-white transition-colors duration-200"
                 aria-label="LinkedIn"
               >
