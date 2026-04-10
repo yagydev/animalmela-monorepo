@@ -1,17 +1,24 @@
 import mongoose from 'mongoose';
 
+function resolveMongoUri() {
+  const fromEnv =
+    process.env.MONGODB_URI?.trim() || process.env.DATABASE_URL?.trim();
+  if (fromEnv) return fromEnv;
+  if (process.env.VERCEL) {
+    throw new Error(
+      'Missing MONGODB_URI or DATABASE_URL. In Vercel: Project → Settings → Environment Variables, add the same mongodb+srv://… string for both (Production + Preview). Atlas must allow connections from the internet (e.g. 0.0.0.0/0).'
+    );
+  }
+  if (process.env.NODE_ENV === 'production') {
+    return 'mongodb://mongodb:27017/kisaanmela_prod';
+  }
+  return 'mongodb://localhost:27017/kisaanmela';
+}
+
 // MongoDB connection configuration for frontend API routes
 const connectDB = async () => {
   try {
-    // Use MongoDB Atlas or local MongoDB
-    // For Vercel: Use MongoDB Atlas connection string
-    // For Docker: Use local MongoDB container
-    // For development: Use local MongoDB
-    const mongoUri = process.env.MONGODB_URI || 
-                    process.env.DATABASE_URL || 
-                    (process.env.NODE_ENV === 'production' ? 
-                      (process.env.VERCEL ? 'mongodb://localhost:27017/kisaanmela_prod' : 'mongodb://mongodb:27017/kisaanmela_prod') : 
-                      'mongodb://localhost:27017/kisaanmela');
+    const mongoUri = resolveMongoUri();
     
     // Skip connection if in demo mode
     if (mongoUri === 'demo-mode') {
@@ -21,11 +28,7 @@ const connectDB = async () => {
     
     console.log(`Attempting to connect to MongoDB: ${mongoUri.replace(/\/\/.*@/, '//***:***@')}`);
     
-    // Modern Mongoose 6+ doesn't need deprecated options
-    const conn = await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const conn = await mongoose.connect(mongoUri);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     return conn;
