@@ -91,6 +91,16 @@ const eventSchema = new mongoose.Schema({
     description: String,
     keywords: [String]
   },
+  /** Raw mela listing fields (seeded from data/mela-seed.json). CMS status stays draft|published|archived. */
+  melaMeta: {
+    mandi: String,
+    month: String,
+    focusType: String,
+    visitors: Number,
+    isRecurring: Boolean,
+    listingStatus: String,
+    source: String
+  },
   seo: {
     title: String,
     description: String,
@@ -421,6 +431,7 @@ const newsUpdateSchema = new mongoose.Schema({
 eventSchema.index({ slug: 1, status: 1 });
 eventSchema.index({ date: 1, status: 1 });
 eventSchema.index({ 'location.city': 1, 'location.state': 1 });
+eventSchema.index({ 'melaMeta.month': 1, 'melaMeta.listingStatus': 1 });
 
 vendorSchema.index({ slug: 1, status: 1 });
 vendorSchema.index({ productType: 1, status: 1 });
@@ -454,11 +465,12 @@ export {
   NewsUpdate
 };
 
-// Default export for CommonJS compatibility
-export default {
+const cmsModels = {
   Event,
   Vendor,
   Product,
   Organization,
   NewsUpdate
 };
+
+export default cmsModels;

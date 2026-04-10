@@ -1,114 +1,146 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { EventCard } from '@/components/events/EventCard';
+import { fetchPublishedEvents, sortEventsForListing, type CmsEventListItem } from '@/lib/cmsEvents';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Agricultural Events & Fairs | Kisan Mela',
-  description: 'Discover upcoming agricultural events, fairs, and exhibitions across India. Connect with farmers, vendors, and agricultural organizations.',
-  keywords: 'agricultural events, farmer fairs, kisan mela, agricultural exhibitions, farming events',
+  title: 'Agricultural Events & Fairs | KisaanMela',
+  description:
+    'Discover kisan melas, krishi expos, and agricultural fairs across India. Dates, mandis, and visitor info in one place.',
+  keywords: 'agricultural events, farmer fairs, kisan mela, krishi mela, mandi, agricultural exhibitions',
   openGraph: {
-    title: 'Agricultural Events & Fairs | Kisan Mela',
-    description: 'Discover upcoming agricultural events, fairs, and exhibitions across India.',
+    title: 'Agricultural Events & Fairs | KisaanMela',
+    description: 'Discover kisan melas and agricultural fairs across India.',
     url: 'https://www.kisanmela.com/events',
-    siteName: 'Kisan Mela',
+    siteName: 'KisaanMela',
     type: 'website',
   },
 };
 
-type CmsEvent = {
-  _id?: string;
-  id?: string;
-  title?: string;
-  slug?: string;
-  description?: string;
-  date?: string;
-  location?: {
-    city?: string;
-    name?: string;
-  };
-  image?: {
-    url?: string;
-    alt?: string;
-  };
-};
-
-async function getCmsEvents(): Promise<CmsEvent[]> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
-
-  if (!baseUrl) {
-    return [];
+function uniqueStates(events: CmsEventListItem[]) {
+  const s = new Set<string>();
+  for (const e of events) {
+    const st = e.location?.state?.trim();
+    if (st) s.add(st);
   }
-
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/cms/events?populate=*&filters[status]=published&sort=date:asc`,
-      {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(8000)
-      }
-    );
-    if (!response.ok) {
-      return [];
-    }
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    return [];
-  }
+  return s.size;
 }
 
 export default async function EventsPage() {
-  const initialEvents = await getCmsEvents();
+  const raw = await fetchPublishedEvents();
+  const events = sortEventsForListing(raw);
+  const featured = events.filter((e) => e.featured);
+  const others = events.filter((e) => !e.featured);
+  const total = events.length;
+  const statesCount = uniqueStates(events);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900">Agricultural Events</h1>
-          <p className="mt-2 text-gray-600">
-            One unified place for community events and stall-booking ready events.
+      {/* Hero — mobile-first, KisaanMela green */}
+      <div className="bg-gradient-to-br from-green-800 via-green-700 to-green-900 text-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+          <p className="text-sm font-medium uppercase tracking-wide text-green-100">KisaanMela</p>
+          <h1 className="mt-2 text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">Kisan melas &amp; krishi events</h1>
+          <p className="mt-4 max-w-2xl text-base text-green-100 sm:text-lg">
+            Browse published fairs across states—mandi locations, dates, crop focus, and expected crowds. All listings from our
+            community database.
           </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/events/register"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-semibold text-green-900 shadow hover:bg-green-50"
+            >
+              Register your mela
+            </Link>
+            <Link
+              href="/events/upcoming"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-white/40 px-5 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Upcoming only
+            </Link>
+            <Link
+              href="/marketplace/kisaan"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-white/40 px-5 text-sm font-semibold text-white hover:bg-white/10"
+            >
+              Marketplace hub
+            </Link>
+          </div>
+          {total > 0 && (
+            <dl className="mt-10 grid grid-cols-2 gap-4 border-t border-white/20 pt-8 sm:grid-cols-3">
+              <div>
+                <dt className="text-sm text-green-200">Published events</dt>
+                <dd className="text-2xl font-bold">{total}</dd>
+              </div>
+              <div>
+                <dt className="text-sm text-green-200">States covered</dt>
+                <dd className="text-2xl font-bold">{statesCount}</dd>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <dt className="text-sm text-green-200">Featured highlights</dt>
+                <dd className="text-2xl font-bold">{featured.length}</dd>
+              </div>
+            </dl>
+          )}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <section className="rounded-xl border border-gray-200 bg-white p-5">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-gray-900">Community events</h2>
-            <div className="flex gap-2 text-sm">
-              <Link href="/events/upcoming" className="rounded-md bg-gray-100 px-3 py-1.5 hover:bg-gray-200">
-                Upcoming
-              </Link>
-              <Link href="/events/past" className="rounded-md bg-gray-100 px-3 py-1.5 hover:bg-gray-200">
-                Past
-              </Link>
-            </div>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2 text-sm font-medium">
+            <span className="rounded-lg bg-green-100 px-3 py-2 text-green-900">All listings</span>
+            <Link href="/events/upcoming" className="rounded-lg bg-white px-3 py-2 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-gray-50">
+              Upcoming
+            </Link>
+            <Link href="/events/past" className="rounded-lg bg-white px-3 py-2 text-gray-700 shadow ring-1 ring-gray-200 hover:bg-gray-50">
+              Past
+            </Link>
           </div>
-          {initialEvents.length === 0 ? (
-            <p className="mt-4 text-sm text-gray-600">No published community events right now.</p>
-          ) : (
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {initialEvents.slice(0, 9).map((event) => (
-                <article key={event._id || event.id || event.slug} className="rounded-lg border border-gray-200 p-4">
-                  <h3 className="text-base font-semibold text-gray-900">{event.title || 'Untitled event'}</h3>
-                  <p className="mt-1 text-sm text-gray-600 line-clamp-2">{event.description || 'No description.'}</p>
-                  <div className="mt-2 text-sm text-gray-700">
-                    <p>📍 {event.location?.name || event.location?.city || 'TBA'}</p>
-                    <p>🗓 {event.date ? new Date(event.date).toLocaleDateString('en-IN') : 'Date TBA'}</p>
-                  </div>
-                  <Link
-                    href={event.slug ? `/events/${event.slug}` : '/events/upcoming'}
-                    className="mt-3 inline-flex rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
-                  >
-                    Learn More
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+        </div>
+
+        {total === 0 ? (
+          <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
+            <p className="text-lg font-medium text-gray-900">No published events yet</p>
+            <p className="mt-2 text-sm text-gray-600">
+              Run <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">npm run seed:all</code> from{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">web-frontend</code> and ensure{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">MONGODB_URI</code> is set for this app (e.g. in{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">.env.local</code>).
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-12">
+            {featured.length > 0 && (
+              <section aria-labelledby="featured-heading">
+                <div className="mb-5 flex items-end justify-between gap-3">
+                  <h2 id="featured-heading" className="text-xl font-bold text-gray-900 sm:text-2xl">
+                    Featured melas
+                  </h2>
+                  <span className="text-sm text-gray-500">{featured.length} highlighted</span>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {featured.map((event) => (
+                    <EventCard key={String(event._id || event.slug)} event={event} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <section aria-labelledby="all-heading">
+              <div className="mb-5 flex items-end justify-between gap-3">
+                <h2 id="all-heading" className="text-xl font-bold text-gray-900 sm:text-2xl">
+                  {featured.length > 0 ? `More events (${others.length})` : `All events (${total})`}
+                </h2>
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {(featured.length > 0 ? others : events).map((event) => (
+                  <EventCard key={String(event._id || event.slug)} event={event} />
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,34 @@
 /** @type {import('next').NextConfig} */
+const fs = require('fs');
 const path = require('path');
+
+/** If web-frontend has no .env.local, pick Mongo URI from monorepo root .env (server-side events API). */
+function mergeParentMongoEnv() {
+  const keys = new Set(['MONGODB_URI', 'DATABASE_URL']);
+  const applyFile = (absPath) => {
+    try {
+      const raw = fs.readFileSync(absPath, 'utf8');
+      for (const line of raw.split('\n')) {
+        const t = line.trim();
+        if (!t || t.startsWith('#')) continue;
+        const eq = t.indexOf('=');
+        if (eq < 1) continue;
+        const key = t.slice(0, eq).trim();
+        if (!keys.has(key) || process.env[key]) continue;
+        let val = t.slice(eq + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        process.env[key] = val;
+      }
+    } catch {
+      /* missing */
+    }
+  };
+  applyFile(path.join(__dirname, '..', '.env'));
+  applyFile(path.join(__dirname, '..', '.env.local'));
+}
+mergeParentMongoEnv();
 const { i18n } = require('./next-i18next.config');
 const withPWA = require('next-pwa')({
   dest: 'public',
@@ -61,6 +90,12 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
+  },
+  async redirects() {
+    return [
+      { source: '/marketplace/agri', destination: '/marketplace/kisaan', permanent: true },
+      { source: '/marketplace/agri/:path*', destination: '/marketplace/kisaan/:path*', permanent: true },
+    ];
   },
   async headers() {
     return [

@@ -37,6 +37,14 @@ export const routeMatrix: RouteMatrixItem[] = [
   { path: '/marketplace/buy', label: 'Buy Seeds & Tools', roles: allRoles, feature: 'marketplace', owner: 'web-frontend', icon: '🛍️' },
   { path: '/marketplace/sell', label: 'Sell Items', roles: ['farmer'], feature: 'marketplace', owner: 'web-frontend', cta: true, highlight: true, icon: '💰' },
   { path: '/marketplace/organic', label: 'Organic Products', roles: allRoles, feature: 'marketplace', owner: 'web-frontend', icon: '🌿' },
+  {
+    path: '/marketplace/kisaan',
+    label: 'Shop verified sellers',
+    roles: allRoles,
+    feature: 'marketplace',
+    owner: 'web-frontend',
+    icon: '🏬',
+  },
   { path: '/training', label: 'Training & Learning', roles: ['guest', 'farmer'], feature: 'training', owner: 'web-frontend', icon: '📚' },
   { path: '/training/workshops', label: 'Workshops', roles: ['guest', 'farmer'], feature: 'training', owner: 'web-frontend' },
   { path: '/training/subsidies', label: 'Subsidy Guidance', roles: ['guest', 'farmer'], feature: 'training', owner: 'web-frontend' },
@@ -67,6 +75,7 @@ export const headerMatrix = [
     path: '/marketplace',
     children: [
       '/marketplace',
+      '/marketplace/kisaan',
       '/marketplace/equipment',
       '/marketplace/livestock',
       '/marketplace/product',
@@ -98,6 +107,7 @@ export const headerMatrix = [
 
 export const footerMatrix = {
   marketplace: [
+    '/marketplace/kisaan',
     '/marketplace/buy',
     '/marketplace/sell',
     '/marketplace/organic',

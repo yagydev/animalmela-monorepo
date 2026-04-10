@@ -1,10 +1,15 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/kisaanmela';
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+function resolveMongoUri(): string {
+  const fromEnv =
+    process.env.MONGODB_URI?.trim() || process.env.DATABASE_URL?.trim();
+  if (fromEnv?.startsWith('mongodb')) {
+    return fromEnv;
+  }
+  return 'mongodb://localhost:27017/kisaanmela';
 }
+
+const MONGODB_URI = resolveMongoUri();
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -25,11 +30,12 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 10_000,
+      socketTimeoutMS: 45_000,
+      maxPoolSize: 10,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI, opts);
   }
 
   try {

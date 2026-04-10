@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const { resolveMongoUri } = require('./loadMonorepoEnv');
 
-// MongoDB connection configuration
+// MongoDB connection configuration (uses monorepo root .env Atlas URI)
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/kisaanmela';
+    const mongoUri = resolveMongoUri();
     console.log(`Attempting to connect to MongoDB: ${mongoUri.replace(/\/\/.*@/, '//***:***@')}`);
-    
+
     await mongoose.connect(mongoUri);
     console.log('✅ MongoDB connected successfully!');
+    console.log(`📦 Database name: ${mongoose.connection.db.databaseName}`);
     return true;
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error);

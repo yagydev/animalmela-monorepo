@@ -1,41 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import dbConnect from '@/lib/dbConnect';
+import { Event } from '@/lib/models/CMSModels';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { searchParams } = new URL(request.url);
-    const populate = searchParams.get('populate') || '*';
+    await dbConnect();
+    const raw = params.id;
 
-    // Mock event data
-    const event = {
-      _id: params.id,
-      title: 'Kisaan Mela 2024 - Spring Festival',
-      slug: 'kisaan-mela-2024-spring-festival',
-      date: new Date('2024-03-15').toISOString(),
-      endDate: new Date('2024-03-17').toISOString(),
-      location: {
-        name: 'Delhi Agricultural Ground',
-        address: 'Sector 15, Rohini',
-        city: 'Delhi',
-        state: 'Delhi',
-        pincode: '110085'
-      },
-      image: {
-        url: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&h=600&fit=crop',
-        alt: 'Kisaan Mela 2024'
-      },
-      description: 'Join us for the biggest agricultural festival of the year!',
-      content: 'Experience the best of Indian agriculture with farmers, vendors, and agricultural experts from across the country.',
-      status: 'published',
-      featured: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    let doc = null;
+    if (mongoose.isValidObjectId(raw)) {
+      doc = await Event.findById(raw).lean();
+    }
+    if (!doc) {
+      doc = await Event.findOne({ slug: raw }).lean();
+    }
 
-    return NextResponse.json({ data: event });
+    if (!doc) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: doc });
   } catch (error) {
+    console.error('CMS event GET error:', error);
     return NextResponse.json({ error: 'Failed to fetch event' }, { status: 500 });
   }
 }
@@ -45,17 +35,27 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    await dbConnect();
     const body = await request.json();
-    const { data } = body;
+    const data = body.data ?? body;
 
-    const updatedEvent = {
-      _id: params.id,
-      ...data,
-      updatedAt: new Date().toISOString()
-    };
+    const raw = params.id;
+    let updated = null;
 
-    return NextResponse.json({ data: updatedEvent });
+    if (mongoose.isValidObjectId(raw)) {
+      updated = await Event.findByIdAndUpdate(raw, { $set: data }, { new: true }).lean();
+    }
+    if (!updated) {
+      updated = await Event.findOneAndUpdate({ slug: raw }, { $set: data }, { new: true }).lean();
+    }
+
+    if (!updated) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: updated });
   } catch (error) {
+    console.error('CMS event PUT error:', error);
     return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
   }
 }
@@ -65,8 +65,24 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    await dbConnect();
+    const raw = params.id;
+
+    let res = null;
+    if (mongoose.isValidObjectId(raw)) {
+      res = await Event.findByIdAndDelete(raw).lean();
+    }
+    if (!res) {
+      res = await Event.findOneAndDelete({ slug: raw }).lean();
+    }
+
+    if (!res) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+    }
+
     return NextResponse.json({ message: 'Event deleted successfully' });
   } catch (error) {
+    console.error('CMS event DELETE error:', error);
     return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
   }
 }

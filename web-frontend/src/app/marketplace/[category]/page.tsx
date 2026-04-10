@@ -21,6 +21,7 @@ interface Listing {
 }
 
 interface MarketplaceData {
+  success?: boolean;
   data: Listing[];
   pagination: {
     currentPage: number;
@@ -69,13 +70,15 @@ const sortOptions = [
 export default function CategoryMarketplacePage() {
   const params = useParams();
   const category = params.category as string;
-  
+  const isValidCategory =
+    typeof category === 'string' && Object.prototype.hasOwnProperty.call(categoryInfo, category);
+
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => isValidCategory);
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<any>(null);
   const [showFilters, setShowFilters] = useState(false);
-  
+
   // Filter states
   const [selectedCondition, setSelectedCondition] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,32 +88,16 @@ export default function CategoryMarketplacePage() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Validate category
-  if (!categoryInfo[category as keyof typeof categoryInfo]) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Category Not Found</h1>
-          <p className="text-gray-600 mb-4">The category you're looking for doesn't exist.</p>
-          <Link
-            href="/marketplace"
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-          >
-            Back to Marketplace
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const categoryData = categoryInfo[category as keyof typeof categoryInfo];
-
   // Fetch listings
   const fetchListings = async (page = 1) => {
+    if (!isValidCategory) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams();
       if (selectedCondition !== 'all') params.append('condition', selectedCondition);
       if (searchQuery) params.append('search', searchQuery);
@@ -140,9 +127,31 @@ export default function CategoryMarketplacePage() {
   };
 
   useEffect(() => {
+    if (!isValidCategory) {
+      setLoading(false);
+      return;
+    }
     fetchListings(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, selectedCondition, searchQuery, minPrice, maxPrice, location, sortBy]);
+  }, [category, isValidCategory, selectedCondition, searchQuery, minPrice, maxPrice, location, sortBy]);
+
+  if (!isValidCategory) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Category Not Found</h1>
+          <p className="text-gray-600 mb-4">The category you&apos;re looking for doesn&apos;t exist.</p>
+          <Link
+            href="/marketplace"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+          >
+            Back to Marketplace
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const categoryData = categoryInfo[category as keyof typeof categoryInfo];
 
   const handleSearch = () => {
     fetchListings(1);

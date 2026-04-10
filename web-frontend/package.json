@@ -12,7 +12,10 @@
     "test:watch": "jest --watch --passWithNoTests",
     "test:coverage": "jest --coverage --passWithNoTests",
     "type-check": "tsc --noEmit",
-    "seed": "node scripts/seedDatabase.js"
+    "seed": "node scripts/seedDatabase.js",
+    "seed:melas": "node scripts/seedMelaEvents.js",
+    "seed:all": "node scripts/seedDatabase.js && node scripts/seedMelaEvents.js",
+    "db:mongo:status": "node scripts/mongoListCollections.js"
   },
   "dependencies": {
     "@heroicons/react": "2.0.18",

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ChevronRightIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { marketplaceKisaanRoutes } from '@/lib/kisaanmela-marketplace/routes';
 
 interface Listing {
   _id: string;
@@ -21,6 +22,7 @@ interface Listing {
 }
 
 interface MarketplaceData {
+  success?: boolean;
   data: Listing[];
   pagination: {
     currentPage: number;
@@ -59,15 +61,17 @@ export default function MarketplacePage() {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<any>(null);
   const [showFilters, setShowFilters] = useState(false);
-  
+
+  const spGet = (key: string) => searchParams?.get(key) ?? null;
+
   // Filter states
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
-  const [selectedCondition, setSelectedCondition] = useState(searchParams.get('condition') || 'all');
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '');
-  const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '');
-  const [location, setLocation] = useState(searchParams.get('location') || '');
-  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'createdAt');
+  const [selectedCategory, setSelectedCategory] = useState(spGet('category') || 'all');
+  const [selectedCondition, setSelectedCondition] = useState(spGet('condition') || 'all');
+  const [searchQuery, setSearchQuery] = useState(spGet('search') || '');
+  const [minPrice, setMinPrice] = useState(spGet('minPrice') || '');
+  const [maxPrice, setMaxPrice] = useState(spGet('maxPrice') || '');
+  const [location, setLocation] = useState(spGet('location') || '');
+  const [sortBy, setSortBy] = useState(spGet('sortBy') || 'createdAt');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch listings
@@ -154,6 +158,15 @@ export default function MarketplacePage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-900">
+          <p className="text-sm font-medium">
+            <Link href={marketplaceKisaanRoutes.home} className="underline">
+              Shop verified sellers
+            </Link>{' '}
+            — same KisaanMela site: mobile OTP, PostgreSQL catalog, cart & marketplace melas (Nest API, default{' '}
+            <code className="rounded bg-white/60 px-1">localhost:4000</code>).
+          </p>
+        </div>
         {/* Category Tabs */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-2">

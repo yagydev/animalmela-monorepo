@@ -1,0 +1,53 @@
+[
+  {"name":"Guntur Rythu Mela","state":"Andhra Pradesh","city":"Guntur","mandi":"Guntur Chilli Yard","month":"January","type":"Chilli Trade","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Vijayawada Krishi Expo","state":"Andhra Pradesh","city":"Vijayawada","mandi":"Nunna Mandi","month":"March","type":"Machinery","visitors":12000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Kurnool Farmer Mela","state":"Andhra Pradesh","city":"Kurnool","mandi":"Kurnool Market Yard","month":"July","type":"Groundnut","visitors":8000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"PAU Kisan Mela","state":"Punjab","city":"Ludhiana","mandi":"Ludhiana Grain Market","month":"March","type":"Seeds","visitors":100000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Amritsar Agri Expo","state":"Punjab","city":"Amritsar","mandi":"Amritsar Mandi","month":"April","type":"Wheat","visitors":20000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Pune Krishi Exhibition","state":"Maharashtra","city":"Pune","mandi":"Pune APMC","month":"December","type":"Agri Tech","visitors":25000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Nashik Onion Mela","state":"Maharashtra","city":"Nashik","mandi":"Lasalgaon Mandi","month":"August","type":"Onion Trade","visitors":30000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Varanasi Kisan Mela","state":"Uttar Pradesh","city":"Varanasi","mandi":"Varanasi Mandi","month":"February","type":"Mixed Farming","visitors":20000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Meerut Krishi Fair","state":"Uttar Pradesh","city":"Meerut","mandi":"Meerut Mandi","month":"October","type":"Sugarcane","visitors":18000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"GKVK Krishi Mela","state":"Karnataka","city":"Bangalore","mandi":"Yeshwanthpur Market","month":"November","type":"Smart Farming","visitors":50000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Hubli Agri Expo","state":"Karnataka","city":"Hubli","mandi":"Hubli APMC","month":"June","type":"Machinery","visitors":12000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Jaipur Krishi Expo","state":"Rajasthan","city":"Jaipur","mandi":"Muhana Mandi","month":"January","type":"Agri Tech","visitors":20000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Kota Farmer Fair","state":"Rajasthan","city":"Kota","mandi":"Kota Mandi","month":"July","type":"Soybean","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Karnal Krishi Mela","state":"Haryana","city":"Karnal","mandi":"Karnal Mandi","month":"March","type":"Wheat","visitors":25000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Hisar Agri Expo","state":"Haryana","city":"Hisar","mandi":"Hisar Market","month":"April","type":"Livestock","visitors":18000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Hyderabad Agri Expo","state":"Telangana","city":"Hyderabad","mandi":"Bowenpally Market","month":"August","type":"Agri Tech","visitors":30000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Warangal Farmer Mela","state":"Telangana","city":"Warangal","mandi":"Warangal Mandi","month":"June","type":"Rice","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Coimbatore Agri Intex","state":"Tamil Nadu","city":"Coimbatore","mandi":"Coimbatore Market","month":"July","type":"Machinery","visitors":40000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Madurai Farmer Expo","state":"Tamil Nadu","city":"Madurai","mandi":"Madurai Mandi","month":"October","type":"Horticulture","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Patna Krishi Mela","state":"Bihar","city":"Patna","mandi":"Mithapur Mandi","month":"February","type":"Mixed Farming","visitors":20000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Muzaffarpur Litchi Mela","state":"Bihar","city":"Muzaffarpur","mandi":"Muzaffarpur Market","month":"May","type":"Litchi","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Indore Agri Expo","state":"Madhya Pradesh","city":"Indore","mandi":"Indore Mandi","month":"December","type":"Soybean","visitors":25000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Bhopal Krishi Mela","state":"Madhya Pradesh","city":"Bhopal","mandi":"Bhopal Market","month":"January","type":"Agri Tech","visitors":18000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Ahmedabad Agri Expo","state":"Gujarat","city":"Ahmedabad","mandi":"Ahmedabad Market","month":"September","type":"Cotton","visitors":30000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Rajkot Farmer Mela","state":"Gujarat","city":"Rajkot","mandi":"Rajkot Mandi","month":"June","type":"Groundnut","visitors":20000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Kolkata Krishi Expo","state":"West Bengal","city":"Kolkata","mandi":"Kolkata Market","month":"January","type":"Rice","visitors":25000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Siliguri Farmer Mela","state":"West Bengal","city":"Siliguri","mandi":"Siliguri Market","month":"March","type":"Tea","visitors":12000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Bhubaneswar Krishi Mela","state":"Odisha","city":"Bhubaneswar","mandi":"Bhubaneswar Market","month":"February","type":"Rice","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Cuttack Farmer Fair","state":"Odisha","city":"Cuttack","mandi":"Cuttack Mandi","month":"July","type":"Pulses","visitors":10000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Guwahati Agri Expo","state":"Assam","city":"Guwahati","mandi":"Guwahati Market","month":"November","type":"Tea","visitors":20000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Jorhat Farmer Mela","state":"Assam","city":"Jorhat","mandi":"Jorhat Market","month":"April","type":"Tea","visitors":12000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Thrissur Agri Fest","state":"Kerala","city":"Thrissur","mandi":"Thrissur Market","month":"January","type":"Spices","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Kochi Farmer Expo","state":"Kerala","city":"Kochi","mandi":"Kochi Market","month":"June","type":"Coconut","visitors":10000,"is_recurring":true,"status":"upcoming","source":"seed"},
+
+  {"name":"Shimla Apple Mela","state":"Himachal Pradesh","city":"Shimla","mandi":"Shimla Market","month":"August","type":"Apple","visitors":12000,"is_recurring":true,"status":"upcoming","source":"seed"},
+  {"name":"Dehradun Krishi Mela","state":"Uttarakhand","city":"Dehradun","mandi":"Dehradun Market","month":"March","type":"Organic Farming","visitors":15000,"is_recurring":true,"status":"upcoming","source":"seed"}
+]

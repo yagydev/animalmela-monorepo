@@ -1,7 +1,14 @@
 import mongoose from 'mongoose';
 
 // MongoDB connection configuration
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/kisaanmela';
+function getMongoUri() {
+  const a = process.env.MONGODB_URI?.trim();
+  const b = process.env.DATABASE_URL?.trim();
+  if (a?.startsWith('mongodb')) return a;
+  if (b?.startsWith('mongodb')) return b;
+  return 'mongodb://127.0.0.1:27017/kisaanmela';
+}
+const MONGODB_URI = getMongoUri();
 
 // Connection options (modern Mongoose 6+ doesn't need deprecated options)
 const connectionOptions = {

@@ -66,34 +66,34 @@ export function Header() {
   return (
     <>
       {/* Top Microbar */}
-      <div className="bg-gray-800 text-white text-sm">
+      <div className="bg-gray-800 text-white text-sm sm:text-base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center min-h-10 py-1 gap-3 flex-wrap">
+          <div className="flex justify-between items-center min-h-11 py-1.5 gap-3 flex-wrap">
             <div className="flex items-center space-x-4 min-w-0">
               <div className="flex items-center space-x-2 whitespace-nowrap">
                 <span>📞</span>
-                <span>+91-9999778321</span>
+                <span className="font-medium">+91-9999778321</span>
               </div>
               <div className="hidden md:flex items-center space-x-2 whitespace-nowrap">
                 <span>💬</span>
-                <span>WhatsApp Support</span>
+                <span className="font-medium">WhatsApp Support</span>
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
               <Link
                 href="/events/register"
-                className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-green-600 hover:bg-green-700 px-2.5 py-1 text-xs font-medium text-white transition-colors duration-200"
+                className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-green-600 hover:bg-green-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors duration-200"
               >
                 🎪 Join Mela
               </Link>
               <Link
                 href="/vendors/book-stall"
-                className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-blue-600 hover:bg-blue-700 px-2.5 py-1 text-xs font-medium text-white transition-colors duration-200"
+                className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors duration-200"
               >
                 🏪 Book Stall
               </Link>
               <div className="relative">
-                <select className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-1 pr-8 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                <select className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                   <option value="en">🇺🇸 English</option>
                   <option value="hi">🇮🇳 Hindi</option>
                   <option value="mr">🇮🇳 Marathi</option>
@@ -118,7 +118,7 @@ export function Header() {
 
             {/* Desktop Nav */}
             <nav className="hidden lg:flex min-w-0 justify-center">
-              <ul className="flex gap-2 xl:gap-4 items-center whitespace-nowrap px-1">
+              <ul className="flex gap-1 xl:gap-2 items-center whitespace-nowrap px-1">
                 {nav.map((item) => {
                   const visibleChildren = (item.children ?? []).filter(
                     (child) => child.path !== item.path
@@ -144,7 +144,7 @@ export function Header() {
                             type="button"
                             aria-haspopup="menu"
                             aria-expanded={isOpen}
-                            className={`px-1 py-1 rounded-md transition-colors duration-200 hover:text-yellow-300 whitespace-nowrap text-[13px] xl:text-base ${
+                            className={`px-2.5 py-2 rounded-md transition-colors duration-200 hover:text-yellow-300 whitespace-nowrap text-base xl:text-[1.0625rem] font-medium ${
                               itemActive || childActive ? 'text-yellow-400 font-semibold' : ''
                             }`}
                             onClick={() =>
@@ -165,7 +165,7 @@ export function Header() {
                             <li>
                               <Link
                                 href={item.path}
-                                className={`block px-4 py-2 hover:bg-green-50 rounded font-medium ${
+                                className={`block px-4 py-2.5 text-base hover:bg-green-50 rounded font-medium ${
                                   safePathname === item.path ? 'bg-green-100 text-green-800' : ''
                                 }`}
                                 onClick={() => setDesktopOpenMenu(null)}
@@ -177,7 +177,7 @@ export function Header() {
                               <li key={child.path}>
                                 <Link
                                   href={child.path}
-                                  className={`block px-4 py-2 hover:bg-green-50 rounded ${
+                                  className={`block px-4 py-2.5 text-[0.9375rem] xl:text-base hover:bg-green-50 rounded ${
                                     safePathname === child.path
                                       ? 'bg-green-100 text-green-800 font-semibold'
                                       : ''
@@ -187,7 +187,7 @@ export function Header() {
                                   {child.icon && <span className="mr-2">{child.icon}</span>}
                                   {child.name}
                                 {child.cta && (
-                                    <span className="ml-2 text-[10px] bg-green-100 text-green-800 px-1 rounded">
+                                    <span className="ml-2 text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded">
                                       CTA
                                     </span>
                                   )}
@@ -199,7 +199,7 @@ export function Header() {
                       ) : (
                         <Link
                           href={item.path}
-                          className={`px-1 py-1 rounded-md hover:text-yellow-300 transition-colors duration-200 whitespace-nowrap text-[13px] xl:text-base ${
+                          className={`px-2.5 py-2 rounded-md hover:text-yellow-300 transition-colors duration-200 whitespace-nowrap text-base xl:text-[1.0625rem] font-medium ${
                             safePathname === item.path ? 'text-yellow-400 font-semibold' : ''
                           }`}
                         >
@@ -219,7 +219,7 @@ export function Header() {
                   <div className="relative">
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="flex items-center space-x-2 text-white hover:text-yellow-400 transition-colors duration-200"
+                      className="flex items-center space-x-2 text-base font-medium text-white hover:text-yellow-400 transition-colors duration-200"
                     >
                       <span>👤</span>
                       <span>Profile</span>
@@ -229,21 +229,21 @@ export function Header() {
                       <div className="absolute right-0 mt-2 w-48 bg-white text-green-800 rounded-md shadow-lg py-2 z-[60]">
                         <Link
                           href="/profile"
-                          className="block px-4 py-2 hover:bg-green-50 rounded"
+                          className="block px-4 py-2.5 text-sm font-medium hover:bg-green-50 rounded"
                           onClick={() => setUserMenuOpen(false)}
                         >
                           My Profile
                         </Link>
                         <Link
                           href="/dashboard"
-                          className="block px-4 py-2 hover:bg-green-50 rounded"
+                          className="block px-4 py-2.5 text-sm font-medium hover:bg-green-50 rounded"
                           onClick={() => setUserMenuOpen(false)}
                         >
                           Dashboard
                         </Link>
                         <Link
                           href="/settings"
-                          className="block px-4 py-2 hover:bg-green-50 rounded"
+                          className="block px-4 py-2.5 text-sm font-medium hover:bg-green-50 rounded"
                           onClick={() => setUserMenuOpen(false)}
                         >
                           Settings
@@ -265,13 +265,13 @@ export function Header() {
                   <>
                     <Link
                       href="/login"
-                      className="text-white hover:text-yellow-400 px-1.5 xl:px-3 py-2 rounded-md text-[11px] xl:text-sm font-medium transition-colors duration-200 whitespace-nowrap"
+                      className="text-white hover:text-yellow-400 px-3 xl:px-4 py-2.5 rounded-md text-base font-semibold transition-colors duration-200 whitespace-nowrap"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/register"
-                      className="bg-green-600 hover:bg-green-700 text-white px-2.5 xl:px-4 py-2 rounded-lg text-[11px] xl:text-sm font-medium transition-colors duration-200 shadow-md whitespace-nowrap"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 xl:px-5 py-2.5 rounded-lg text-base font-semibold transition-colors duration-200 shadow-md whitespace-nowrap"
                     >
                       Sign Up
                     </Link>
@@ -282,7 +282,7 @@ export function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden text-white"
+              className="lg:hidden min-h-11 min-w-11 flex items-center justify-center text-2xl text-white"
               onClick={() => setMobileOpen((prev) => !prev)}
               aria-label="Toggle mobile menu"
               aria-expanded={mobileOpen}
@@ -308,13 +308,13 @@ export function Header() {
                   {hasChildren ? (
                     <>
                       <button
-                        className="w-full flex justify-between items-center"
+                        className="w-full flex justify-between items-center py-1 text-left text-base font-semibold"
                         onClick={() =>
                           setMobileOpenMenu(isMobileOpen ? null : item.name)
                         }
                       >
                         <span>
-                          {item.icon && <span className="mr-1">{item.icon}</span>}
+                          {item.icon && <span className="mr-2 text-lg">{item.icon}</span>}
                           {item.name}
                         </span>
                         <span>{isMobileOpen ? '−' : '+'}</span>
@@ -324,7 +324,7 @@ export function Header() {
                           <li>
                             <Link
                               href={item.path}
-                              className={`block py-1 hover:text-yellow-400 transition-colors duration-200 font-medium ${
+                              className={`block py-2 text-[0.9375rem] hover:text-yellow-400 transition-colors duration-200 font-medium ${
                                 safePathname === item.path ? 'text-yellow-400 font-semibold' : ''
                               }`}
                               onClick={() => setMobileOpen(false)}
@@ -336,7 +336,7 @@ export function Header() {
                             <li key={child.path}>
                               <Link
                                 href={child.path}
-                                className={`block py-1 hover:text-yellow-400 transition-colors duration-200 ${
+                                className={`block py-2 text-[0.9375rem] hover:text-yellow-400 transition-colors duration-200 ${
                                   safePathname === child.path
                                     ? 'text-yellow-400 font-semibold'
                                     : ''
@@ -359,12 +359,12 @@ export function Header() {
                   ) : (
                     <Link
                       href={item.path}
-                      className={`block py-1 hover:text-yellow-400 transition-colors duration-200 ${
+                      className={`block py-2 text-base font-semibold hover:text-yellow-400 transition-colors duration-200 ${
                         safePathname === item.path ? 'text-yellow-400 font-semibold' : ''
                       }`}
                       onClick={() => setMobileOpen(false)}
                     >
-                      {item.icon && <span className="mr-1">{item.icon}</span>}
+                      {item.icon && <span className="mr-2">{item.icon}</span>}
                       {item.name}
                     </Link>
                   )}
@@ -379,7 +379,7 @@ export function Header() {
               <Link
                 href="/events/register"
                 onClick={() => setMobileOpen(false)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md flex items-center justify-center space-x-2"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-200 shadow-md flex items-center justify-center space-x-2"
               >
                 <span>🎪</span>
                 <span>Join Mela</span>
@@ -387,7 +387,7 @@ export function Header() {
               <Link
                 href="/vendors/book-stall"
                 onClick={() => setMobileOpen(false)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md flex items-center justify-center space-x-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-200 shadow-md flex items-center justify-center space-x-2"
               >
                 <span>🏪</span>
                 <span>Book Stall</span>
@@ -435,14 +435,14 @@ export function Header() {
                 <Link
                   href="/login"
                   onClick={() => setMobileOpen(false)}
-                  className="text-white hover:text-yellow-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 text-center"
+                  className="text-white hover:text-yellow-400 px-3 py-3 rounded-md text-base font-semibold transition-colors duration-200 text-center"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
                   onClick={() => setMobileOpen(false)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-md text-center"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-base font-semibold transition-colors duration-200 shadow-md text-center"
                 >
                   Sign Up
                 </Link>

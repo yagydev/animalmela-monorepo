@@ -211,32 +211,14 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const productId = params.id as string;
-  
-  // Debug logging
+  const invalidId =
+    !productId || productId === 'undefined' || productId === 'null' || productId === '';
+
   console.log('ProductDetailPage rendered with productId:', productId, 'type:', typeof productId);
-  
-  // Early return for invalid product IDs
-  if (!productId || productId === 'undefined' || productId === 'null' || productId === '') {
-    console.log('Invalid product ID detected, showing not found');
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-          <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
-          <Link
-            href="/farmers-market"
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Back to Farmers Market
-          </Link>
-        </div>
-      </div>
-    );
-  }
-  
+
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !invalidId);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -254,9 +236,8 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     console.log('ProductId received:', productId, 'Type:', typeof productId);
-    
-    // Check for invalid product IDs first
-    if (!productId || productId === 'undefined' || productId === 'null' || productId === '') {
+
+    if (invalidId) {
       console.log('Invalid product ID detected, setting product to null');
       setLoading(false);
       setProduct(null);
@@ -289,7 +270,24 @@ export default function ProductDetailPage() {
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId, invalidId]);
+
+  if (invalidId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+          <p className="text-gray-600 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
+          <Link
+            href="/farmers-market"
+            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Back to Farmers Market
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -380,7 +378,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
-          <p className="text-gray-600 mb-8">The product you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-8">The product you&apos;re looking for doesn&apos;t exist.</p>
           <Link
             href="/farmers-market"
             className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"

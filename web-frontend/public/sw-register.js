@@ -1,18 +1,50 @@
-// Custom service worker registration
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((registration) => {
+/* global window, navigator, document */
+/* Public file: do NOT use process.env — it does not exist in the browser. */
+(function () {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+    return;
+  }
+
+  var isLocalDev =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    /\.local$/i.test(window.location.hostname);
+
+  if (isLocalDev) {
+    navigator.serviceWorker.getRegistrations().then(function (registrations) {
+      registrations.forEach(function (registration) {
+        registration.unregister();
+      });
+    });
+    if (window.caches && window.caches.keys) {
+      window.caches.keys().then(function (keys) {
+        keys.forEach(function (key) {
+          window.caches.delete(key);
+        });
+      });
+    }
+    return;
+  }
+
+  window.addEventListener('load', function () {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(function (registration) {
         console.log('SW registered: ', registration);
-        
-        // Handle updates
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
+
+        registration.addEventListener('updatefound', function () {
+          var newWorker = registration.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New content is available, prompt user to refresh
-                if (confirm('New content is available. Refresh to get the latest version?')) {
+            newWorker.addEventListener('statechange', function () {
+              if (
+                newWorker.state === 'installed' &&
+                navigator.serviceWorker.controller
+              ) {
+                if (
+                  window.confirm(
+                    'New content is available. Refresh to get the latest version?'
+                  )
+                ) {
                   window.location.reload();
                 }
               }
@@ -20,28 +52,14 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env
           }
         });
       })
-      .catch((registrationError) => {
-        console.log('SW registration failed: ', registrationError);
-        // Don't show error to user in development
-        if (process.env.NODE_ENV === 'production') {
-          console.error('Service Worker registration failed:', registrationError);
-        }
+      .catch(function (registrationError) {
+        console.error('Service Worker registration failed:', registrationError);
       });
   });
 
-  // Handle service worker messages
-  navigator.serviceWorker.addEventListener('message', (event) => {
+  navigator.serviceWorker.addEventListener('message', function (event) {
     if (event.data && event.data.type === 'SKIP_WAITING') {
       window.location.reload();
     }
   });
-} else if (process.env.NODE_ENV === 'development') {
-  // Unregister any existing service workers in development
-  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => {
-        registration.unregister();
-      });
-    });
-  }
-}
+})();
