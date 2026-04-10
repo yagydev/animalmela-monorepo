@@ -11,14 +11,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mock OTP sending
+    // Mock OTP sending — in production, send via SMS gateway
     const otp = '123456';
-    console.log(`OTP sent to ${mobile}: ${otp}`);
+    console.log(`[DEV] OTP for ${mobile}: ${otp}`);
 
     return NextResponse.json({
       success: true,
       message: 'OTP sent successfully',
-      otp: otp // Only for testing
     });
 
   } catch (error) {

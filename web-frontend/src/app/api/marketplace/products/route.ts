@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongodb';
-import { Product, Order, User, Analytics } from '@/lib/models/MarketplaceModels';
-import PaymentService from '@/lib/services/PaymentService';
+import { Product } from '@/lib/models/MarketplaceModels';
+import { requireAuth } from '@/lib/jwt';
 
 // GET /api/marketplace/products - Get all products with filters
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
-    
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const minPrice = searchParams.get('minPrice');
@@ -17,32 +17,32 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
 
-    // Build filter object
-    const filter: any = { availability: 'available' };
-    
+    const filter: Record<string, unknown> = { availability: 'available' };
+
     if (category && category !== 'all') {
       filter.category = category;
     }
-    
+
     if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = parseFloat(minPrice);
-      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+      const priceFilter: Record<string, number> = {};
+      if (minPrice) priceFilter.$gte = parseFloat(minPrice);
+      if (maxPrice) priceFilter.$lte = parseFloat(maxPrice);
+      filter.price = priceFilter;
     }
-    
+
     if (location) {
       filter.$or = [
         { 'location.city': new RegExp(location, 'i') },
-        { 'location.state': new RegExp(location, 'i') }
+        { 'location.state': new RegExp(location, 'i') },
       ];
     }
-    
+
     if (organic === 'true') {
       filter.organic = true;
     }
 
     const skip = (page - 1) * limit;
-    
+
     const products = await Product.find(filter)
       .populate('farmerId', 'name email phone rating location')
       .sort({ createdAt: -1 })
@@ -59,15 +59,15 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(totalProducts / limit),
         totalProducts,
         hasNext: page < Math.ceil(totalProducts / limit),
-        hasPrev: page > 1
-      }
+        hasPrev: page > 1,
+      },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching products:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch products'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch products' },
+      { status: 500 },
+    );
   }
 }
 
@@ -75,46 +75,26 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
-    
+
+    const auth = requireAuth(request);
+    if ('error' in auth) return auth.error;
+    const farmerId = (auth.payload as { id: string }).id;
+
     const body = await request.json();
     const { name, description, price, quantity, unit, category, images, location, organic, harvestDate } = body;
-    
-    // TODO: Add authentication check for farmer role
-    const farmerId = body.farmerId; // This should come from JWT token in real implementation
-
-    if (!farmerId) {
-      return NextResponse.json({
-        success: false,
-        error: 'Farmer authentication required'
-      }, { status: 401 });
-    }
 
     const product = new Product({
-      name,
-      description,
-      price,
-      quantity,
-      unit,
-      category,
-      images,
-      farmerId,
-      location,
-      organic,
-      harvestDate
+      name, description, price, quantity, unit, category, images, farmerId, location, organic, harvestDate,
     });
 
     await product.save();
 
-    return NextResponse.json({
-      success: true,
-      product,
-      message: 'Product created successfully'
-    });
-  } catch (error: any) {
+    return NextResponse.json({ success: true, product, message: 'Product created successfully' });
+  } catch (error) {
     console.error('Error creating product:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to create product'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to create product' },
+      { status: 500 },
+    );
   }
 }
