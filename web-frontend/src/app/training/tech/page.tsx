@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -92,8 +93,8 @@ const AgriTechPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {techUpdates.filter(update => update.featured).map((update) => (
               <div key={update.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative">
-                  <img src={update.image} alt={update.title} className="w-full h-48 object-cover" />
+                <div className="relative h-48">
+                  <Image src={update.image} alt={update.title} fill className="object-cover" sizes="(max-width:768px) 100vw, 50vw" />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-full">
                       {update.category}
@@ -142,8 +143,8 @@ const AgriTechPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {techUpdates.map((update) => (
               <div key={update.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative">
-                  <img src={update.image} alt={update.title} className="w-full h-40 object-cover" />
+                <div className="relative h-40">
+                  <Image src={update.image} alt={update.title} fill className="object-cover" sizes="(max-width:768px) 100vw, 33vw" />
                   <div className="absolute top-3 left-3">
                     <span className="px-2 py-1 bg-green-600 text-white text-xs font-medium rounded-full">
                       {update.category}

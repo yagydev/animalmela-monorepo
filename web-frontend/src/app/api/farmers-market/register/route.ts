@@ -59,7 +59,6 @@ export async function GET(request: NextRequest) {
         password: 'Password must be at least 6 characters',
         otp: 'Please enter the 6-digit OTP sent to your mobile'
       },
-      demoOTP: '123456',
       termsAndConditions: 'By registering, you agree to our Terms and Conditions',
       privacyPolicy: 'Read our Privacy Policy'
     };

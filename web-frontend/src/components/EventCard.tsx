@@ -36,10 +36,12 @@ const EventCard: React.FC<EventCardProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
       <div className="relative">
-        <img 
-          src={image} 
-          alt={title} 
+        {/* eslint-disable-next-line @next/next/no-img-element -- image URLs are caller-supplied and may not match configured remotePatterns */}
+        <img
+          src={image}
+          alt={title}
           className="w-full h-48 object-cover"
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/images/placeholder-event.jpg'; }}
         />
         {category && (
           <div className="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
