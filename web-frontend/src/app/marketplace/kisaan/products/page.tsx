@@ -43,10 +43,12 @@ export default async function KisaanMarketplaceProductsPage({
       <div className="rounded-xl bg-amber-50 p-4 text-amber-900">
         <p className="font-semibold">Cannot load products</p>
         <p className="mt-1 text-sm">
-          Start the marketplace API: <code className="rounded bg-amber-100 px-1">npm run dev:marketplace-api</code> from
-          the monorepo root. Set{' '}
-          <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL</code> if it is not{' '}
-          <code className="rounded bg-amber-100 px-1">http://localhost:4000/api</code>.
+          The Nest marketplace API is not reachable. Production uses{' '}
+          <code className="rounded bg-amber-100 px-1">https://api.kisaanmela.com/api</code> by default — ensure that host
+          serves the marketplace API and allows CORS from this site. Override with{' '}
+          <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL</code> or server-only{' '}
+          <code className="rounded bg-amber-100 px-1">MARKETPLACE_API_URL</code> in Vercel. Locally run{' '}
+          <code className="rounded bg-amber-100 px-1">npm run dev:marketplace-api</code> from the monorepo root.
         </p>
       </div>
     );

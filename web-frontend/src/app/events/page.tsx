@@ -103,10 +103,15 @@ export default async function EventsPage() {
           <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center">
             <p className="text-lg font-medium text-gray-900">No published events yet</p>
             <p className="mt-2 text-sm text-gray-600">
-              Run <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">npm run seed:all</code> from{' '}
-              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">web-frontend</code> and ensure{' '}
-              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">MONGODB_URI</code> is set for this app (e.g. in{' '}
-              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">.env.local</code>).
+              In production, curated sample melas load automatically when MongoDB has no published events. If you see this
+              message in development, run{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">npm run seed:all</code> from{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">web-frontend</code> with{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">MONGODB_URI</code> set. On Vercel, set{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">MONGODB_URI</code> and{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">DATABASE_URL</code> to your Atlas URI. To hide
+              bundled fallbacks, set{' '}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">DISABLE_MELE_STATIC_FALLBACK=1</code>.
             </p>
           </div>
         ) : (

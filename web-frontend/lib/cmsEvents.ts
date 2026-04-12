@@ -1,36 +1,7 @@
-export type CmsEventListItem = {
-  _id?: string;
-  id?: string;
-  title?: string;
-  slug?: string;
-  description?: string;
-  content?: string;
-  date?: string;
-  endDate?: string;
-  featured?: boolean;
-  location?: {
-    name?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    pincode?: string;
-  };
-  image?: {
-    url?: string;
-    alt?: string;
-  };
-  status?: string;
-  tags?: string[];
-  melaMeta?: {
-    mandi?: string;
-    month?: string;
-    focusType?: string;
-    visitors?: number;
-    isRecurring?: boolean;
-    listingStatus?: string;
-    source?: string;
-  };
-};
+import { getStaticMelaEventsForListing } from '@/lib/melaStaticFallback';
+import type { CmsEventListItem } from '@/lib/cmsEventTypes';
+
+export type { CmsEventListItem } from '@/lib/cmsEventTypes';
 
 /** Sort: featured first, then by start date ascending */
 export function sortEventsForListing(events: CmsEventListItem[]): CmsEventListItem[] {
@@ -61,13 +32,12 @@ async function fetchPublishedEventsFromDatabase(): Promise<CmsEventListItem[]> {
 }
 
 function eventsApiBase(): string {
-  const configured = (
+  const configured =
     process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
-  );
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '');
 
   if (configured) {
-    return configured;
+    return configured.replace(/\/$/, '');
   }
 
   if (process.env.NODE_ENV !== 'production') {
@@ -77,33 +47,46 @@ function eventsApiBase(): string {
   return '';
 }
 
+function shouldUseStaticMelaFallback(): boolean {
+  if (process.env.DISABLE_MELE_STATIC_FALLBACK === '1') return false;
+  return process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+}
+
 export async function fetchPublishedEvents(): Promise<CmsEventListItem[]> {
   try {
-    return await fetchPublishedEventsFromDatabase();
+    const fromDb = await fetchPublishedEventsFromDatabase();
+    if (fromDb.length > 0) return fromDb;
   } catch (error) {
-    console.error('Events DB load failed, trying HTTP:', error);
+    console.error('Events DB load failed:', error);
   }
 
   const baseUrl = eventsApiBase();
-  if (!baseUrl) {
-    return [];
+  if (baseUrl) {
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/cms/events?filters[status]=published&sort=date:asc&pagination[pageSize]=500&pagination[page]=1&summary=1`,
+        {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(12000),
+        },
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const httpRows = (data.data || []) as CmsEventListItem[];
+        if (httpRows.length > 0) return httpRows;
+      }
+    } catch (error) {
+      console.error('Error fetching events via HTTP:', error);
+    }
   }
 
-  try {
-    const response = await fetch(
-      `${baseUrl}/api/cms/events?filters[status]=published&sort=date:asc&pagination[pageSize]=500&pagination[page]=1&summary=1`,
-      {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(12000),
-      },
-    );
-    if (!response.ok) {
-      return [];
+  if (shouldUseStaticMelaFallback()) {
+    try {
+      return getStaticMelaEventsForListing();
+    } catch (e) {
+      console.error('Static mela fallback failed:', e);
     }
-    const data = await response.json();
-    return data.data || [];
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    return [];
   }
+
+  return [];
 }

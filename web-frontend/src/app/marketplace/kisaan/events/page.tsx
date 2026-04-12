@@ -21,7 +21,11 @@ export default async function KisaanMarketplaceEventsPage() {
     return (
       <div className="rounded-xl bg-amber-50 p-4 text-amber-900">
         <p className="font-semibold">Cannot load melas from the marketplace API.</p>
-        <p className="mt-1 text-sm">Ensure the API is running and published events exist.</p>
+        <p className="mt-1 text-sm">
+          Same fix as products: ensure <code className="rounded bg-amber-100 px-1">https://api.kisaanmela.com/api</code>{' '}
+          serves Nest, or set <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL</code>{' '}
+          / <code className="rounded bg-amber-100 px-1">MARKETPLACE_API_URL</code>. CORS on the API must allow this origin.
+        </p>
       </div>
     );
   }
