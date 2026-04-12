@@ -2,397 +2,312 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  DocumentTextIcon,
-  CurrencyDollarIcon,
+import {
+  MagnifyingGlassIcon,
   CheckCircleIcon,
   ClockIcon,
-  InformationCircleIcon,
+  CalendarDaysIcon,
+  DocumentTextIcon,
+  PhoneIcon,
   ArrowRightIcon,
-  MagnifyingGlassIcon,
-  EyeIcon,
-  ArrowDownTrayIcon,
-  ExclamationTriangleIcon,
-  CalendarIcon,
-  UserIcon
+  ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
 
-interface SubsidyApplication {
-  id: string;
-  subsidyId: string;
-  subsidyTitle: string;
-  amount: string;
-  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'disbursed';
-  submittedDate: string;
-  lastUpdated: string;
-  documents: {
-    name: string;
-    status: 'pending' | 'uploaded' | 'verified';
-    required: boolean;
-  }[];
-  progress: number;
-  notes: string[];
-  nextSteps: string[];
+interface TimelineStep {
+  label: string;
+  detail: string;
+  status: 'done' | 'inprogress' | 'pending';
 }
 
-const mockApplications: SubsidyApplication[] = [
-  {
-    id: 'app-1',
-    subsidyId: '1',
-    subsidyTitle: 'PM-KISAN Scheme',
-    amount: '₹6,000 per year',
-    status: 'approved',
-    submittedDate: '2024-01-15',
-    lastUpdated: '2024-02-01',
-    documents: [
-      { name: 'Aadhaar Card', status: 'verified', required: true },
-      { name: 'Land Records', status: 'verified', required: true },
-      { name: 'Bank Account Details', status: 'verified', required: true },
-      { name: 'Mobile Number Verification', status: 'verified', required: true }
-    ],
-    progress: 100,
-    notes: ['Application approved', 'Payment scheduled for next quarter'],
-    nextSteps: ['Wait for payment disbursement', 'Update bank account if needed']
-  },
-  {
-    id: 'app-2',
-    subsidyId: '2',
-    subsidyTitle: 'Pradhan Mantri Fasal Bima Yojana',
-    amount: 'Up to ₹40,000 per hectare',
-    status: 'under_review',
-    submittedDate: '2024-02-10',
-    lastUpdated: '2024-02-15',
-    documents: [
-      { name: 'Aadhaar Card', status: 'verified', required: true },
-      { name: 'Land Records', status: 'uploaded', required: true },
-      { name: 'Bank Account Details', status: 'verified', required: true },
-      { name: 'Crop Details', status: 'uploaded', required: true },
-      { name: 'Insurance Premium Receipt', status: 'pending', required: true }
-    ],
-    progress: 75,
-    notes: ['Application under review', 'Additional documents may be required'],
-    nextSteps: ['Upload insurance premium receipt', 'Wait for verification']
-  },
-  {
-    id: 'app-3',
-    subsidyId: '3',
-    subsidyTitle: 'Soil Health Card Scheme',
-    amount: 'Free service',
-    status: 'submitted',
-    submittedDate: '2024-02-20',
-    lastUpdated: '2024-02-20',
-    documents: [
-      { name: 'Aadhaar Card', status: 'verified', required: true },
-      { name: 'Land Ownership Proof', status: 'uploaded', required: true },
-      { name: 'Application Form', status: 'uploaded', required: true }
-    ],
-    progress: 50,
-    notes: ['Application submitted successfully'],
-    nextSteps: ['Wait for soil testing appointment', 'Prepare for field visit']
-  }
-];
+interface MockApplicationResult {
+  schemeName: string;
+  appliedDate: string;
+  estimatedCompletion: string;
+  timeline: TimelineStep[];
+}
 
-const statusColors = {
-  draft: 'bg-gray-100 text-gray-800',
-  submitted: 'bg-blue-100 text-blue-800',
-  under_review: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-  disbursed: 'bg-purple-100 text-purple-800'
+// Mock application data keyed by "applicationId|mobile"
+const MOCK_DATA: Record<string, MockApplicationResult> = {
+  'APP123456|9876543210': {
+    schemeName: 'PM-KISAN Scheme',
+    appliedDate: '2026-01-15',
+    estimatedCompletion: '2026-04-30',
+    timeline: [
+      { label: 'Application Submitted', detail: 'Your application was received on 15 Jan 2026.', status: 'done' },
+      { label: 'Document Verification', detail: 'Officials are verifying your Aadhaar, land records, and bank details.', status: 'inprogress' },
+      { label: 'Bank Account Verification', detail: 'Your bank account will be validated for direct benefit transfer.', status: 'pending' },
+      { label: 'Disbursement', detail: 'Approved amount will be transferred directly to your account.', status: 'pending' },
+    ],
+  },
+  'APP789012|8765432109': {
+    schemeName: 'Pradhan Mantri Fasal Bima Yojana',
+    appliedDate: '2026-02-10',
+    estimatedCompletion: '2026-05-15',
+    timeline: [
+      { label: 'Application Submitted', detail: 'Your crop insurance application was received on 10 Feb 2026.', status: 'done' },
+      { label: 'Document Verification', detail: 'Insurance documents and crop details have been verified.', status: 'done' },
+      { label: 'Bank Account Verification', detail: 'Your bank account is being verified for claim settlement.', status: 'inprogress' },
+      { label: 'Disbursement', detail: 'Claim amount will be disbursed upon final approval.', status: 'pending' },
+    ],
+  },
 };
 
-const statusLabels = {
-  draft: 'Draft',
-  submitted: 'Submitted',
-  under_review: 'Under Review',
-  approved: 'Approved',
-  rejected: 'Rejected',
-  disbursed: 'Disbursed'
+const DEFAULT_RESULT: MockApplicationResult = {
+  schemeName: 'Kisan Credit Card Scheme',
+  appliedDate: '2026-03-01',
+  estimatedCompletion: '2026-06-01',
+  timeline: [
+    { label: 'Application Submitted', detail: 'Your application was received successfully.', status: 'done' },
+    { label: 'Document Verification', detail: 'Officials are verifying your submitted documents.', status: 'inprogress' },
+    { label: 'Bank Account Verification', detail: 'Your bank account will be validated before approval.', status: 'pending' },
+    { label: 'Disbursement', detail: 'Approved credit limit will be activated on your Kisan Credit Card.', status: 'pending' },
+  ],
 };
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function StepIcon({ status }: { status: TimelineStep['status'] }) {
+  if (status === 'done')
+    return <CheckCircleIcon className="h-6 w-6 text-green-600" />;
+  if (status === 'inprogress')
+    return <ClockIcon className="h-6 w-6 text-yellow-500" />;
+  return <ClockIcon className="h-6 w-6 text-gray-300" />;
+}
+
+function stepStatusLabel(status: TimelineStep['status']) {
+  if (status === 'done') return 'Completed';
+  if (status === 'inprogress') return 'In Progress';
+  return 'Pending';
+}
+
+function stepStatusBadge(status: TimelineStep['status']) {
+  if (status === 'done')
+    return 'bg-green-100 text-green-700';
+  if (status === 'inprogress')
+    return 'bg-yellow-100 text-yellow-700';
+  return 'bg-gray-100 text-gray-500';
+}
 
 export default function SubsidyTrackingPageClient() {
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [applicationId, setApplicationId] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [result, setResult] = useState<MockApplicationResult | null>(null);
+  const [searched, setSearched] = useState(false);
+  const [error, setError] = useState('');
 
-  const filteredApplications = mockApplications.filter(app => {
-    const matchesStatus = selectedStatus === 'all' || app.status === selectedStatus;
-    const matchesSearch = app.subsidyTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved':
-      case 'disbursed':
-        return CheckCircleIcon;
-      case 'under_review':
-        return ClockIcon;
-      case 'rejected':
-        return ExclamationTriangleIcon;
-      default:
-        return DocumentTextIcon;
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    if (!applicationId.trim() || !mobile.trim()) {
+      setError('Please enter both your Application ID and Mobile Number.');
+      return;
     }
-  };
+    const key = `${applicationId.trim()}|${mobile.trim()}`;
+    const found = MOCK_DATA[key] ?? DEFAULT_RESULT;
+    setResult(found);
+    setSearched(true);
+  }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  function handleReset() {
+    setApplicationId('');
+    setMobile('');
+    setResult(null);
+    setSearched(false);
+    setError('');
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">My Subsidy Applications</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Track the status of your government scheme applications and manage your documents.
-            </p>
-          </div>
+      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <h1 className="text-4xl font-bold mb-2">Track Your Application</h1>
+          <p className="text-green-100 text-lg">
+            Enter your Application ID and registered mobile number to check the real-time status of your subsidy
+            application.
+          </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Applications</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Search */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-              <div className="relative">
-                <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search applications..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        {/* Lookup Form */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-5 flex items-center gap-2">
+            <MagnifyingGlassIcon className="h-5 w-5 text-green-600" />
+            Application Lookup
+          </h2>
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Application ID <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <DocumentTextIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    value={applicationId}
+                    onChange={(e) => setApplicationId(e.target.value)}
+                    placeholder="e.g. APP123456"
+                    className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Number <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <PhoneIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="tel"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    placeholder="10-digit mobile number"
+                    className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="submitted">Submitted</option>
-                <option value="under_review">Under Review</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-                <option value="disbursed">Disbursed</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Applications List */}
-        <div className="space-y-6">
-          {filteredApplications.map((application) => {
-            const StatusIcon = getStatusIcon(application.status);
-            return (
-              <div key={application.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-                {/* Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{application.subsidyTitle}</h3>
-                    <div className="flex items-center text-green-600 mb-2">
-                      <CurrencyDollarIcon className="h-5 w-5 mr-2" />
-                      <span className="font-medium">{application.amount}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[application.status]}`}>
-                      {statusLabels[application.status]}
-                    </span>
-                    <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                      <EyeIcon className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Application Progress</span>
-                    <span>{application.progress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full transition-all duration-300" 
-                      style={{ width: `${application.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Status Info */}
-                <div className="flex items-center mb-4">
-                  <StatusIcon className="h-5 w-5 text-green-600 mr-2" />
-                  <div className="text-sm text-gray-600">
-                    <span>Last updated: {formatDate(application.lastUpdated)}</span>
-                    <span className="mx-2">•</span>
-                    <span>Submitted: {formatDate(application.submittedDate)}</span>
-                  </div>
-                </div>
-
-                {/* Documents Status */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Document Status</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {application.documents.map((doc, index) => (
-                      <div key={index} className="flex items-center text-sm">
-                        <div className={`w-2 h-2 rounded-full mr-2 ${
-                          doc.status === 'verified' ? 'bg-green-500' :
-                          doc.status === 'uploaded' ? 'bg-yellow-500' : 'bg-gray-400'
-                        }`}></div>
-                        <span className={`${
-                          doc.status === 'verified' ? 'text-green-700' :
-                          doc.status === 'uploaded' ? 'text-yellow-700' : 'text-gray-500'
-                        }`}>
-                          {doc.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Notes */}
-                {application.notes.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Recent Updates</h4>
-                    <ul className="space-y-1">
-                      {application.notes.map((note, index) => (
-                        <li key={index} className="flex items-start text-sm text-gray-600">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-2"></div>
-                          {note}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Next Steps */}
-                {application.nextSteps.length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Next Steps</h4>
-                    <ul className="space-y-1">
-                      {application.nextSteps.map((step, index) => (
-                        <li key={index} className="flex items-start text-sm text-gray-600">
-                          <ArrowRightIcon className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
-                          {step}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                  <div className="flex space-x-3">
-                    <button className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                      <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                      Download Documents
-                    </button>
-                    <button className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
-                      <InformationCircleIcon className="h-4 w-4 mr-2" />
-                      View Details
-                    </button>
-                  </div>
-                  <Link
-                    href={`/training/subsidies/${application.subsidyId}`}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
-                  >
-                    View Scheme Details
-                  </Link>
-                </div>
+            {error && (
+              <div className="flex items-center gap-2 text-red-600 text-sm">
+                <ExclamationCircleIcon className="h-4 w-4 shrink-0" />
+                {error}
               </div>
-            );
-          })}
-        </div>
+            )}
 
-        {/* No Results */}
-        {filteredApplications.length === 0 && (
-          <div className="text-center py-16">
-            <DocumentTextIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No applications found</h3>
-            <p className="text-gray-600 mb-6">Try adjusting your filters or start a new application.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/training/subsidies"
-                className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-              >
-                Browse Schemes
-              </Link>
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => {
-                  setSelectedStatus('all');
-                  setSearchTerm('');
-                }}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                type="submit"
+                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
               >
-                Clear Filters
+                Track Application
               </button>
+              {searched && (
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+                >
+                  New Search
+                </button>
+              )}
             </div>
-          </div>
+          </form>
+        </div>
+
+        {/* Result */}
+        {result && (
+          <>
+            {/* Application Details */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Application Details</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Scheme</span>
+                  <span className="font-semibold text-gray-900">{result.schemeName}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Applied On</span>
+                  <span className="flex items-center gap-1 text-gray-700">
+                    <CalendarDaysIcon className="h-4 w-4 text-green-500" />
+                    {formatDate(result.appliedDate)}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-500 uppercase tracking-wide font-medium">Est. Completion</span>
+                  <span className="flex items-center gap-1 text-gray-700">
+                    <CalendarDaysIcon className="h-4 w-4 text-green-500" />
+                    {formatDate(result.estimatedCompletion)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Timeline */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Application Timeline</h2>
+              <ol className="relative ml-3">
+                {result.timeline.map((step, index) => {
+                  const isLast = index === result.timeline.length - 1;
+                  return (
+                    <li key={index} className={`relative flex gap-4 ${!isLast ? 'pb-8' : ''}`}>
+                      {/* Connector line */}
+                      {!isLast && (
+                        <div
+                          className={`absolute left-2.5 top-6 bottom-0 w-0.5 ${
+                            step.status === 'done' ? 'bg-green-400' : 'bg-gray-200'
+                          }`}
+                        />
+                      )}
+
+                      {/* Icon */}
+                      <div className="shrink-0 z-10">
+                        <StepIcon status={step.status} />
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span
+                            className={`font-semibold text-sm ${
+                              step.status === 'pending' ? 'text-gray-400' : 'text-gray-900'
+                            }`}
+                          >
+                            {step.label}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${stepStatusBadge(
+                              step.status
+                            )}`}
+                          >
+                            {stepStatusLabel(step.status)}
+                          </span>
+                        </div>
+                        <p
+                          className={`text-sm ${
+                            step.status === 'pending' ? 'text-gray-400' : 'text-gray-600'
+                          }`}
+                        >
+                          {step.detail}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </>
         )}
 
-        {/* Quick Actions */}
-        <div className="mt-12 bg-blue-50 rounded-lg p-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Need Help with Applications?</h2>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Our support team can help you understand application requirements, upload documents, and track your progress.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/contact"
-                className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Get Application Help
-              </Link>
-              <Link
-                href="/training/subsidies"
-                className="px-6 py-3 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-              >
-                Apply for New Scheme
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Statistics */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-2">{mockApplications.length}</div>
-            <div className="text-sm text-gray-600">Total Applications</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-2">
-              {mockApplications.filter(app => app.status === 'approved' || app.status === 'disbursed').length}
-            </div>
-            <div className="text-sm text-gray-600">Approved</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="text-2xl font-bold text-yellow-600 mb-2">
-              {mockApplications.filter(app => app.status === 'under_review').length}
-            </div>
-            <div className="text-sm text-gray-600">Under Review</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="text-2xl font-bold text-purple-600 mb-2">
-              {mockApplications.filter(app => app.status === 'disbursed').length}
-            </div>
-            <div className="text-sm text-gray-600">Disbursed</div>
+        {/* Help / CTA */}
+        <div className="bg-green-50 rounded-xl border border-green-100 p-8 text-center">
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Need Help with Your Application?</h2>
+          <p className="text-gray-600 text-sm mb-5 max-w-xl mx-auto">
+            Our support team can assist with document uploads, application queries, and status updates.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+            >
+              Get Help
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/training/subsidies"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-green-600 text-green-700 rounded-lg hover:bg-green-50 transition-colors font-medium text-sm"
+            >
+              Browse All Schemes
+            </Link>
           </div>
         </div>
       </div>
