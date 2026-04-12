@@ -1,102 +1,119 @@
-'use client';
-
-import { 
-  HeartIcon,
+import {
   ShieldCheckIcon,
   StarIcon,
   UserGroupIcon,
-  ClockIcon,
-  MapPinIcon,
-  PhoneIcon,
-  EnvelopeIcon,
   CheckCircleIcon,
   AcademicCapIcon,
   TruckIcon,
-  ScissorsIcon
+  CalendarDaysIcon,
+  SunIcon,
+  BuildingStorefrontIcon,
+  ChartBarIcon,
 } from '@heroicons/react/24/outline';
 
+const teamMembers = [
+  {
+    name: 'Arjun Sharma',
+    role: 'CEO & Co-Founder',
+    bio: '10+ years in agritech, passionate about transforming Indian agriculture through digital innovation.',
+    linkedin: '#',
+  },
+  {
+    name: 'Priya Nair',
+    role: 'CTO',
+    bio: 'Expert in precision farming and IoT, building scalable tech solutions for the farming community.',
+    linkedin: '#',
+  },
+  {
+    name: 'Rajan Patel',
+    role: 'Head of Farmer Relations',
+    bio: 'Former NABARD official with deep roots in rural finance and farmer welfare programmes.',
+    linkedin: '#',
+  },
+  {
+    name: 'Sunita Kumari',
+    role: 'Head of Training & Skilling',
+    bio: 'Dedicated to upskilling farmers in modern agri-practices, digital literacy, and market access.',
+    linkedin: '#',
+  },
+];
+
+const values = [
+  {
+    icon: UserGroupIcon,
+    title: 'Farmer First',
+    description:
+      'Every feature, policy, and decision is made with the farmer\'s benefit and livelihood at the centre.',
+  },
+  {
+    icon: ShieldCheckIcon,
+    title: 'Transparency',
+    description:
+      'Fair pricing, open ratings, and honest information so every stakeholder can trust the platform.',
+  },
+  {
+    icon: StarIcon,
+    title: 'Technology for Good',
+    description:
+      'We harness IoT, AI, and mobile to solve real agricultural challenges — not just for profit.',
+  },
+  {
+    icon: CheckCircleIcon,
+    title: 'Community Driven',
+    description:
+      'Built with inputs from farmer cooperatives, SHGs, and agri-entrepreneurs across India.',
+  },
+];
+
+const milestones = [
+  { year: '2021', event: 'KisaanMela founded in Pune to bridge the farm-to-market gap' },
+  { year: '2022', event: 'Launched in 8 states with 2,000+ farmer registrations' },
+  { year: '2023', event: 'Integrated government scheme guidance and mela event management' },
+  { year: '2024', event: '50,000+ products listed, ₹12 crore GMV milestone reached' },
+  { year: '2025', event: 'Pan-India expansion with 28 states and 1 lakh+ farmers onboarded' },
+];
+
+const stats = [
+  { number: '1,00,000+', label: 'Farmers', icon: UserGroupIcon },
+  { number: '50,000+', label: 'Products Listed', icon: BuildingStorefrontIcon },
+  { number: '500+', label: 'Mela Events', icon: CalendarDaysIcon },
+  { number: '₹12 Cr+', label: 'GMV Achieved', icon: ChartBarIcon },
+];
+
+const services = [
+  {
+    icon: BuildingStorefrontIcon,
+    title: 'Marketplace',
+    description: 'Buy and sell agri produce, equipment, seeds, and inputs directly — no middlemen.',
+  },
+  {
+    icon: CalendarDaysIcon,
+    title: 'Mela Events',
+    description: 'Discover and participate in agricultural melas, exhibitions, and trade fairs near you.',
+  },
+  {
+    icon: AcademicCapIcon,
+    title: 'Training & Schemes',
+    description: 'Access government scheme guidance, subsidies, and skilling programmes in one place.',
+  },
+  {
+    icon: SunIcon,
+    title: 'Weather & Crop Advisory',
+    description: 'Hyper-local weather forecasts and AI-powered crop advisory for better farm decisions.',
+  },
+];
+
 export default function AboutPage() {
-  const teamMembers = [
-    {
-      name: 'Sarah Johnson',
-      role: 'CEO & Founder',
-      image: '/images/team/sarah.jpg',
-      bio: 'Passionate about animal welfare with 15+ years in pet care industry.',
-      linkedin: '#'
-    },
-    {
-      name: 'Mike Chen',
-      role: 'CTO',
-      image: '/images/team/mike.jpg',
-      bio: 'Tech enthusiast building the future of pet care services.',
-      linkedin: '#'
-    },
-    {
-      name: 'Emma Davis',
-      role: 'Head of Operations',
-      image: '/images/team/emma.jpg',
-      bio: 'Ensuring quality and safety across all our pet care services.',
-      linkedin: '#'
-    },
-    {
-      name: 'David Wilson',
-      role: 'Head of Training',
-      image: '/images/team/david.jpg',
-      bio: 'Certified animal behaviorist with expertise in pet training.',
-      linkedin: '#'
-    }
-  ];
-
-  const values = [
-    {
-      icon: HeartIcon,
-      title: 'Compassion',
-      description: 'We treat every pet with the love and care they deserve, as if they were our own.'
-    },
-    {
-      icon: ShieldCheckIcon,
-      title: 'Trust & Safety',
-      description: 'All our sitters undergo rigorous background checks and are fully insured.'
-    },
-    {
-      icon: StarIcon,
-      title: 'Excellence',
-      description: 'We maintain the highest standards in pet care through continuous training and feedback.'
-    },
-    {
-      icon: UserGroupIcon,
-      title: 'Community',
-      description: 'Building a supportive network of pet owners and care providers.'
-    }
-  ];
-
-  const milestones = [
-    { year: '2020', event: 'Kisaanmela founded with a mission to connect pet owners with trusted caregivers' },
-    { year: '2021', event: 'Launched in 5 major cities with 500+ verified pet sitters' },
-    { year: '2022', event: 'Reached 10,000+ happy pets milestone' },
-    { year: '2023', event: 'Expanded to 25 cities nationwide' },
-    { year: '2024', event: 'Introduced AI-powered matching and 24/7 support' }
-  ];
-
-  const stats = [
-    { number: '50,000+', label: 'Services Completed', icon: CheckCircleIcon },
-    { number: '10,000+', label: 'Happy Pets', icon: HeartIcon },
-    { number: '5,000+', label: 'Trusted Sitters', icon: UserGroupIcon },
-    { number: '4.9/5', label: 'Average Rating', icon: StarIcon }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600 text-white py-20">
+      <section className="relative bg-gradient-to-br from-green-600 via-green-700 to-green-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              About Kisaanmela
-            </h1>
-            <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-              We're passionate about connecting pet owners with trusted, professional caregivers 
-              who share our love for animals and commitment to their wellbeing.
+            <h1 className="text-4xl lg:text-5xl font-bold mb-6">About KisaanMela</h1>
+            <p className="text-xl text-green-100 max-w-3xl mx-auto">
+              Empowering Indian farmers through a digital marketplace, direct market access, and
+              comprehensive government scheme guidance — so every farmer can thrive.
             </p>
           </div>
         </div>
@@ -109,24 +126,25 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-lg text-gray-600 mb-6">
-                At Kisaanmela, we believe that every pet deserves the best care possible. Our mission is to 
-                create a trusted platform that connects pet owners with verified, professional caregivers 
-                who are passionate about animal welfare.
+                At KisaanMela, we believe that every Indian farmer deserves fair prices, broader markets,
+                and the tools to compete in a modern economy. Our mission is to remove the friction between
+                farm and market — connecting farmers directly with buyers, vendors, and the government
+                support they are entitled to.
               </p>
               <p className="text-lg text-gray-600 mb-8">
-                We're committed to ensuring peace of mind for pet owners while providing loving, 
-                reliable care for their furry, feathered, and scaled family members.
+                Whether it is selling a harvest, booking a stall at a kisan mela, or finding the right
+                subsidy scheme, KisaanMela makes it simple, transparent, and accessible from any device.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="/services"
-                  className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 text-center"
+                  href="/marketplace"
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 text-center"
                 >
-                  Find Services
+                  Explore Marketplace
                 </a>
                 <a
                   href="/contact"
-                  className="border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 text-center"
+                  className="border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-8 py-3 rounded-lg font-semibold transition-colors duration-200 text-center"
                 >
                   Contact Us
                 </a>
@@ -134,12 +152,12 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <div className="bg-white rounded-2xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Why Choose Kisaanmela?</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Why KisaanMela?</h3>
                 <div className="space-y-4">
                   {values.map((value, index) => (
                     <div key={index} className="flex items-start">
                       <div className="flex-shrink-0">
-                        <value.icon className="h-6 w-6 text-primary-600" />
+                        <value.icon className="h-6 w-6 text-green-600" />
                       </div>
                       <div className="ml-4">
                         <h4 className="text-lg font-semibold text-gray-900">{value.title}</h4>
@@ -160,16 +178,16 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Impact</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Numbers that reflect our commitment to excellence in pet care
+              Numbers that reflect our commitment to Indian agriculture
             </p>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="flex justify-center mb-4">
-                  <stat.icon className="h-12 w-12 text-primary-600" />
+                  <stat.icon className="h-12 w-12 text-green-600" />
                 </div>
-                <div className="text-3xl lg:text-4xl font-bold text-primary-600 mb-2">
+                <div className="text-3xl lg:text-4xl font-bold text-green-600 mb-2">
                   {stat.number}
                 </div>
                 <div className="text-gray-600 font-medium">{stat.label}</div>
@@ -185,22 +203,25 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Passionate professionals dedicated to revolutionizing pet care
+              Agriculture enthusiasts and technologists working to transform India&apos;s farming ecosystem
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-200">
-                <div className="h-48 bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center">
-                  <UserGroupIcon className="h-16 w-16 text-primary-600" />
+              <div
+                key={index}
+                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-200"
+              >
+                <div className="h-48 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+                  <UserGroupIcon className="h-16 w-16 text-green-600" />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-primary-600 font-medium mb-3">{member.role}</p>
+                  <p className="text-green-600 font-medium mb-3">{member.role}</p>
                   <p className="text-gray-600 text-sm mb-4">{member.bio}</p>
                   <a
                     href={member.linkedin}
-                    className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                    className="text-green-600 hover:text-green-700 font-medium text-sm"
                   >
                     Connect on LinkedIn →
                   </a>
@@ -217,21 +238,26 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Journey</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From startup to industry leader in pet care services
+              From a Pune startup to a pan-India agricultural platform
             </p>
           </div>
           <div className="relative">
-            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-primary-200"></div>
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-green-200"></div>
             <div className="space-y-12">
               {milestones.map((milestone, index) => (
-                <div key={index} className={`flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
-                  <div className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}>
+                <div
+                  key={index}
+                  className={`flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+                >
+                  <div
+                    className={`w-1/2 ${index % 2 === 0 ? 'pr-8 text-right' : 'pl-8 text-left'}`}
+                  >
                     <div className="bg-white rounded-lg shadow-sm p-6">
-                      <div className="text-primary-600 font-bold text-lg mb-2">{milestone.year}</div>
+                      <div className="text-green-600 font-bold text-lg mb-2">{milestone.year}</div>
                       <p className="text-gray-700">{milestone.event}</p>
                     </div>
                   </div>
-                  <div className="w-4 h-4 bg-primary-600 rounded-full border-4 border-white shadow-lg z-10"></div>
+                  <div className="w-4 h-4 bg-green-600 rounded-full border-4 border-white shadow-lg z-10"></div>
                   <div className="w-1/2"></div>
                 </div>
               ))}
@@ -240,58 +266,45 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Services Overview */}
+      {/* Services CTA Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Comprehensive Pet Care</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">What We Offer</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From daily walks to specialized care, we offer everything your pet needs
+              End-to-end solutions for the Indian agricultural ecosystem
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <UserGroupIcon className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Pet Sitting</h3>
-              <p className="text-gray-600">In-home care with 24/7 supervision</p>
-            </div>
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <ClockIcon className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Dog Walking</h3>
-              <p className="text-gray-600">Regular exercise and socialization</p>
-            </div>
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <ScissorsIcon className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Pet Grooming</h3>
-              <p className="text-gray-600">Professional grooming services</p>
-            </div>
-            <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-              <AcademicCapIcon className="h-12 w-12 text-primary-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Pet Training</h3>
-              <p className="text-gray-600">Expert behavioral training</p>
-            </div>
+            {services.map((service, index) => (
+              <div key={index} className="text-center p-6 bg-white rounded-lg shadow-sm">
+                <service.icon className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{service.title}</h3>
+                <p className="text-gray-600">{service.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Contact CTA */}
-      <section className="py-20 bg-primary-600 text-white">
+      {/* Join CTA */}
+      <section className="py-20 bg-green-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Join Our Community?</h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Whether you're a pet owner looking for care or a caregiver wanting to help pets, 
-            we'd love to have you as part of the Kisaanmela family.
+          <h2 className="text-3xl font-bold mb-4">Ready to Join the KisaanMela Community?</h2>
+          <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
+            Whether you are a farmer looking for better prices, a buyer sourcing fresh produce, or a
+            vendor offering agri-services — KisaanMela is your platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/register"
-              className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200"
+              className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200"
             >
               Get Started
             </a>
             <a
               href="/contact"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200"
+              className="border-2 border-white text-white hover:bg-white hover:text-green-600 px-8 py-4 rounded-lg text-lg font-semibold transition-colors duration-200"
             >
               Contact Us
             </a>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { 
+import {
   MapPinIcon,
   PhoneIcon,
   EnvelopeIcon,
@@ -9,7 +9,7 @@ import {
   ChatBubbleLeftRightIcon,
   PaperAirplaneIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 export default function ContactPage() {
@@ -19,90 +19,113 @@ export default function ContactPage() {
     phone: '',
     subject: '',
     message: '',
-    contactMethod: 'email'
+    contactMethod: 'email',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        contactMethod: 'email'
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
-    }, 2000);
+      const data: { success: boolean; message?: string; error?: string } = await res.json();
+
+      if (data.success) {
+        setSubmitStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          contactMethod: 'email',
+        });
+      } else {
+        setErrorMessage(data.error || 'Failed to send message. Please try again.');
+        setSubmitStatus('error');
+      }
+    } catch {
+      setErrorMessage('A network error occurred. Please check your connection and try again.');
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
     {
       icon: MapPinIcon,
       title: 'Visit Us',
-      details: ['123 Pet Street', 'Pet City, PC 12345', 'United States'],
-      action: 'Get Directions'
+      details: ['Plot 5, Agri Hub', 'Baner Road, Pune - 411045', 'Maharashtra, India'],
+      action: 'Get Directions',
     },
     {
       icon: PhoneIcon,
       title: 'Call Us',
       details: ['+91-9999778321', 'Mon-Fri: 8AM-8PM', 'Sat-Sun: 9AM-6PM'],
-      action: 'Call Now'
+      action: 'Call Now',
     },
     {
       icon: EnvelopeIcon,
       title: 'Email Us',
       details: ['hello@kisaanmela.com', 'support@kisaanmela.com', 'careers@kisaanmela.com'],
-      action: 'Send Email'
+      action: 'Send Email',
     },
     {
       icon: ChatBubbleLeftRightIcon,
       title: 'Live Chat',
       details: ['Available 24/7', 'Instant responses', 'Expert support'],
-      action: 'Start Chat'
-    }
+      action: 'Start Chat',
+    },
   ];
 
   const faqs = [
     {
-      question: 'How do I book a pet sitter?',
-      answer: 'Simply search for services in your area, browse available sitters, and book directly through our platform. You can also call our support team for assistance.'
+      question: 'How do I list my farm produce on KisaanMela?',
+      answer:
+        'Register as a farmer or seller, complete your profile verification, and then use the "Add Listing" option in your dashboard to upload product details, photos, and pricing. Your listing goes live after a quick review.',
     },
     {
-      question: 'Are all pet sitters background checked?',
-      answer: 'Yes, all our pet sitters undergo comprehensive background checks, reference verification, and training before joining our platform.'
+      question: 'How do I register as a verified vendor?',
+      answer:
+        'Click "Register" and select the Vendor account type. Submit your business documents (GSTIN, trade licence, or equivalent) for KYC verification. Once approved, you gain access to full vendor features.',
     },
     {
-      question: 'What if I need to cancel a booking?',
-      answer: 'You can cancel bookings up to 24 hours before the service starts. Cancellation policies may vary by sitter, so check their individual policies.'
+      question: 'Is the platform free for farmers?',
+      answer:
+        'Yes — basic registration, listing, and access to government scheme guidance are completely free for farmers. Optional premium features such as boosted visibility are available at a nominal charge.',
     },
     {
-      question: 'How do I become a pet sitter?',
-      answer: 'Apply through our website, complete the verification process, and start earning by providing pet care services in your area.'
+      question: 'How do government scheme applications work?',
+      answer:
+        'Our Schemes section aggregates Central and State government schemes relevant to your crop type, state, and farmer category. You can read eligibility criteria and follow direct links to the official portal to apply.',
     },
     {
-      question: 'Is my pet covered by insurance?',
-      answer: 'Yes, all services booked through Kisaanmela are covered by our comprehensive insurance policy for your peace of mind.'
+      question: 'How do I book a stall at a KisaanMela event?',
+      answer:
+        'Browse upcoming Mela Events, select your preferred event, and choose an available stall size. Pay the stall fee online to confirm your booking. You will receive a confirmation and event details by email and SMS.',
     },
     {
-      question: 'How do I contact customer support?',
-      answer: 'You can reach us via phone, email, live chat, or through our mobile app. Our support team is available 24/7 to help you.'
-    }
+      question: 'What is the return/dispute policy for marketplace orders?',
+      answer:
+        'Buyers can raise a dispute within 48 hours of delivery if the product does not match the listing description. Our support team mediates between buyer and seller, and eligible cases receive a refund within 5–7 business days.',
+    },
   ];
 
   return (
@@ -111,7 +134,9 @@ export default function ContactPage() {
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Contact Us</h1>
-          <p className="text-gray-600">We're here to help! Get in touch with our team for any questions or support.</p>
+          <p className="text-gray-600">
+            We&apos;re here to help! Get in touch with our team for any questions or support.
+          </p>
         </div>
       </div>
 
@@ -121,18 +146,22 @@ export default function ContactPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h2>
-              
+
               {submitStatus === 'success' && (
                 <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
-                  <CheckCircleIcon className="h-5 w-5 text-green-600 mr-3" />
-                  <span className="text-green-800">Thank you! Your message has been sent successfully.</span>
+                  <CheckCircleIcon className="h-5 w-5 text-green-600 mr-3 flex-shrink-0" />
+                  <span className="text-green-800">
+                    Message received. We will respond within 24 hours.
+                  </span>
                 </div>
               )}
 
               {submitStatus === 'error' && (
                 <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
-                  <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mr-3" />
-                  <span className="text-red-800">Sorry, there was an error sending your message. Please try again.</span>
+                  <ExclamationTriangleIcon className="h-5 w-5 text-red-600 mr-3 flex-shrink-0" />
+                  <span className="text-red-800">
+                    {errorMessage || 'Sorry, there was an error sending your message. Please try again.'}
+                  </span>
                 </div>
               )}
 
@@ -148,7 +177,7 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Enter your full name"
                     />
                   </div>
@@ -162,7 +191,7 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Enter your email"
                     />
                   </div>
@@ -178,7 +207,7 @@ export default function ContactPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                       placeholder="Enter your phone number"
                     />
                   </div>
@@ -190,7 +219,7 @@ export default function ContactPage() {
                       name="contactMethod"
                       value={formData.contactMethod}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     >
                       <option value="email">Email</option>
                       <option value="phone">Phone</option>
@@ -209,7 +238,7 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     placeholder="What's this about?"
                   />
                 </div>
@@ -224,7 +253,7 @@ export default function ContactPage() {
                     onChange={handleInputChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     placeholder="Tell us how we can help you..."
                   />
                 </div>
@@ -232,7 +261,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center"
                 >
                   {isSubmitting ? (
                     <>
@@ -250,7 +279,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* Contact Info & FAQ */}
+          {/* Contact Info & Hours */}
           <div className="space-y-8">
             {/* Contact Information */}
             <div className="bg-white rounded-lg shadow-sm p-6">
@@ -259,16 +288,18 @@ export default function ContactPage() {
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start">
                     <div className="flex-shrink-0">
-                      <info.icon className="h-6 w-6 text-primary-600" />
+                      <info.icon className="h-6 w-6 text-green-600" />
                     </div>
                     <div className="ml-4">
                       <h4 className="text-lg font-semibold text-gray-900 mb-2">{info.title}</h4>
                       <div className="space-y-1">
                         {info.details.map((detail, detailIndex) => (
-                          <p key={detailIndex} className="text-gray-600 text-sm">{detail}</p>
+                          <p key={detailIndex} className="text-gray-600 text-sm">
+                            {detail}
+                          </p>
                         ))}
                       </div>
-                      <button className="text-primary-600 hover:text-primary-700 font-medium text-sm mt-2">
+                      <button className="text-green-600 hover:text-green-700 font-medium text-sm mt-2">
                         {info.action} →
                       </button>
                     </div>
@@ -299,7 +330,7 @@ export default function ContactPage() {
                 <div className="pt-2 border-t border-gray-200">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Emergency Support</span>
-                    <span className="font-medium text-primary-600">24/7</span>
+                    <span className="font-medium text-green-600">24/7</span>
                   </div>
                 </div>
               </div>
@@ -312,7 +343,7 @@ export default function ContactPage() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Find answers to common questions about our services and platform
+              Find answers to common questions about farming, marketplace, and our platform
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -333,7 +364,9 @@ export default function ContactPage() {
               <div className="text-center">
                 <MapPinIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">Interactive map will be implemented here</p>
-                <p className="text-sm text-gray-500 mt-2">123 Pet Street, Pet City, PC 12345</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  Plot 5, Agri Hub, Baner Road, Pune - 411045
+                </p>
               </div>
             </div>
           </div>

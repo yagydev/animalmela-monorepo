@@ -1,186 +1,215 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ProductManagement, ProductStats } from '../../../components/ProductManagement';
-import { FarmersMarketCard } from '../../../components/FarmersMarketCard';
-import { 
+import {
   PlusIcon,
-  ChartBarIcon,
-  Cog6ToothIcon,
-  UserGroupIcon,
-  ShoppingBagIcon,
-  DocumentTextIcon,
-  EyeIcon,
   PencilIcon,
-  TrashIcon
+  TrashIcon,
+  XMarkIcon,
+  ShoppingBagIcon,
 } from '@heroicons/react/24/outline';
-import { getCurrentUser } from '../../../../lib/auth-client';
+import { getCurrentUser, getCurrentToken, User } from '../../../../lib/auth-client';
 
-interface Product {
-  _id: string;
+// ---------- types ----------
+
+interface Listing {
+  id: number | string;
   title: string;
-  description: string;
-  price: number;
-  unit: string;
-  quantity: number;
   category: string;
-  subcategory?: string;
-  images: string[];
-  rating: {
-    average: number;
-    count: number;
-  };
-  status: 'active' | 'inactive' | 'sold';
-  featured: boolean;
-  views: number;
-  likes: number;
-  createdAt: string;
-  updatedAt: string;
-  negotiable: boolean;
-  minimumOrder: number;
-  tags: string[];
-  sellerId: {
-    _id: string;
-    name: string;
-    email: string;
-    mobile: string;
-    location: {
-      state: string;
-      district: string;
-      pincode: string;
-      village: string;
-    };
-    rating: {
-      average: number;
-      count: number;
-    };
-    verified: boolean;
-    joinDate: string;
-  };
-  location: {
-    state: string;
-    district: string;
-    pincode: string;
-    village: string;
-  };
+  description?: string;
+  price: number;
+  quantity: number;
+  unit: string;
+  status: string;
+  images?: string[];
+  rating?: number;
+  reviews?: number;
+  createdAt?: string;
 }
 
+interface ListingFormData {
+  title: string;
+  category: string;
+  description: string;
+  price: string;
+  quantity: string;
+  unit: string;
+}
+
+const CATEGORIES = [
+  'vegetables',
+  'fruits',
+  'grains',
+  'dairy',
+  'poultry',
+  'spices',
+  'pulses',
+  'oilseeds',
+  'other',
+];
+
+const UNITS = ['kg', 'quintal', 'ton', 'liter', 'piece', 'dozen', 'bundle'];
+
+const EMPTY_FORM: ListingFormData = {
+  title: '',
+  category: '',
+  description: '',
+  price: '',
+  quantity: '',
+  unit: 'kg',
+};
+
+// ---------- page ----------
+
 export default function FarmersMarketManagement() {
-  const [user, setUser] = useState<any>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showProductModal, setShowProductModal] = useState(false);
-  
-  const router = useRouter();
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<number | string | null>(null);
+  const [formData, setFormData] = useState<ListingFormData>(EMPTY_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
 
   useEffect(() => {
-    const userData = getCurrentUser();
-    setUser(userData);
+    setUser(getCurrentUser());
   }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch('/api/farmers-market/marketplace');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setProducts(data.listings || []);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-      }
-      setLoading(false);
-    };
-
-    fetchProducts();
-  }, []);
-
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setShowProductModal(true);
-  };
-
-  const handleEditProduct = (product: Product) => {
-    router.push(`/farmers-market/edit-product/${product._id}`);
-  };
-
-  const handleDeleteProduct = async (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      try {
-        const response = await fetch(`/api/farmers-market/marketplace/${productId}`, {
-          method: 'DELETE'
-        });
-        
-        if (response.ok) {
-          setProducts(products.filter(p => p._id !== productId));
-          alert('Product deleted successfully');
-        } else {
-          alert('Failed to delete product');
-        }
-      } catch (error) {
-        console.error('Error deleting product:', error);
-        alert('Error deleting product');
-      }
-    }
-  };
-
-  const handleAddToCart = async (productId: string, quantity: number = 1) => {
+  const fetchListings = useCallback(async () => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/farmers-market/cart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          listingId: productId,
-          quantity: quantity
-        })
+      const token = getCurrentToken();
+      const res = await fetch('/api/farmers-market/listings', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-      
-      if (response.ok) {
-        alert(`Added ${quantity} item(s) to cart`);
-      } else {
-        throw new Error('Failed to add to cart');
+      const data = await res.json();
+      if (data.success) {
+        setListings(data.listings ?? []);
       }
-    } catch (error: any) {
-      alert(error.message || 'Failed to add to cart');
+    } catch (err) {
+      console.error('Failed to fetch listings:', err);
     }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchListings();
+  }, [fetchListings]);
+
+  const openAddForm = () => {
+    setEditingId(null);
+    setFormData(EMPTY_FORM);
+    setFormError('');
+    setShowForm(true);
   };
 
-  const handleToggleFavorite = async (productId: string) => {
+  const openEditForm = (listing: Listing) => {
+    setEditingId(listing.id);
+    setFormData({
+      title: listing.title,
+      category: listing.category,
+      description: listing.description ?? '',
+      price: String(listing.price),
+      quantity: String(listing.quantity),
+      unit: listing.unit,
+    });
+    setFormError('');
+    setShowForm(true);
+  };
+
+  const handleFormChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormError('');
+    setSubmitting(true);
     try {
-      // API call to toggle favorite
-      console.log('Toggle favorite:', productId);
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
+      const token = getCurrentToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
+      const payload = {
+        title: formData.title.trim(),
+        category: formData.category,
+        description: formData.description.trim(),
+        price: Number(formData.price),
+        quantity: Number(formData.quantity),
+        unit: formData.unit,
+      };
+
+      let res: Response;
+      if (editingId !== null) {
+        res = await fetch(
+          `/api/farmers-market/listings?id=${editingId}`,
+          { method: 'PUT', headers, body: JSON.stringify(payload) }
+        );
+      } else {
+        res = await fetch('/api/farmers-market/listings', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setShowForm(false);
+        fetchListings();
+      } else {
+        setFormError(data.error ?? data.message ?? 'Failed to save listing');
+      }
+    } catch (err) {
+      console.error('Save listing error:', err);
+      setFormError('An error occurred. Please try again.');
+    }
+    setSubmitting(false);
+  };
+
+  const handleDelete = async (id: number | string) => {
+    if (!confirm('Delete this listing? This cannot be undone.')) return;
+    try {
+      const token = getCurrentToken();
+      const res = await fetch(`/api/farmers-market/listings?id=${id}`, {
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data.success) {
+        setListings((prev) => prev.filter((l) => l.id !== id));
+      } else {
+        alert(data.error ?? data.message ?? 'Delete failed');
+      }
+    } catch (err) {
+      console.error('Delete listing error:', err);
+      alert('An error occurred. Please try again.');
     }
   };
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: ChartBarIcon },
-    { id: 'products', label: 'Products', icon: DocumentTextIcon },
-    { id: 'analytics', label: 'Analytics', icon: ChartBarIcon },
-    { id: 'settings', label: 'Settings', icon: Cog6ToothIcon }
-  ];
-
+  // ── Not logged in ──
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-8">Please sign in to access the management dashboard.</p>
+        <div className="bg-white rounded-xl shadow p-10 text-center max-w-md w-full">
+          <ShoppingBagIcon className="h-14 w-14 text-gray-300 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign in Required</h2>
+          <p className="text-gray-600 mb-6">
+            Please log in to manage your product listings.
+          </p>
           <Link
             href="/farmers-market/login"
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
           >
-            Sign In
+            Go to Login
           </Link>
         </div>
       </div>
@@ -193,342 +222,306 @@ export default function FarmersMarketManagement() {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-4">
               <Link
-                href="/farmers-market"
-                className="text-green-600 hover:text-green-700 font-medium"
+                href="/farmers-market/dashboard"
+                className="text-green-600 hover:text-green-700 font-medium text-sm"
               >
-                ← Back to Farmers Market
+                ← Dashboard
               </Link>
-              <div className="h-6 w-px bg-gray-300"></div>
+              <div className="h-5 w-px bg-gray-300" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Management Dashboard</h1>
-                <p className="text-gray-600">Manage your products and analytics</p>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Product Management
+                </h1>
+                <p className="text-gray-500 text-sm">
+                  Manage your product listings
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <span className="text-sm text-gray-600">Welcome, {user.name}</span>
-                <div className="text-xs text-gray-500 capitalize">{user.role}</div>
-              </div>
-              <Link
-                href="/farmers-market/add-product"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
-              >
-                <PlusIcon className="h-5 w-5" />
-                <span>Add Product</span>
-              </Link>
-            </div>
+            <button
+              onClick={openAddForm}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium text-sm"
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add New Product
+            </button>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-8">
-          <nav className="flex space-x-8">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
+        {/* Inline add/edit form */}
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {editingId !== null ? 'Edit Product' : 'Add New Product'}
+              </h2>
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close form"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            {formError && (
+              <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                {formError}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Product Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleFormChange}
+                  required
+                  placeholder="e.g. Fresh Organic Tomatoes"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleFormChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white capitalize"
+                >
+                  <option value="">Select category</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c} className="capitalize">
+                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Unit <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="unit"
+                  value={formData.unit}
+                  onChange={handleFormChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                >
+                  {UNITS.map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Price (₹ per unit) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleFormChange}
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Quantity Available <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
+                  onChange={handleFormChange}
+                  required
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleFormChange}
+                  rows={3}
+                  placeholder="Describe your product (optional)"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                />
+              </div>
+
+              <div className="sm:col-span-2 flex justify-end gap-3 pt-2">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                    activeTab === tab.id
-                      ? 'border-green-600 text-green-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="px-5 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{tab.label}</span>
+                  Cancel
                 </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8">
-            {/* Stats */}
-            <ProductStats products={products} />
-            
-            {/* Recent Products */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
-                <Link
-                  href="/farmers-market/management?tab=products"
-                  className="text-green-600 hover:text-green-700 font-medium"
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  View All
-                </Link>
+                  {submitting
+                    ? 'Saving…'
+                    : editingId !== null
+                    ? 'Update Product'
+                    : 'Add Product'}
+                </button>
               </div>
-              
-              {loading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                </div>
-              ) : products.length === 0 ? (
-                <div className="text-center py-8">
-                  <DocumentTextIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No products yet</h3>
-                  <p className="text-gray-600 mb-4">Start by adding your first product</p>
-                  <Link
-                    href="/farmers-market/add-product"
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                  >
-                    Add Product
-                  </Link>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {products.slice(0, 6).map((product) => (
-                    <FarmersMarketCard
-                      key={product._id}
-                      product={product}
-                      variant="management"
-                      onProductClick={handleProductClick}
-                      onEditProduct={handleEditProduct}
-                      onDeleteProduct={handleDeleteProduct}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Link
-                href="/farmers-market/add-product"
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center">
-                  <PlusIcon className="h-8 w-8 text-green-600" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Add Product</p>
-                    <p className="text-lg font-bold text-gray-900">New Listing</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/farmers-market/management?tab=products"
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center">
-                  <DocumentTextIcon className="h-8 w-8 text-blue-600" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Manage Products</p>
-                    <p className="text-lg font-bold text-gray-900">{products.length}</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/farmers-market/management?tab=analytics"
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center">
-                  <ChartBarIcon className="h-8 w-8 text-purple-600" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Analytics</p>
-                    <p className="text-lg font-bold text-gray-900">View Stats</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                href="/farmers-market/management?tab=settings"
-                className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-center">
-                  <Cog6ToothIcon className="h-8 w-8 text-gray-600" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-500">Settings</p>
-                    <p className="text-lg font-bold text-gray-900">Configure</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
+            </form>
           </div>
         )}
 
-        {activeTab === 'products' && (
-          <ProductManagement
-            farmerId={user._id}
-            onProductClick={handleProductClick}
-            onEditProduct={handleEditProduct}
-            onDeleteProduct={handleDeleteProduct}
-          />
-        )}
+        {/* Listings table */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-lg font-semibold text-gray-900">
+              My Products{' '}
+              <span className="text-sm font-normal text-gray-500">
+                ({listings.length})
+              </span>
+            </h2>
+          </div>
 
-        {activeTab === 'analytics' && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Product Analytics</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">{products.length}</div>
-                  <div className="text-sm text-gray-500">Total Products</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {products.reduce((sum, p) => sum + p.views, 0)}
-                  </div>
-                  <div className="text-sm text-gray-500">Total Views</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600">
-                    {products.reduce((sum, p) => sum + p.likes, 0)}
-                  </div>
-                  <div className="text-sm text-gray-500">Total Likes</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-yellow-600">
-                    {products.length > 0 
-                      ? (products.reduce((sum, p) => sum + p.rating.average, 0) / products.length).toFixed(1)
-                      : '0.0'
-                    }
-                  </div>
-                  <div className="text-sm text-gray-500">Avg Rating</div>
-                </div>
-              </div>
+          {loading ? (
+            <div className="flex justify-center py-16">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600" />
             </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Top Performing Products</h2>
-              
-              <div className="space-y-4">
-                {products
-                  .sort((a, b) => b.views - a.views)
-                  .slice(0, 5)
-                  .map((product, index) => (
-                    <div key={product._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold">
-                          {index + 1}
+          ) : listings.length === 0 ? (
+            <div className="text-center py-16">
+              <ShoppingBagIcon className="h-14 w-14 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                No products yet
+              </h3>
+              <p className="text-gray-500 mb-5">
+                Start listing your farm produce to reach buyers across India.
+              </p>
+              <button
+                onClick={openAddForm}
+                className="inline-flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
+              >
+                <PlusIcon className="h-4 w-4" />
+                Add Your First Product
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    {[
+                      'Product Name',
+                      'Category',
+                      'Price',
+                      'Quantity',
+                      'Status',
+                      'Actions',
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {listings.map((listing) => (
+                    <tr key={listing.id} className="hover:bg-gray-50">
+                      <td className="px-5 py-4 font-medium text-gray-900 max-w-xs">
+                        <div className="truncate">{listing.title}</div>
+                        {listing.description && (
+                          <div className="text-xs text-gray-400 truncate">
+                            {listing.description}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-gray-600 capitalize whitespace-nowrap">
+                        {listing.category}
+                      </td>
+                      <td className="px-5 py-4 text-gray-900 font-medium whitespace-nowrap">
+                        ₹{listing.price.toLocaleString('en-IN')}/{listing.unit}
+                      </td>
+                      <td className="px-5 py-4 text-gray-700 whitespace-nowrap">
+                        {listing.quantity} {listing.unit}
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <StatusBadge status={listing.status} />
+                      </td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => openEditForm(listing)}
+                            className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-xs font-medium"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(listing.id)}
+                            className="text-red-500 hover:text-red-700 flex items-center gap-1 text-xs font-medium"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                            Delete
+                          </button>
                         </div>
-                        <div>
-                          <h3 className="font-medium text-gray-900">{product.title}</h3>
-                          <p className="text-sm text-gray-500">{product.category}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold text-gray-900">{product.views} views</div>
-                        <div className="text-sm text-gray-500">{product.rating.average}★</div>
-                      </div>
-                    </div>
+                      </td>
+                    </tr>
                   ))}
-              </div>
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
-
-        {activeTab === 'settings' && (
-          <div className="space-y-8">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Account Settings</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Display Name</label>
-                  <input
-                    type="text"
-                    defaultValue={user.name}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                  <input
-                    type="email"
-                    defaultValue={user.email}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                  <input
-                    type="tel"
-                    defaultValue={user.mobile}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-                
-                <div className="pt-4">
-                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Notification Settings</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">New Order Notifications</h3>
-                    <p className="text-sm text-gray-500">Get notified when you receive new orders</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="h-4 w-4 text-green-600" />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Product Review Notifications</h3>
-                    <p className="text-sm text-gray-500">Get notified when customers review your products</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="h-4 w-4 text-green-600" />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium text-gray-900">Marketing Updates</h3>
-                    <p className="text-sm text-gray-500">Receive updates about new features and promotions</p>
-                  </div>
-                  <input type="checkbox" className="h-4 w-4 text-green-600" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-
-      {/* Product Modal */}
-      {showProductModal && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Product Details</h3>
-                <button
-                  onClick={() => setShowProductModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <FarmersMarketCard
-                product={selectedProduct}
-                variant="detailed"
-                onAddToCart={handleAddToCart}
-                onToggleFavorite={handleToggleFavorite}
-                onEditProduct={handleEditProduct}
-                onDeleteProduct={handleDeleteProduct}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
+  );
+}
+
+// ---------- sub-components ----------
+
+function StatusBadge({ status }: { status: string }) {
+  const variants: Record<string, string> = {
+    active: 'bg-green-100 text-green-800',
+    inactive: 'bg-gray-100 text-gray-700',
+    sold: 'bg-blue-100 text-blue-800',
+    pending: 'bg-yellow-100 text-yellow-800',
+  };
+  const cls = variants[status] ?? 'bg-gray-100 text-gray-700';
+  return (
+    <span
+      className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${cls} capitalize`}
+    >
+      {status}
+    </span>
   );
 }

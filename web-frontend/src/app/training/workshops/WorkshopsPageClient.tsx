@@ -1,467 +1,512 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { 
-  CalendarIcon, 
-  MapPinIcon, 
-  UserGroupIcon, 
+import {
+  MagnifyingGlassIcon,
+  CalendarIcon,
+  UserGroupIcon,
   ClockIcon,
   AcademicCapIcon,
-  StarIcon
+  MapPinIcon,
+  XMarkIcon,
+  CheckCircleIcon,
+  FunnelIcon,
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
 interface Workshop {
   id: string;
   title: string;
-  description: string;
-  instructor: string;
-  date: string;
-  time: string;
-  duration: string;
-  location: string;
-  maxParticipants: number;
-  currentParticipants: number;
-  price: number;
   category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  image: string;
-  rating: number;
-  reviews: number;
-  tags: string[];
-  requirements: string[];
-  whatYouWillLearn: string[];
+  mode: 'Online' | 'Offline' | 'Hybrid';
+  location?: string;
+  durationDays: number;
+  price: number;
+  instructor: string;
+  enrolled: number;
+  date: string;
+  description: string;
 }
 
-const mockWorkshops: Workshop[] = [
+const workshops: Workshop[] = [
   {
     id: '1',
-    title: 'Organic Farming Workshop',
-    description: 'Learn sustainable farming practices, soil health management, and organic certification processes.',
-    instructor: 'Dr. Rajesh Kumar',
-    date: '2024-02-15',
-    time: '09:00 AM',
-    duration: '6 hours',
-    location: 'Agricultural Research Center, Delhi',
-    maxParticipants: 50,
-    currentParticipants: 32,
+    title: 'Modern Drip Irrigation Techniques',
+    category: 'Crop Management',
+    mode: 'Online',
+    durationDays: 2,
     price: 0,
-    category: 'Organic Farming',
-    level: 'beginner',
-    image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&h=400&fit=crop',
-    rating: 4.8,
-    reviews: 124,
-    tags: ['organic', 'sustainable', 'certification'],
-    requirements: ['Basic farming knowledge', 'Notebook and pen'],
-    whatYouWillLearn: [
-      'Soil health assessment and improvement',
-      'Organic pest and disease management',
-      'Certification process and requirements',
-      'Marketing organic produce'
-    ]
+    instructor: 'Dr. Ramesh Yadav',
+    enrolled: 245,
+    date: '2026-05-10',
+    description:
+      'Learn water-efficient drip irrigation setups, scheduling, and maintenance to maximise yield while conserving water resources.',
   },
   {
     id: '2',
-    title: 'Modern Irrigation Techniques',
-    description: 'Master water-efficient irrigation methods including drip irrigation, sprinkler systems, and smart farming.',
-    instructor: 'Prof. Sunita Sharma',
-    date: '2024-02-20',
-    time: '10:00 AM',
-    duration: '4 hours',
-    location: 'Krishi Vigyan Kendra, Punjab',
-    maxParticipants: 30,
-    currentParticipants: 18,
+    title: 'Organic Farming Certification',
+    category: 'Organic Farming',
+    mode: 'Hybrid',
+    durationDays: 5,
     price: 500,
-    category: 'Irrigation',
-    level: 'intermediate',
-    image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=600&h=400&fit=crop',
-    rating: 4.6,
-    reviews: 89,
-    tags: ['irrigation', 'water-management', 'technology'],
-    requirements: ['Farming experience', 'Calculator'],
-    whatYouWillLearn: [
-      'Drip irrigation system design',
-      'Water usage optimization',
-      'Smart irrigation controllers',
-      'Cost-benefit analysis'
-    ]
+    instructor: 'Priya Joshi',
+    enrolled: 89,
+    date: '2026-05-18',
+    description:
+      'A comprehensive course covering soil health, natural pest management, composting, and the organic certification process.',
   },
   {
     id: '3',
-    title: 'Digital Marketing for Farmers',
-    description: 'Learn to market your produce online, build your brand, and reach customers directly.',
-    instructor: 'Amit Patel',
-    date: '2024-02-25',
-    time: '02:00 PM',
-    duration: '3 hours',
-    location: 'Online Workshop',
-    maxParticipants: 100,
-    currentParticipants: 67,
+    title: 'Drone Technology in Agriculture',
+    category: 'Technology',
+    mode: 'Online',
+    durationDays: 1,
     price: 0,
-    category: 'Marketing',
-    level: 'beginner',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
-    rating: 4.7,
-    reviews: 156,
-    tags: ['marketing', 'digital', 'online'],
-    requirements: ['Smartphone or computer', 'Internet connection'],
-    whatYouWillLearn: [
-      'Social media marketing for farmers',
-      'Building an online presence',
-      'Direct-to-consumer sales',
-      'Digital payment methods'
-    ]
+    instructor: 'AgriTech Labs',
+    enrolled: 412,
+    date: '2026-05-25',
+    description:
+      'Hands-on introduction to agricultural drones — from crop surveillance and spraying to data interpretation using drone imagery.',
   },
   {
     id: '4',
-    title: 'Livestock Health Management',
-    description: 'Comprehensive training on animal health, disease prevention, and veterinary care basics.',
-    instructor: 'Dr. Priya Singh',
-    date: '2024-03-01',
-    time: '09:30 AM',
-    duration: '5 hours',
-    location: 'Veterinary College, Mumbai',
-    maxParticipants: 40,
-    currentParticipants: 25,
-    price: 800,
-    category: 'Livestock',
-    level: 'intermediate',
-    image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&h=400&fit=crop',
-    rating: 4.9,
-    reviews: 203,
-    tags: ['livestock', 'health', 'veterinary'],
-    requirements: ['Livestock farming experience', 'Medical kit'],
-    whatYouWillLearn: [
-      'Common livestock diseases',
-      'Preventive healthcare measures',
-      'Basic veterinary procedures',
-      'Nutrition and feeding management'
-    ]
+    title: 'Kisan Credit Card & Loan Management',
+    category: 'Finance',
+    mode: 'Offline',
+    location: 'Pune',
+    durationDays: 1,
+    price: 0,
+    instructor: 'NABARD',
+    enrolled: 167,
+    date: '2026-06-02',
+    description:
+      'Understand Kisan Credit Card eligibility, application procedures, loan limits, repayment options, and interest subvention benefits.',
   },
   {
     id: '5',
-    title: 'Government Schemes & Subsidies',
-    description: 'Understand various government agricultural schemes, subsidies, and how to apply for them.',
-    instructor: 'Rajesh Verma',
-    date: '2024-03-05',
-    time: '11:00 AM',
-    duration: '3 hours',
-    location: 'District Agriculture Office, UP',
-    maxParticipants: 60,
-    currentParticipants: 45,
-    price: 0,
-    category: 'Government Schemes',
-    level: 'beginner',
-    image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=600&h=400&fit=crop',
-    rating: 4.5,
-    reviews: 78,
-    tags: ['government', 'subsidies', 'schemes'],
-    requirements: ['Aadhaar card', 'Bank account details'],
-    whatYouWillLearn: [
-      'PM-KISAN scheme details',
-      'Crop insurance programs',
-      'Equipment subsidy schemes',
-      'Application process and documentation'
-    ]
+    title: 'Hydroponics for Small Farmers',
+    category: 'Technology',
+    mode: 'Online',
+    durationDays: 3,
+    price: 1200,
+    instructor: 'HydroGrow India',
+    enrolled: 78,
+    date: '2026-06-08',
+    description:
+      'Set up low-cost hydroponic systems, select the right nutrient solutions, and grow high-value crops without soil in limited spaces.',
   },
   {
     id: '6',
-    title: 'Precision Agriculture & IoT',
-    description: 'Explore cutting-edge technologies like IoT sensors, drones, and data analytics in farming.',
-    instructor: 'Dr. Vikram Mehta',
-    date: '2024-03-10',
-    time: '10:30 AM',
-    duration: '6 hours',
-    location: 'IIT Delhi Campus',
-    maxParticipants: 25,
-    currentParticipants: 12,
-    price: 1500,
-    category: 'Technology',
-    level: 'advanced',
-    image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=600&h=400&fit=crop',
-    rating: 4.8,
-    reviews: 45,
-    tags: ['technology', 'IoT', 'precision-agriculture'],
-    requirements: ['Basic computer knowledge', 'Smartphone'],
-    whatYouWillLearn: [
-      'IoT sensors for soil monitoring',
-      'Drone technology in agriculture',
-      'Data analytics and interpretation',
-      'Smart farming automation'
-    ]
-  }
+    title: 'Goat Farming Best Practices',
+    category: 'Livestock',
+    mode: 'Offline',
+    location: 'Delhi',
+    durationDays: 2,
+    price: 0,
+    instructor: 'CIRG',
+    enrolled: 234,
+    date: '2026-06-14',
+    description:
+      'Covers breed selection, feeding management, health care, disease prevention, and profitable marketing strategies for goat farmers.',
+  },
 ];
 
-const categories = [
-  'All',
-  'Organic Farming',
-  'Irrigation',
-  'Marketing',
-  'Livestock',
-  'Government Schemes',
-  'Technology'
-];
+const CATEGORIES = ['All', 'Crop Management', 'Livestock', 'Organic Farming', 'Technology', 'Finance'];
+const MODES = ['All', 'Online', 'Offline', 'Hybrid'];
 
-const levels = [
-  { value: 'all', label: 'All Levels' },
-  { value: 'beginner', label: 'Beginner' },
-  { value: 'intermediate', label: 'Intermediate' },
-  { value: 'advanced', label: 'Advanced' }
-];
+interface RegistrationForm {
+  name: string;
+  phone: string;
+  email: string;
+}
+
+const categoryColors: Record<string, string> = {
+  'Crop Management': 'bg-green-100 text-green-800',
+  Livestock: 'bg-yellow-100 text-yellow-800',
+  'Organic Farming': 'bg-lime-100 text-lime-800',
+  Technology: 'bg-blue-100 text-blue-800',
+  Finance: 'bg-purple-100 text-purple-800',
+};
+
+const modeColors: Record<string, string> = {
+  Online: 'bg-sky-100 text-sky-800',
+  Offline: 'bg-orange-100 text-orange-800',
+  Hybrid: 'bg-teal-100 text-teal-800',
+};
 
 export default function WorkshopsPageClient() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedLevel, setSelectedLevel] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [modeFilter, setModeFilter] = useState('All');
+  const [durationFilter, setDurationFilter] = useState('All');
+  const [priceFilter, setPriceFilter] = useState('All');
 
-  const filteredWorkshops = mockWorkshops.filter(workshop => {
-    const matchesCategory = selectedCategory === 'All' || workshop.category === selectedCategory;
-    const matchesLevel = selectedLevel === 'all' || workshop.level === selectedLevel;
-    const matchesSearch = workshop.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workshop.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         workshop.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    return matchesCategory && matchesLevel && matchesSearch;
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(null);
+  const [form, setForm] = useState<RegistrationForm>({ name: '', phone: '', email: '' });
+  const [submitted, setSubmitted] = useState(false);
+
+  const filtered = workshops.filter((w) => {
+    const matchSearch =
+      w.title.toLowerCase().includes(search.toLowerCase()) ||
+      w.instructor.toLowerCase().includes(search.toLowerCase());
+    const matchCategory = categoryFilter === 'All' || w.category === categoryFilter;
+    const matchMode = modeFilter === 'All' || w.mode === modeFilter;
+    const matchDuration =
+      durationFilter === 'All' ||
+      (durationFilter === '1' && w.durationDays === 1) ||
+      (durationFilter === '2' && w.durationDays === 2) ||
+      (durationFilter === '3+' && w.durationDays >= 3);
+    const matchPrice =
+      priceFilter === 'All' ||
+      (priceFilter === 'Free' && w.price === 0) ||
+      (priceFilter === 'Paid' && w.price > 0);
+    return matchSearch && matchCategory && matchMode && matchDuration && matchPrice;
   });
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return 'Free';
-    return `₹${price}`;
-  };
+  const freeCount = workshops.filter((w) => w.price === 0).length;
+  const onlineCount = workshops.filter((w) => w.mode === 'Online').length;
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
+  function formatDate(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString('en-IN', {
       day: 'numeric',
+      month: 'long',
+      year: 'numeric',
     });
-  };
+  }
 
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <StarSolidIcon
-        key={i}
-        className={`h-4 w-4 ${
-          i < Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
+  function handleRegister(workshop: Workshop) {
+    setSelectedWorkshop(workshop);
+    setForm({ name: '', phone: '', email: '' });
+    setSubmitted(false);
+  }
+
+  function handleFormChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSubmitted(true);
+  }
+
+  function closeModal() {
+    setSelectedWorkshop(null);
+    setSubmitted(false);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Training Workshops</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Enhance your farming skills with our comprehensive training programs. 
-              Learn from experts and connect with fellow farmers.
-            </p>
+      <div className="bg-gradient-to-r from-green-600 to-green-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <h1 className="text-4xl font-bold mb-3">Training Workshops</h1>
+          <p className="text-green-100 text-lg max-w-2xl">
+            Hands-on training programs led by agricultural experts. Enhance your skills and grow your farm.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-4 text-sm">
+            <span className="bg-green-700 bg-opacity-60 rounded-full px-4 py-1">
+              {workshops.length} workshops available
+            </span>
+            <span className="bg-green-700 bg-opacity-60 rounded-full px-4 py-1">
+              {freeCount} free workshops
+            </span>
+            <span className="bg-green-700 bg-opacity-60 rounded-full px-4 py-1">
+              {onlineCount} online workshops
+            </span>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Workshops</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <FunnelIcon className="h-5 w-5 text-green-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Filter Workshops</h3>
+            <span className="ml-auto text-sm text-gray-500">{filtered.length} result{filtered.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {/* Search */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+            <div className="lg:col-span-2 relative">
+              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search workshops..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Search workshops or instructors..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
               />
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
               >
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c === 'All' ? 'All Categories' : c}
+                  </option>
                 ))}
               </select>
             </div>
 
-            {/* Level */}
+            {/* Mode */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
               <select
-                value={selectedLevel}
-                onChange={(e) => setSelectedLevel(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                value={modeFilter}
+                onChange={(e) => setModeFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
               >
-                {levels.map(level => (
-                  <option key={level.value} value={level.value}>{level.label}</option>
+                {MODES.map((m) => (
+                  <option key={m} value={m}>
+                    {m === 'All' ? 'All Modes' : m}
+                  </option>
                 ))}
+              </select>
+            </div>
+
+            {/* Duration */}
+            <div>
+              <select
+                value={durationFilter}
+                onChange={(e) => setDurationFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+              >
+                <option value="All">Any Duration</option>
+                <option value="1">1 Day</option>
+                <option value="2">2 Days</option>
+                <option value="3+">3+ Days</option>
               </select>
             </div>
           </div>
+
+          {/* Price toggle */}
+          <div className="mt-4 flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">Price:</span>
+            {['All', 'Free', 'Paid'].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPriceFilter(p)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  priceFilter === p
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Workshops Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredWorkshops.map((workshop) => (
-            <div key={workshop.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
-              {/* Image */}
-              <div className="h-48 bg-gray-100 relative">
-                <Image
-                  src={workshop.image}
-                  alt={workshop.title}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    workshop.price === 0 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-blue-100 text-blue-800'
-                  }`}>
-                    {formatPrice(workshop.price)}
-                  </span>
-                </div>
-                <div className="absolute top-4 right-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    workshop.level === 'beginner' 
-                      ? 'bg-green-100 text-green-800'
-                      : workshop.level === 'intermediate'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {workshop.level.charAt(0).toUpperCase() + workshop.level.slice(1)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                <div className="mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{workshop.title}</h3>
-                  <p className="text-gray-600 text-sm line-clamp-2">{workshop.description}</p>
-                </div>
-
-                {/* Rating */}
-                <div className="flex items-center mb-3">
-                  <div className="flex items-center">
-                    {renderStars(workshop.rating)}
-                  </div>
-                  <span className="ml-2 text-sm text-gray-600">
-                    {workshop.rating} ({workshop.reviews} reviews)
-                  </span>
-                </div>
-
-                {/* Details */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <UserGroupIcon className="h-4 w-4 mr-2" />
-                    <span>{workshop.instructor}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <CalendarIcon className="h-4 w-4 mr-2" />
-                    <span>{formatDate(workshop.date)}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <ClockIcon className="h-4 w-4 mr-2" />
-                    <span>{workshop.time} ({workshop.duration})</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPinIcon className="h-4 w-4 mr-2" />
-                    <span>{workshop.location}</span>
-                  </div>
-                </div>
-
-                {/* Participants */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Participants</span>
-                    <span>{workshop.currentParticipants}/{workshop.maxParticipants}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full" 
-                      style={{ width: `${(workshop.currentParticipants / workshop.maxParticipants) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {workshop.tags.map((tag, index) => (
+        {/* Workshop Cards */}
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((workshop) => (
+              <div
+                key={workshop.id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col"
+              >
+                {/* Card header */}
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 border-b border-gray-100">
+                  <div className="flex flex-wrap gap-2 mb-3">
                     <span
-                      key={index}
-                      className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        categoryColors[workshop.category] ?? 'bg-gray-100 text-gray-700'
+                      }`}
                     >
-                      {tag}
+                      {workshop.category}
                     </span>
-                  ))}
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        modeColors[workshop.mode] ?? 'bg-gray-100 text-gray-700'
+                      }`}
+                    >
+                      {workshop.mode}
+                      {workshop.location ? ` · ${workshop.location}` : ''}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 leading-snug">{workshop.title}</h3>
                 </div>
 
-                {/* Action Button */}
-                <Link
-                  href={`/training/workshops/${workshop.id}`}
-                  className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors font-medium text-center block"
-                >
-                  View Details & Register
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+                {/* Card body */}
+                <div className="p-5 flex flex-col flex-1">
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{workshop.description}</p>
 
-        {/* No Results */}
-        {filteredWorkshops.length === 0 && (
-          <div className="text-center py-16">
-            <AcademicCapIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No workshops found</h3>
-            <p className="text-gray-600 mb-6">Try adjusting your filters or check back later for new workshops.</p>
+                  <div className="space-y-2 mb-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <AcademicCapIcon className="h-4 w-4 text-green-500 shrink-0" />
+                      <span>{workshop.instructor}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-green-500 shrink-0" />
+                      <span>{formatDate(workshop.date)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ClockIcon className="h-4 w-4 text-green-500 shrink-0" />
+                      <span>
+                        {workshop.durationDays} {workshop.durationDays === 1 ? 'Day' : 'Days'}
+                      </span>
+                    </div>
+                    {workshop.location && (
+                      <div className="flex items-center gap-2">
+                        <MapPinIcon className="h-4 w-4 text-green-500 shrink-0" />
+                        <span>{workshop.location}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <UserGroupIcon className="h-4 w-4 text-green-500 shrink-0" />
+                      <span>{workshop.enrolled.toLocaleString()} enrolled</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
+                    <span
+                      className={`text-lg font-bold ${
+                        workshop.price === 0 ? 'text-green-600' : 'text-gray-900'
+                      }`}
+                    >
+                      {workshop.price === 0 ? 'Free' : `₹${workshop.price.toLocaleString()}`}
+                    </span>
+                    <button
+                      onClick={() => handleRegister(workshop)}
+                      className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                    >
+                      Register
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <AcademicCapIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">No workshops match your filters</h3>
+            <p className="text-gray-500 mb-6">Try adjusting the search or filters above.</p>
             <button
               onClick={() => {
-                setSelectedCategory('All');
-                setSelectedLevel('all');
-                setSearchTerm('');
+                setSearch('');
+                setCategoryFilter('All');
+                setModeFilter('All');
+                setDurationFilter('All');
+                setPriceFilter('All');
               }}
-              className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
-              Clear Filters
+              Clear All Filters
             </button>
           </div>
         )}
+      </div>
 
-        {/* Call to Action */}
-        <div className="mt-12 bg-green-50 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Can't find what you're looking for?</h2>
-          <p className="text-gray-600 mb-6">
-            We're constantly adding new workshops. Let us know what topics you'd like to learn about.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/contact"
-              className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+      {/* Registration Modal */}
+      {selectedWorkshop && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close modal"
             >
-              Suggest a Workshop
-            </Link>
-            <Link
-              href="/training"
-              className="px-6 py-3 border border-green-600 text-green-600 rounded-md hover:bg-green-50 transition-colors"
-            >
-              View All Training
-            </Link>
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+
+            {submitted ? (
+              <div className="p-8 text-center">
+                <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Confirmed!</h2>
+                <p className="text-gray-600 mb-1">
+                  You have successfully registered for:
+                </p>
+                <p className="font-semibold text-green-700 mb-4">{selectedWorkshop.title}</p>
+                <p className="text-sm text-gray-500 mb-6">
+                  A confirmation will be sent to your email. See you on{' '}
+                  {new Date(selectedWorkshop.date).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                  !
+                </p>
+                <button
+                  onClick={closeModal}
+                  className="w-full py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <div className="p-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-1">Register for Workshop</h2>
+                <p className="text-sm text-gray-500 mb-5 line-clamp-1">{selectedWorkshop.title}</p>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleFormChange}
+                      required
+                      placeholder="e.g. Ramesh Kumar"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Phone Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={form.phone}
+                      onChange={handleFormChange}
+                      required
+                      placeholder="10-digit mobile number"
+                      pattern="[6-9][0-9]{9}"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Email Address <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleFormChange}
+                      required
+                      placeholder="you@example.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100 text-sm text-gray-600">
+                    <span>Workshop Fee:</span>
+                    <span className={`font-semibold ${selectedWorkshop.price === 0 ? 'text-green-600' : 'text-gray-900'}`}>
+                      {selectedWorkshop.price === 0 ? 'Free' : `₹${selectedWorkshop.price.toLocaleString()}`}
+                    </span>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  >
+                    Confirm Registration
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
