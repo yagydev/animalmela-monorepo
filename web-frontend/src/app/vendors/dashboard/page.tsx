@@ -149,7 +149,7 @@ export default function VendorDashboardPage() {
             Please log in as a vendor to access your dashboard.
           </p>
           <Link
-            href="/marketplace/auth"
+            href="/marketplace/kisaan/login"
             className="inline-block bg-green-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors text-sm"
           >
             Log In / Sign Up
@@ -393,7 +393,7 @@ export default function VendorDashboardPage() {
                   <p>{data.vendor.phone}</p>
                 </div>
                 <Link
-                  href="/marketplace/auth"
+                  href="/marketplace/kisaan/login"
                   className="mt-4 block text-center bg-white text-green-700 font-semibold text-sm py-2 rounded-lg hover:bg-green-50 transition-colors"
                 >
                   Edit Profile

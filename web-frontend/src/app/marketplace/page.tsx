@@ -96,7 +96,12 @@ export default function MarketplacePage() {
       const response = await fetch(`/api/marketplace?${params.toString()}`);
       const result: MarketplaceData = await response.json();
 
-      if (result.success) {
+      const ok =
+        response.ok &&
+        result.success !== false &&
+        Array.isArray(result.data) &&
+        result.pagination;
+      if (ok) {
         setListings(result.data);
         setPagination(result.pagination);
         setCurrentPage(page);

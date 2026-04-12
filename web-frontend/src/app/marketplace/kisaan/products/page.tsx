@@ -2,7 +2,9 @@ import { marketplaceServerFetch } from '@/lib/kisaanmela-marketplace/server-api'
 import { marketplaceKisaanRoutes } from '@/lib/kisaanmela-marketplace/routes';
 import Link from 'next/link';
 
-const base = marketplaceKisaanRoutes.home;
+/** Avoid stale RSC / data cache showing old error copy after code changes. */
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 type ProductRow = {
   id: string;
@@ -15,6 +17,49 @@ type ProductRow = {
 };
 
 type ListResponse = { items: ProductRow[]; total: number; page: number };
+
+function normalizeProductList(raw: unknown): ListResponse {
+  if (!raw || typeof raw !== 'object') return { items: [], total: 0, page: 1 };
+  const o = raw as Record<string, unknown>;
+
+  let items: ProductRow[] = [];
+  let total: number | undefined;
+  let page: number | undefined;
+
+  if (Array.isArray(o.items)) {
+    items = o.items as ProductRow[];
+    total = typeof o.total === 'number' ? o.total : undefined;
+    page = typeof o.page === 'number' ? o.page : undefined;
+  } else if (o.data !== undefined) {
+    if (Array.isArray(o.data)) {
+      items = o.data as ProductRow[];
+    } else if (o.data && typeof o.data === 'object') {
+      const d = o.data as Record<string, unknown>;
+      if (Array.isArray(d.items)) {
+        items = d.items as ProductRow[];
+        total = typeof d.total === 'number' ? d.total : undefined;
+        page = typeof d.page === 'number' ? d.page : undefined;
+      } else if (Array.isArray(d.products)) {
+        items = d.products as ProductRow[];
+        total = typeof d.total === 'number' ? d.total : undefined;
+        page = typeof d.page === 'number' ? d.page : undefined;
+      }
+    }
+  } else if (Array.isArray(o.products)) {
+    items = o.products as ProductRow[];
+    total = typeof o.total === 'number' ? o.total : undefined;
+    page = typeof o.page === 'number' ? o.page : undefined;
+  } else if (Array.isArray(o.results)) {
+    items = o.results as ProductRow[];
+    total = typeof o.total === 'number' ? o.total : undefined;
+    page = typeof o.page === 'number' ? o.page : undefined;
+  }
+
+  if (!total && total !== 0) total = items.length;
+  if (!page) page = 1;
+
+  return { items, total, page };
+}
 
 function money(p: ProductRow['price']) {
   const n = typeof p === 'string' ? parseFloat(p) : parseFloat(String(p));
@@ -36,22 +81,13 @@ export default async function KisaanMarketplaceProductsPage({
   const path = `/products${qs ? `?${qs}` : ''}`;
 
   let data: ListResponse;
+  let catalogueUnavailable = false;
   try {
-    data = await marketplaceServerFetch<ListResponse>(path);
+    const raw = await marketplaceServerFetch<unknown>(path);
+    data = normalizeProductList(raw);
   } catch {
-    return (
-      <div className="rounded-xl bg-amber-50 p-4 text-amber-900">
-        <p className="font-semibold">Cannot load products</p>
-        <p className="mt-1 text-sm">
-          The Nest marketplace API is not reachable. Production uses{' '}
-          <code className="rounded bg-amber-100 px-1">https://api.kisaanmela.com/api</code> by default — ensure that host
-          serves the marketplace API and allows CORS from this site. Override with{' '}
-          <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL</code> or server-only{' '}
-          <code className="rounded bg-amber-100 px-1">MARKETPLACE_API_URL</code> in Vercel. Locally run{' '}
-          <code className="rounded bg-amber-100 px-1">npm run dev:marketplace-api</code> from the monorepo root.
-        </p>
-      </div>
-    );
+    catalogueUnavailable = true;
+    data = { items: [], total: 0, page: 1 };
   }
 
   return (
@@ -62,10 +98,28 @@ export default async function KisaanMarketplaceProductsPage({
           Sign in
         </Link>
       </div>
-      <p className="text-gray-600">{data.total} listings</p>
+      {!catalogueUnavailable ? <p className="text-gray-600">{data.total} listings</p> : null}
 
       <ul className="space-y-3">
-        {data.items.length === 0 ? (
+        {catalogueUnavailable ? (
+          <li className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-gray-600">
+            <p className="font-medium text-gray-800">Shop catalogue unavailable</p>
+            <p className="mt-3 text-sm leading-relaxed">
+              The Nest marketplace API did not respond. Start it with{' '}
+              <code className="rounded bg-gray-100 px-1 text-gray-900">npm run dev:marketplace-api</code> from the monorepo
+              root, or point{' '}
+              <code className="rounded bg-gray-100 px-1 text-gray-900">NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL</code> at a
+              reachable <code className="rounded bg-gray-100 px-1 text-gray-900">…/api</code> base. Then restart{' '}
+              <code className="rounded bg-gray-100 px-1 text-gray-900">next dev</code> and hard-refresh the page.
+            </p>
+            <p className="mt-4 text-sm">
+              <Link href="/marketplace" className="font-semibold text-green-800 underline">
+                Browse the main marketplace
+              </Link>{' '}
+              (equipment, livestock, produce) instead.
+            </p>
+          </li>
+        ) : data.items.length === 0 ? (
           <li className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-gray-500">
             No products yet. Seed the database or approve seller listings in admin.
           </li>

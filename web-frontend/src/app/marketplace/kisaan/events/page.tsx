@@ -15,19 +15,12 @@ type MarketplaceEvent = {
 
 export default async function KisaanMarketplaceEventsPage() {
   let events: MarketplaceEvent[] = [];
+  let loadFailed = false;
   try {
     events = await marketplaceServerFetch<MarketplaceEvent[]>('/events');
   } catch {
-    return (
-      <div className="rounded-xl bg-amber-50 p-4 text-amber-900">
-        <p className="font-semibold">Cannot load melas from the marketplace API.</p>
-        <p className="mt-1 text-sm">
-          Same fix as products: ensure <code className="rounded bg-amber-100 px-1">https://api.kisaanmela.com/api</code>{' '}
-          serves Nest, or set <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL</code>{' '}
-          / <code className="rounded bg-amber-100 px-1">MARKETPLACE_API_URL</code>. CORS on the API must allow this origin.
-        </p>
-      </div>
-    );
+    loadFailed = true;
+    events = [];
   }
 
   return (
@@ -40,9 +33,15 @@ export default async function KisaanMarketplaceEventsPage() {
         </Link>
         .
       </p>
-      {events.length === 0 ? (
+      {loadFailed ? (
+        <p className="text-sm text-gray-500">
+          Melas could not be loaded right now. For local Nest, run{' '}
+          <code className="rounded bg-gray-100 px-1 text-gray-800">npm run dev:marketplace-api</code> from the monorepo root.
+        </p>
+      ) : null}
+      {!loadFailed && events.length === 0 ? (
         <p className="text-gray-500">No published events yet.</p>
-      ) : (
+      ) : !loadFailed && events.length > 0 ? (
         <ul className="space-y-3">
           {events.map((e) => (
             <li key={e.id} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -58,7 +57,7 @@ export default async function KisaanMarketplaceEventsPage() {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
     </div>
   );
 }

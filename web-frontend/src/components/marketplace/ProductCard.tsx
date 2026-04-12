@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { marketplaceKisaanRoutes } from '@/lib/kisaanmela-marketplace/routes';
 
 interface Product {
   _id: string;
@@ -98,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
         
         <div className="flex space-x-2">
           <Link
-            href={`/marketplace/products/${product._id}`}
+            href={marketplaceKisaanRoutes.product(product._id)}
             className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 text-center"
           >
             View Details

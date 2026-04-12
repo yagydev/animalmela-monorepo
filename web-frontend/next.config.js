@@ -29,7 +29,6 @@ function mergeParentMongoEnv() {
   applyFile(path.join(__dirname, '..', '.env.local'));
 }
 mergeParentMongoEnv();
-const { i18n } = require('./next-i18next.config');
 const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
@@ -44,22 +43,35 @@ const withPWA = require('next-pwa')({
     /build-manifest\.json$/,
     /react-loadable-manifest\.json$/,
   ],
+  // Do not use a catch-all URL pattern: caching document navigations breaks deep links
+  // after deploys (stale HTML) and can surface wrong offline shells for /marketplace/*.
   runtimeCaching: [
     {
-      urlPattern: /^https?.*/,
-      handler: 'NetworkFirst',
+      urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+      handler: 'CacheFirst',
       options: {
-        cacheName: 'offlineCache',
-        expiration: {
-          maxEntries: 200,
-        },
+        cacheName: 'google-fonts',
+        expiration: { maxEntries: 8, maxAgeSeconds: 60 * 60 * 24 * 365 },
       },
+    },
+    {
+      urlPattern: /\/_next\/static\/.*/i,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'next-static',
+        expiration: { maxEntries: 64, maxAgeSeconds: 60 * 60 * 24 * 365 },
+      },
+    },
+    {
+      urlPattern: /\/_next\/image\?url=.+$/i,
+      handler: 'StaleWhileRevalidate',
+      options: { cacheName: 'next-image', expiration: { maxEntries: 64 } },
     },
   ],
 });
 
 const nextConfig = {
-  i18n,
+  // App Router does not support next.config i18n; client translations use react-i18next (I18nProvider).
   reactStrictMode: true,
   swcMinify: true,
   eslint: {
@@ -95,6 +107,9 @@ const nextConfig = {
     return [
       { source: '/marketplace/agri', destination: '/marketplace/kisaan', permanent: true },
       { source: '/marketplace/agri/:path*', destination: '/marketplace/kisaan/:path*', permanent: true },
+      { source: '/marketplace/products', destination: '/marketplace/kisaan/products', permanent: true },
+      { source: '/marketplace/products/:path*', destination: '/marketplace/kisaan/products/:path*', permanent: true },
+      { source: '/marketplace/auth', destination: '/marketplace/kisaan/login', permanent: true },
     ];
   },
   async headers() {

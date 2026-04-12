@@ -29,16 +29,13 @@ describe('Frontend Health Checks', () => {
     expect(packageJson.dependencies['react-dom']).toBeDefined();
   });
 
-  test('should have pages directory structure', () => {
+  test('should have API routes (App Router src/app/api or legacy pages/api)', () => {
     const fs = require('fs');
     const path = require('path');
-    
-    const pagesPath = path.join(__dirname, '../pages');
-    expect(fs.existsSync(pagesPath)).toBe(true);
-    
-    // Check for API directory
-    const apiPath = path.join(pagesPath, 'api');
-    expect(fs.existsSync(apiPath)).toBe(true);
+
+    const appRouterApi = path.join(__dirname, '../src/app/api');
+    const pagesApi = path.join(__dirname, '../pages/api');
+    expect(fs.existsSync(appRouterApi) || fs.existsSync(pagesApi)).toBe(true);
   });
 
   test('should have src directory structure', () => {
@@ -59,5 +56,13 @@ describe('Frontend Health Checks', () => {
     const nextConfig = require('../next.config.js');
     expect(nextConfig).toBeDefined();
     expect(nextConfig.output).toBe('standalone');
+  });
+
+  test('next.config should redirect legacy /marketplace/products to kisaan hub', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const raw = fs.readFileSync(path.join(__dirname, '../next.config.js'), 'utf8');
+    expect(raw).toMatch(/\/marketplace\/products/);
+    expect(raw).toMatch(/\/marketplace\/kisaan\/products/);
   });
 });
