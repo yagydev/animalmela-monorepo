@@ -14,7 +14,8 @@
     "type-check": "tsc --noEmit",
     "seed": "node scripts/seedDatabase.js",
     "seed:melas": "node scripts/seedMelaEvents.js",
-    "seed:all": "node scripts/seedDatabase.js && node scripts/seedMelaEvents.js",
+    "seed:listings": "node scripts/seedMarketplaceListings.js",
+    "seed:all": "node scripts/seedDatabase.js && node scripts/seedMelaEvents.js && node scripts/seedMarketplaceListings.js",
     "db:mongo:status": "node scripts/mongoListCollections.js"
   },
   "dependencies": {
