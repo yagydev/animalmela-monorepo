@@ -37,6 +37,27 @@ export default function LivestockDetailPage() {
   const [leadOk, setLeadOk] = useState<string | null>(null);
   const [leadErr, setLeadErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Hydrate saved state from localStorage after mount
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const list = JSON.parse(localStorage.getItem('livestock_saved') || '[]');
+      setSaved(Array.isArray(list) && list.includes(id));
+    } catch { /* ignore */ }
+  }, [id]);
+
+  const toggleSave = () => {
+    try {
+      const existing: string[] = JSON.parse(localStorage.getItem('livestock_saved') || '[]');
+      const next = saved
+        ? existing.filter((x) => x !== id)
+        : [...existing, id];
+      localStorage.setItem('livestock_saved', JSON.stringify(next));
+      setSaved(!saved);
+    } catch { /* ignore */ }
+  };
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -231,6 +252,18 @@ export default function LivestockDetailPage() {
                     Call
                   </a>
                 )}
+                <button
+                  type="button"
+                  onClick={toggleSave}
+                  title={saved ? 'Remove from saved' : 'Save animal'}
+                  className={`inline-flex items-center justify-center gap-1 rounded-xl border-2 px-4 py-3 text-sm font-semibold transition ${
+                    saved
+                      ? 'border-rose-400 bg-rose-50 text-rose-700'
+                      : 'border-gray-300 text-gray-700 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600'
+                  }`}
+                >
+                  {saved ? '♥ Saved' : '♡ Save'}
+                </button>
               </div>
             </section>
           </div>
