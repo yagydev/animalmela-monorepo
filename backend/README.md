@@ -1,7 +1,7 @@
 # Backend
 
 - **This folder** — Next.js 14 API + MongoDB (`animall-backend`, port **8000** by default).
-- **`marketplace-api/`** — NestJS + Prisma + PostgreSQL KisaanMela multi-vendor marketplace (port **4000**). UI is integrated in `web-frontend` at **`/marketplace/kisaan`** (same Header/Footer as the rest of the site).
+- **`marketplace-api/`** — NestJS + Prisma + PostgreSQL KisaanMela multi-vendor marketplace (port **4000**). Consume via Swagger at `/docs` or from other apps; the main Next.js app uses Mongo-backed routes under `/marketplace` and related pages instead of a dedicated Nest UI hub.
 
 Run the marketplace API from the monorepo root:
 

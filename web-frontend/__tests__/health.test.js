@@ -58,11 +58,12 @@ describe('Frontend Health Checks', () => {
     expect(nextConfig.output).toBe('standalone');
   });
 
-  test('next.config should redirect legacy /marketplace/products to kisaan hub', () => {
+  test('next.config should redirect legacy /marketplace/products to main marketplace', () => {
     const fs = require('fs');
     const path = require('path');
     const raw = fs.readFileSync(path.join(__dirname, '../next.config.js'), 'utf8');
     expect(raw).toMatch(/\/marketplace\/products/);
-    expect(raw).toMatch(/\/marketplace\/kisaan\/products/);
+    expect(raw).toMatch(/destination:\s*['"]\/marketplace['"]/);
+    expect(raw).not.toMatch(/\/marketplace\/kisaan/);
   });
 });

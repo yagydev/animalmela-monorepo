@@ -105,11 +105,11 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: '/marketplace/agri', destination: '/marketplace/kisaan', permanent: true },
-      { source: '/marketplace/agri/:path*', destination: '/marketplace/kisaan/:path*', permanent: true },
-      { source: '/marketplace/products', destination: '/marketplace/kisaan/products', permanent: true },
-      { source: '/marketplace/products/:path*', destination: '/marketplace/kisaan/products/:path*', permanent: true },
-      { source: '/marketplace/auth', destination: '/marketplace/kisaan/login', permanent: true },
+      { source: '/marketplace/agri', destination: '/marketplace', permanent: true },
+      { source: '/marketplace/agri/:path*', destination: '/marketplace', permanent: true },
+      { source: '/marketplace/products', destination: '/marketplace', permanent: true },
+      { source: '/marketplace/products/:path*', destination: '/marketplace', permanent: true },
+      { source: '/marketplace/auth', destination: '/login', permanent: true },
     ];
   },
   async headers() {

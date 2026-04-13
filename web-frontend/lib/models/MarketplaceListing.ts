@@ -18,6 +18,8 @@ export interface IMarketplaceListing extends Document {
   quantity?: number;
   unit?: string;
   specifications?: Record<string, any>;
+  /** Listing view count (incremented on advanced livestock detail). */
+  viewsCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -101,6 +103,11 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
   specifications: {
     type: Schema.Types.Mixed,
     default: {}
+  },
+  viewsCount: {
+    type: Number,
+    default: 0,
+    min: 0
   }
 }, {
   timestamps: true,
@@ -114,6 +121,8 @@ MarketplaceListingSchema.index({ price: 1, status: 1 });
 MarketplaceListingSchema.index({ location: 1, status: 1 });
 MarketplaceListingSchema.index({ createdAt: -1, status: 1 });
 MarketplaceListingSchema.index({ name: 'text', description: 'text', tags: 'text' });
+MarketplaceListingSchema.index({ category: 1, status: 1, 'specifications.animalType': 1 });
+MarketplaceListingSchema.index({ category: 1, status: 1, 'specifications.breed': 1 });
 
 // Virtual for formatted price
 MarketplaceListingSchema.virtual('formattedPrice').get(function() {

@@ -24,7 +24,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('KisaanMela Marketplace API')
     .setDescription(
-      'KisaanMela multi-vendor agriculture marketplace — Next.js + Tailwind (UI), NestJS, PostgreSQL/Prisma, JWT + mobile OTP, AWS S3 presigned uploads, Razorpay. Next.js hub: /marketplace/kisaan',
+      'KisaanMela multi-vendor agriculture marketplace — NestJS, PostgreSQL/Prisma, JWT + mobile OTP, AWS S3 presigned uploads, Razorpay. Public API docs below; Next.js consumer UIs are separate (e.g. /marketplace, /farmers-market).',
     )
     .setVersion('1.0')
     .addBearerAuth()

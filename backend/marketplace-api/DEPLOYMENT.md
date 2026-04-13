@@ -81,7 +81,7 @@ The container runs `prisma migrate deploy` before `node dist/main.js`.
 
 ## CI/CD (GitHub Actions)
 
-Workflow `.github/workflows/agri-marketplace-api.yml` (paths under `backend/marketplace-api/`) runs lint, unit tests, build, and e2e tests against a Postgres service container. The Next.js UI consumes this API at **`/marketplace/kisaan`** inside `web-frontend`. For production deploy:
+Workflow `.github/workflows/agri-marketplace-api.yml` (paths under `backend/marketplace-api/`) runs lint, unit tests, build, and e2e tests against a Postgres service container. Integrate this API from clients as needed (the main Next.js app does not ship a Nest-backed marketplace hub). For production deploy:
 
 1. Push images to your registry (extend the workflow with `docker/build-push-action` or deploy to Fly.io / ECS / Railway).
 2. Inject secrets: `DATABASE_URL`, `JWT_SECRET`, `RAZORPAY_*`, `AWS_*`, `CORS_ORIGIN`.

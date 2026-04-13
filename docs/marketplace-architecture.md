@@ -23,8 +23,7 @@ This document mirrors the product specification so engineers can navigate the mo
 
 - Mobile OTP login, JWT, roles **Buyer / Seller / Admin**
 - **API:** `src/auth/` (`auth.controller.ts`, `auth.service.ts`, DTOs, JWT strategy)
-- **UI:** `web-frontend/src/app/marketplace/kisaan/login/page.tsx`
-- **Client:** `web-frontend/lib/kisaanmela-marketplace/` (`api-client.ts`, `auth-storage.ts`, `routes.ts` — `@/lib/*` → `./lib/*`)
+- **UI (Next.js):** No dedicated Nest-auth pages in `web-frontend`; use site `/login` for app auth where applicable, or call Nest `POST /api/auth/*` from a future client.
 
 ### 2. User module
 
@@ -45,7 +44,7 @@ This document mirrors the product specification so engineers can navigate the mo
 - **Images:** sellers call `POST /api/storage/presign-product-image` (JWT, SELLER), upload with PUT to `uploadUrl`, then submit `publicUrl` in `CreateProductDto.imageUrls`
 - **API:** `src/products/`, `src/storage/`
 - **Prisma:** `Product`, `ProductImage`, `Category`
-- **UI:** `web-frontend/src/app/marketplace/kisaan/products/`, detail + shared components under `web-frontend/src/components/marketplace/kisaan/`
+- **UI (Next.js):** Mongo listing browse at `web-frontend/src/app/marketplace/`; farmer product detail at `web-frontend/src/app/farmers-market/product/[id]/`. Shared cards under `web-frontend/src/components/marketplace/`.
 
 ### 5. Marketplace features
 
@@ -57,7 +56,7 @@ This document mirrors the product specification so engineers can navigate the mo
 
 - Multi-vendor line items, address selection, Razorpay, order placement
 - **API:** `src/cart/`, `src/orders/`, `src/payments/`
-- **UI:** `web-frontend/.../kisaan/cart/page.tsx`; full checkout + Razorpay UI flow TBD
+- **UI:** No Next.js cart wired to Nest in-repo; full checkout + Razorpay UI flow TBD
 
 ### 7. Order management
 
@@ -91,7 +90,7 @@ This document mirrors the product specification so engineers can navigate the mo
 - **Events / melas (two stores):**
   - **Site CMS (MongoDB, Mongoose)** — collection `events`, model `Event` in `web-frontend/lib/models/CMSModels.ts`. Public melas list: `/api/cms/events`. Seed file `web-frontend/data/mela-seed.json`, loader `npm run seed:melas` → `scripts/seedMelaEvents.js`. **Not Prisma** — Mongo only here.
   - **Marketplace API (PostgreSQL, Prisma)** — `AgriEvent` in `backend/marketplace-api`, `src/events/`
-- **UI:** `web-frontend/.../kisaan/events/page.tsx` + main site `/events`
+- **UI:** Main site `/events` (CMS / Mongo); Prisma `AgriEvent` via Nest API as needed
 - **Load demo + melas into Atlas:** from `web-frontend` run `npm run seed:all` (uses monorepo root `.env`). Check with `npm run db:mongo:status`. In **Compass**, open database **`kisaanmela_db_dev`** (name in your URI path), not `admin` / `local`.
 
 ### 12. Notifications
@@ -118,8 +117,8 @@ This document mirrors the product specification so engineers can navigate the mo
 |------|--------|
 | Modular Nest architecture | `backend/marketplace-api/src/*` modules wired in `app.module.ts` |
 | REST + Swagger | `http://localhost:4000/docs` (global prefix `/api`) |
-| Reusable UI components | `web-frontend/src/components/marketplace/` (incl. `kisaan/`) |
-| Production-oriented layout | `web-frontend/src/app/marketplace/kisaan/`, `web-frontend/lib/kisaanmela-marketplace/` |
+| Reusable UI components | `web-frontend/src/components/marketplace/` |
+| Marketplace listing UI | `web-frontend/src/app/marketplace/`, `web-frontend/src/app/farmers-market/` |
 | Category seed data | `prisma/seed.ts` |
 | ER diagram | `backend/marketplace-api/docs/ER-DIAGRAM.md` |
 | API documentation | `backend/marketplace-api/docs/API-OVERVIEW.md` |
@@ -129,6 +128,5 @@ This document mirrors the product specification so engineers can navigate the mo
 
 ## Mobile-first rural UX
 
-- Integrated hub: **`/marketplace/kisaan`** (uses site-wide header/footer)
-- Large tap targets, simple copy, OTP-first sign-in
-- Env: `NEXT_PUBLIC_KISAANMELA_MARKETPLACE_API_URL` (see `web-frontend/.env.example`)
+- Primary browse: **`/marketplace`** and **`/farmers-market`** (site-wide header/footer)
+- Large tap targets, simple copy, OTP-first sign-in where the main app implements it (`/login`)

@@ -89,6 +89,6 @@ For request/response shapes and DTO validation rules, use **Swagger UI** as the 
 | **Security** | Partial | `ValidationPipe`, `ThrottlerModule`, RBAC; tune per route in production |
 | **ER diagram** | Delivered | [ER-DIAGRAM.md](./ER-DIAGRAM.md) |
 | **Deployment + CI/CD** | Delivered | [DEPLOYMENT.md](../DEPLOYMENT.md), `.github/workflows/agri-marketplace-api.yml` |
-| **Next.js mobile-first UI** | Partial | `web-frontend` → `/marketplace/kisaan` (browse, OTP, cart, API melas); seller/admin UIs mostly via Swagger/API |
+| **Next.js mobile-first UI** | Partial | `web-frontend` → `/marketplace`, `/farmers-market`, vendor flows; Nest catalog/cart flows via Swagger/API unless a new client is added |
 
 **Interactive OpenAPI:** `http://localhost:4000/docs` after `npm run dev:marketplace-api` (from monorepo root or `backend/marketplace-api`).

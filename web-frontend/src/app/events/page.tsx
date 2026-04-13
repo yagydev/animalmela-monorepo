@@ -61,7 +61,7 @@ export default async function EventsPage() {
               Upcoming only
             </Link>
             <Link
-              href="/marketplace/kisaan"
+              href="/marketplace"
               className="inline-flex min-h-12 items-center justify-center rounded-xl border-2 border-white/40 px-5 text-sm font-semibold text-white hover:bg-white/10"
             >
               Marketplace hub

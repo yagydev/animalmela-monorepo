@@ -5,10 +5,15 @@
     return;
   }
 
+  var host = window.location.hostname || '';
   var isLocalDev =
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    /\.local$/i.test(window.location.hostname);
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    /\.local$/i.test(host) ||
+    // LAN dev (e.g. phone → http://192.168.x.x:3000) — must not register PWA SW or stale chunks break.
+    /^192\.168\.\d{1,3}\.\d{1,3}$/.test(host) ||
+    /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host) ||
+    /^172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}$/.test(host);
 
   if (isLocalDev) {
     navigator.serviceWorker.getRegistrations().then(function (registrations) {

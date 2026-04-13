@@ -5,8 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ChevronRightIcon, MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
-import { marketplaceKisaanRoutes } from '@/lib/kisaanmela-marketplace/routes';
+import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 
 interface Listing {
   _id: string;
@@ -165,15 +164,6 @@ export default function MarketplacePage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-900">
-          <p className="text-sm font-medium">
-            <Link href={marketplaceKisaanRoutes.home} className="underline">
-              Shop verified sellers
-            </Link>{' '}
-            — same KisaanMela site: mobile OTP, PostgreSQL catalog, cart & marketplace melas (Nest API, default{' '}
-            <code className="rounded bg-white/60 px-1">localhost:4000</code>).
-          </p>
-        </div>
         {/* Category Tabs */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-2">

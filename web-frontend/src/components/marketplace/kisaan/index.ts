@@ -1,1 +1,0 @@
-export { MarketplaceAddToCartButton } from './MarketplaceAddToCartButton';
