@@ -1,353 +1,573 @@
-# Advanced Livestock Marketplace — Product Specification
+# Livestock Marketplace — Product Specification
 
-**Route (target):** `/marketplace/livestock`  
-**Status:** Product vision & MVP blueprint (implementation TBD)
+**Route:** `/marketplace/livestock`  
+**Document version:** 2.0  
+**Last updated:** 2026-04-13  
+**Status:** MVP shipped · Phase 2 in planning
 
 ---
 
 ## 1. Product vision
 
-Build India’s most trusted livestock trading surface by combining:
+Build India's most trusted livestock trading surface by combining:
 
-- A **verified** animal marketplace  
-- **Direct** buyer–seller connection (call, WhatsApp, structured leads)  
-- **AI + data-driven** pricing hints and discovery  
-- **Offline mela** presence with **online** discovery and follow-up  
+- A **verified** animal marketplace
+- **Direct** buyer–seller connection (call, WhatsApp, structured leads)
+- **AI + data-driven** pricing hints and discovery
+- **Offline mela** presence with **online** discovery and follow-up
 
-This module is positioned as a **high-ticket** vertical: even a modest volume of qualified leads and transactions can drive meaningful revenue when paired with events (melas) and trust layers.
+Positioned as a **high-ticket** vertical: even modest transaction volume drives meaningful revenue when paired with mela events and trust layers.
 
 ---
 
-## 2. Differentiation vs basic listing sites
+## 2. Competitive landscape
 
-| Dimension | Typical platforms | This product |
-|-----------|-------------------|--------------|
-| Listings | Simple text + photo | Rich, structured, verifiable |
-| Trust | Low / unknown sellers | Verification, ratings, badges |
-| Discovery | Manual browse | Smart filters, sort, optional AI |
-| Conversion | Weak CTAs | WhatsApp, call, saved leads |
-| Offline | None or ad-hoc | Mela integration, same brand journey |
+### Pashushala.com — key observations (audited April 2026)
+
+| What they do well | Our response |
+|---|---|
+| HOT DEAL badge — ₹99/5 days lifts to top + removes "Unverified" | Build Boost Listing (Phase 2) |
+| State → District geo filter (36 states) | Build geo filter (Phase 2) |
+| Buy-intent on enquiry form ("Buy within 15/30/>30 days") | Add to lead form (Phase 2 quick win) |
+| Source tracking on enquiries (8 channels) | Add to leads API (Phase 2 quick win) |
+| PashuGuru.AI — livestock advisory chatbot | Build PashuGyan AI (Phase 2) |
+| Ration Calculator — daily stickiness tool | Build (Phase 2) |
+| Pashumitra — field agent / affiliate program | Plan (Phase 3) |
+| 11 language support | Plan (Phase 3) |
+
+| What they're missing (our edge) | Status |
+|---|---|
+| Price intelligence / market comparison | ✅ Built |
+| Milk yield / lactation / pregnancy filters | ✅ Built |
+| Seller dashboard with lead management | ✅ Built |
+| Lead status management (contacted/closed/spam) | ✅ Built |
+| Save / favourite animals | ✅ Built |
+| Direct WhatsApp + Call on listing (no forced form) | ✅ Built |
+| Animal comparison feature | Phase 2 |
+| Buyer alerts (price drop, new match) | Phase 3 |
+
+### Differentiation vs generic classifieds
+
+| Dimension | Generic | Pashushala | KisaanMela |
+|---|---|---|---|
+| Listings | Text + photo | Rich metadata | Rich + verified + price intel |
+| Trust | None | Unverified badge | Verification flow + badges |
+| Discovery | Manual browse | State/breed filter | Smart filters + AI |
+| Conversion | Contact form | Enquiry form | WhatsApp + Call + Lead + Save |
+| Intelligence | None | None | Price insights + AI advisor |
+| Offline | None | None | Mela integration |
+| Seller tools | None | Basic | Dashboard + analytics + boost |
 
 ---
 
 ## 3. User personas
 
 ### Farmer (seller)
-
-- Wants to sell cattle (or other livestock) **quickly**  
-- Needs a **fair, transparent** price signal  
-- Often mobile-first, limited time for complex UIs  
+- Wants to sell quickly at a fair price
+- Mobile-first, limited time
+- Needs price signal and simple listing flow
 
 ### Trader
-
-- **Bulk** buying and selling  
-- Needs **leads**, repeat relationships, and efficiency  
+- Bulk buying/selling
+- Needs leads, repeat relationships, efficiency
+- Values seller analytics and lead management
 
 ### Buyer
+- Wants healthy, verified animals
+- Values location, health/vaccination signals, clear pricing
+- Needs comparison tools and saved wishlist
 
-- Wants **healthy, verified** animals  
-- Values **location**, **health/vaccination** signals, and **clear pricing**  
+### Field Agent (Pashumitra — Phase 3)
+- On-ground data entry on behalf of farmers
+- Commission-based, needs mobile-optimised listing flow
 
 ---
 
-## 4. Core features (detailed)
+## 4. Core features
 
-### 4.1 Animal listing system (advanced)
+### 4.1 Animal listing system
 
-**Core fields (MVP+):**
+**Fields — implemented ✅**
 
-- Animal type: cow, buffalo, goat, sheep (extensible)  
-- Breed (with **auto-suggest** from a controlled vocabulary)  
-- Age (years / months)  
-- Lactation status  
-- Milk yield (litres/day), where relevant  
-- Pregnant status (where relevant)  
-- Health condition (structured + free text)  
-- Vaccination records (structured checklist + uploads)  
-- Price (fixed / negotiable)  
-- Location: city, state, optional **GPS**  
-- Images: **5–10** per listing  
-- Video: **required for premium** tier (policy-driven)  
-- Seller type: farmer / trader  
+| Field | Notes |
+|---|---|
+| Animal type | cow, buffalo, goat, sheep, poultry, other |
+| Breed | Auto-suggest from controlled vocabulary |
+| Age | years + months |
+| Lactation status | free text |
+| Milk yield | litres/day |
+| Pregnant status | boolean |
+| Health condition | free text |
+| Vaccination summary | free text |
+| Price | with negotiable flag |
+| Location | city, state, optional lat/lng |
+| Images | up to 10 URLs |
+| Video URL | optional |
+| Seller type | farmer / trader |
+| Verified listing | boolean badge |
 
-**Smart add-ons (post-MVP where noted):**
+**Fields — planned (Phase 2)**
 
-- Auto breed suggestions  
-- Price recommendation engine (location + breed + signals)  
-- Duplicate / near-duplicate detection  
+- State + district (structured geo, replaces free-text location)
+- Ear tag / animal ID
+- Weight estimate
+- Vaccination records as structured checklist + file upload
+
+**Smart add-ons — planned**
+
+- Price suggestion on sell form (reuses existing `/insights` API) — Phase 2
+- Duplicate / near-duplicate detection — Phase 3
 
 ---
 
 ### 4.2 Search & discovery
 
-**Filters:**
+**Filters — implemented ✅**
 
-- Location (manual + optional auto-detect)  
-- Animal type  
-- Breed  
-- Price range  
-- Milk capacity (where applicable)  
-- Lactation stage  
-- **Verified only** toggle  
+- Animal type (chips + dropdown)
+- Breed (searchable datalist)
+- Price range (min/max)
+- Location (text match — city/state)
+- Milk yield minimum
+- Verified only toggle
+- Sort: recently added, price asc/desc, milk yield desc
 
-**Sorting:**
+**Filters — planned (Phase 2)**
 
-- Nearest first (when coordinates available)  
-- Price: low → high  
-- Best rated  
-- Recently added  
+- State → District structured geo filter
+- Age range
+- Lactation stage
+- Pregnant only toggle
+- Nearest first (requires lat/lng on listings)
 
 ---
 
-### 4.3 Animal detail page (conversion-focused)
+### 4.3 Animal detail page
 
-**Sections:**
+**Implemented ✅**
 
-1. **Media** — image carousel, optional video  
-2. **Animal details** — breed, age, milk output, health, vaccination summary  
-3. **Seller** — name, rating, total listings, verification badges  
+- Image carousel with dot indicators
+- Animal type label, price (with negotiable), location, view count
+- Price check box (market comparison insight — colour-coded)
+- Animal details: breed, age, milk yield, lactation, pregnant, health, vaccination, seller type
+- Seller block: name, rating, location, verified badge
+- Primary CTAs: **WhatsApp seller**, **Call**, **Save / ♥ Favourite** (localStorage)
+- Video link (if present)
+- Lead form: name + phone + optional message → POST `/api/marketplace/livestock/leads`
+- "Similar nearby" grid (up to 6 related listings)
+- Social proof: "N+ views recently"
 
-**Primary CTAs:**
+**Planned (Phase 2)**
 
-- WhatsApp seller  
-- Save / favourite  
-- Call  
-
-**Conversion boosters (phased):**
-
-- Social proof: “N buyers viewed this today” (privacy-safe aggregation)  
-- “Similar animals nearby”  
+- Buy-intent on lead form: "Buy within: 15 days / 30 days / later"
+- Animal comparison (add to compare, side-by-side modal)
+- Share to WhatsApp / social
 
 ---
 
 ### 4.4 Trust & verification
 
-**Verification types (phased):**
+**Implemented ✅**
 
-- Vet certificate upload + review  
-- Location verification (policy: selfie at location, OTP, or third-party)  
-- Real-time / recent photo validation (policy + ops)  
+- `verifiedListing` boolean flag on listings (set by seller at submission, approved by admin)
+- Verified badge on listing cards and detail page
 
-**Badge system (examples):**
+**Planned (Phase 2)**
 
-- Verified seller  
-- Top trader  
-- Trusted listing  
+- Phone OTP verification for sellers → "Verified Seller" badge (distinct from listing badge)
+- Seller verification tier: Phone verified → Location verified → Vet cert uploaded
+
+**Planned (Phase 3)**
+
+- Vet certificate upload + admin review
+- Real-time photo validation (timestamp + GPS watermark)
+- Ear tag / animal ID registry
+
+**Badge system**
+
+| Badge | Trigger | Phase |
+|---|---|---|
+| Verified listing | Admin approves | ✅ Now |
+| Phone verified seller | OTP confirmed | Phase 2 |
+| Top trader | 10+ completed leads | Phase 2 |
+| Vet certified | Vet cert uploaded + reviewed | Phase 3 |
 
 ---
 
 ### 4.5 Lead & inquiry system
 
-**Flow:**
+**Implemented ✅**
 
-1. User taps **Interested**  
-2. Lead is created server-side  
-3. Seller is notified (in-app + WhatsApp template where integrated)  
+- POST `/api/marketplace/livestock/leads` — buyer name + phone + optional message
+- Lead schema: `listingId`, `sellerId`, `sellerPhone`, `buyerId`, `buyerName`, `buyerPhone`, `buyerMessage`, `status`
+- Lead statuses: `new` → `contacted` → `closed` / `spam`
+- PATCH `/api/marketplace/livestock/leads/[id]` — seller updates status (phone-based auth)
+- GET `/api/marketplace/livestock/leads/mine` — JWT-auth buyer/seller scoped list
 
-**Lead record (conceptual):**
+**Planned (Phase 2)**
 
-- `buyer_id`  
-- `seller_id`  
-- `animal_id` (listing id)  
-- `timestamp`  
-- `status` (new, contacted, closed, spam, etc.)  
+- `buyWithin` field on lead: `'15d' | '30d' | 'later'`
+- `source` field: `'web' | 'whatsapp' | 'mela' | 'referral'`
+- Seller WhatsApp notification on new lead (WhatsApp Business API)
 
 ---
 
 ### 4.6 Seller dashboard
 
-- My listings (draft / live / rejected)  
-- Leads received  
-- Boost / feature listing (monetization)  
-- Analytics: views, clicks, WhatsApp taps  
+**Implemented ✅** — `/marketplace/livestock/dashboard`
+
+- Tab: Seller
+  - Phone-based login (no JWT required for MVP)
+  - My listings table: name, price, status badge (pending/approved/rejected), featured flag, view count, date, link
+  - My leads list: buyer name + phone, message, listing name, date
+  - Per-lead status dropdown (new/contacted/closed/spam) — live PATCH
+  - WhatsApp + Call buyer directly from lead card
+- Tab: Buyer
+  - My enquiries: listing snapshot, price, location, lead status, link to listing
+
+**Planned (Phase 2)**
+
+- Listing analytics per listing: views, WhatsApp taps, lead count, conversion rate
+- "Boost this listing" CTA from dashboard
+- Edit listing flow
 
 ---
 
 ### 4.7 Buyer dashboard
 
-- Saved animals  
-- Inquiry / lead history  
-- Alerts: new animals near me (opt-in, rate-limited)  
+**Implemented ✅**
+
+- Inquiry / lead history (in dashboard buyer tab)
+- Save / favourite via localStorage on detail page
+
+**Planned (Phase 2)**
+
+- Saved animals page (reads `livestock_saved` from localStorage, fetches listing data)
+- Price-drop alerts (opt-in, email/WhatsApp)
+- New animal alerts matching saved search
 
 ---
 
-### 4.8 Price intelligence (differentiator)
+### 4.8 Price intelligence
 
-**Surfaced to users:**
+**Implemented ✅**
 
-- Average price in region (breed + type bucket)  
-- Simple trend (e.g. last 30 days) where data allows  
-- Plain-language hint: “Looks like a good deal” / “Priced above typical range” (always with caveats)  
+- GET `/api/marketplace/livestock/insights?price=&breed=&animalType=`
+- Returns: `averagePrice`, `minPrice`, `maxPrice`, `sampleSize`, `insightLabel`, `insightTone`
+- Colour-coded box on detail page: green (below range) / amber (above range) / grey (neutral)
+
+**Planned (Phase 2)**
+
+- Surface price suggestion inside sell form: "Typical range for [breed] in [state]: ₹X–₹Y"
+- 30-day trend chart on detail page (requires price history indexing)
 
 ---
 
-### 4.9 Logistics & services (future monetization)
+### 4.9 Boost / featured listings (monetization)
 
-- Transport booking  
-- Animal insurance partnerships  
-- Documentation / compliance assistance  
+**Planned (Phase 2)** — highest priority revenue item
+
+**Flow:**
+
+1. Seller sees "Boost this listing" CTA in dashboard or sell confirmation
+2. Selects duration: 3 days (₹49) / 5 days (₹99) / 10 days (₹199)
+3. Pays via Razorpay
+4. Listing gets `featured: true` + elevated sort position + "HOT" badge
+5. On expiry, `featured` resets automatically
+
+**Schema addition:** `boostedUntil: Date` on MarketplaceListing
+
+---
+
+### 4.10 AI advisor — PashuGyan (differentiator)
+
+**Planned (Phase 2)**
+
+- Claude-powered chat widget on livestock pages
+- Use cases:
+  - "What's a fair price for a 4yr Sahiwal with 12L/day in Punjab?"
+  - "What vaccinations should a pregnant buffalo have?"
+  - "How do I write a good listing for my Murrah?"
+- Context: injects current listing data when on detail page
+- Powered by Claude API (`claude-sonnet-4-6`)
+
+---
+
+### 4.11 Ration calculator
+
+**Planned (Phase 2)**
+
+- Simple tool: select breed + weight + lactation stage → daily feed recommendation
+- Stickiness driver (farmers return daily)
+- Route: `/marketplace/livestock/tools/ration`
+
+---
+
+### 4.12 Animal comparison
+
+**Planned (Phase 2)**
+
+- "Add to compare" button on listing cards (up to 3 animals)
+- Floating compare bar at bottom when 2+ selected
+- Side-by-side modal: price, breed, age, milk, location, health, seller rating
+
+---
+
+### 4.13 Demand posts — reverse marketplace
+
+**Planned (Phase 3)**
+
+- Buyer posts requirement: "I want Murrah buffalo, 10L+, ₹80K budget, Ludhiana"
+- Sellers browse demand feed and respond
+- Closes the liquidity gap — works even when supply is thin
+
+---
+
+### 4.14 Transport marketplace
+
+**Planned (Phase 3)**
+
+- Connect truck owners with buyers/sellers
+- Distance-based pricing, vehicle type selection
+- Post-deal booking flow
+
+---
+
+### 4.15 Token booking & escrow
+
+**Planned (Phase 3)**
+
+- Buyer pays ₹500–₹2,000 token to reserve animal
+- Seller confirms → animal removed from marketplace
+- Escrow: full payment via platform, released after deal confirmation
+- Razorpay integration
 
 ---
 
 ## 5. UI structure
 
-### 5.1 Main listing page (`livestock-layout`)
+### Current routes
 
-- Prominent **search**  
-- **Category chips:** Cow | Buffalo | Goat | Sheep  
-- **Filters** (sidebar on desktop, sheet on mobile)  
-- **Listings grid**  
-- Optional **sticky WhatsApp** support CTA  
-
-### 5.2 Listing card (`animal-card`)
-
-- Hero image  
-- Breed line + key stats (e.g. milk L/day, age)  
-- Price  
-- Location  
-- Actions: **View** | **Contact**  
-
-### 5.3 Detail page (`animal-detail`)
-
-- Gallery + video  
-- Animal + health block  
-- Seller block + badges  
-- WhatsApp | Call | Save  
-- Similar listings  
-
----
-
-## 6. Data model (conceptual)
-
-### Animals (listings)
-
-| Concept | Notes |
-|--------|--------|
-| Identity | `id`, `seller_id` |
-| Taxonomy | `type`, `breed` |
-| Biology / production | `age`, lactation, `milk_yield`, `pregnant` |
-| Health | `health_status`, `vaccination_status` / records |
-| Commerce | `price`, `negotiable` |
-| Geo | `city`, `state`, `lat`, `lng` |
-| Trust | `verified`, trust flags |
-| Engagement | `views_count`, timestamps |
-
-### Users
-
-- `id`, `name`, `phone`, `role`, `rating`, `verified`  
-
-### Leads
-
-- `id`, `animal_id`, `buyer_id`, `seller_id`, `status`, `created_at`  
-
-*(Actual schema should align with the chosen backend: Mongo listings vs Nest/Postgres marketplace — see `docs/marketplace-architecture.md`.)*
-
----
-
-## 7. API design (REST sketch)
-
-**Animals**
-
-- `GET /animals` — list + filters + pagination  
-- `POST /animals` — create (auth + seller role)  
-- `GET /animals/:id` — detail  
-- `PATCH /animals/:id` — update  
-
-**Leads**
-
-- `POST /leads` — create interest  
-- `GET /leads/my` — buyer or seller scoped list  
-
-**Users**
-
-- `GET /users/:id` — public seller profile slice  
-
-*(Paths are illustrative; global prefix e.g. `/api` and versioning depend on the implementation stack.)*
-
----
-
-## 8. Frontend structure (Next.js App Router sketch)
-
-```text
-src/app/marketplace/livestock/
-  page.tsx                 # listing + filters
-  [id]/page.tsx            # detail
-  components/              # or under src/components/marketplace/livestock/
-    AnimalCard.tsx
-    LivestockFilters.tsx
-    LivestockDetailMedia.tsx
-    SellerInfo.tsx
+```
+/marketplace/livestock/              # browse + filters
+/marketplace/livestock/[id]/         # detail page
+/marketplace/livestock/sell/         # create listing form
+/marketplace/livestock/dashboard/    # seller + buyer dashboard
 ```
 
-Align routing with existing patterns: today `/marketplace/[category]` covers Mongo-backed `equipment` | `livestock` | `product`. This spec may justify a **dedicated livestock hub** under `/marketplace/livestock` with richer models, or an evolution of the shared category page.
+### Planned routes (Phase 2)
+
+```
+/marketplace/livestock/tools/ration  # ration calculator
+/marketplace/livestock/saved/        # buyer saved animals
+/marketplace/livestock/demand/       # reverse marketplace feed
+```
+
+### Component map
+
+```
+src/components/marketplace/livestock/
+  LivestockAnimalCard.tsx     ✅
+  LivestockFilters.tsx        ✅
+  index.ts                    ✅
+
+src/app/marketplace/livestock/
+  page.tsx                    ✅  browse
+  [id]/page.tsx               ✅  detail
+  sell/page.tsx               ✅  create listing
+  dashboard/page.tsx          ✅  seller + buyer dashboard
+
+src/app/api/marketplace/livestock/
+  route.ts                    ✅  GET list, POST create
+  [id]/route.ts               ✅  GET detail + related
+  leads/route.ts              ✅  POST lead
+  leads/[id]/route.ts         ✅  PATCH lead status
+  leads/mine/route.ts         ✅  GET buyer/seller leads (JWT)
+  breeds/route.ts             ✅  GET breeds by type
+  insights/route.ts           ✅  GET price insight
+  dashboard/route.ts          ✅  GET seller/buyer dashboard data
+```
 
 ---
 
-## 9. Monetization (summary)
+## 6. Data model
 
-| Lever | Indicative range (INR) |
-|-------|-------------------------|
-| Listing fees | ₹99 – ₹499 |
-| Featured listings | ₹500 – ₹2,000 |
-| Lead charges | ~₹100 per qualified lead |
-| Take rate | 1% – 3% on facilitated transactions |
-| Logistics / services | ₹500 – ₹5,000+ |
+### MarketplaceListing (Mongoose)
+
+| Field | Type | Notes |
+|---|---|---|
+| `category` | string | `'livestock'` |
+| `name` | string | max 200 |
+| `description` | string | max 2000 |
+| `price` | number | |
+| `images` | string[] | max 10 URLs |
+| `location` | string | free text (geo fields in spec) |
+| `sellerId` | string | |
+| `sellerName` | string | |
+| `sellerPhone` | string | |
+| `status` | enum | `pending / approved / rejected` |
+| `featured` | boolean | boosted listings |
+| `viewsCount` | number | incremented on detail load |
+| `specifications` | Mixed | livestock-specific sub-fields |
+| `boostedUntil` | Date | Phase 2 — boost expiry |
+
+**`specifications` livestock sub-fields:**
+`animalType`, `breed`, `ageYears`, `ageMonths`, `lactationStatus`, `milkYieldPerDay`, `pregnant`, `healthSummary`, `vaccinationSummary`, `sellerType`, `videoUrl`, `negotiable`, `verifiedListing`, `lat`, `lng`, `city`, `state`
+
+### LivestockLead (Mongoose)
+
+| Field | Type | Notes |
+|---|---|---|
+| `listingId` | ObjectId | ref MarketplaceListing |
+| `sellerId` | string | |
+| `sellerPhone` | string | |
+| `buyerId` | string | optional, from JWT |
+| `buyerName` | string | |
+| `buyerPhone` | string | |
+| `buyerMessage` | string | max 2000 |
+| `status` | enum | `new / contacted / closed / spam` |
+| `buyWithin` | string | Phase 2: `15d / 30d / later` |
+| `source` | string | Phase 2: `web / whatsapp / mela / referral` |
 
 ---
 
-## 10. Growth strategy (phased)
+## 7. API reference
+
+### Implemented ✅
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/marketplace/livestock` | Browse listings with filters + pagination |
+| POST | `/api/marketplace/livestock` | Create listing (→ pending) |
+| GET | `/api/marketplace/livestock/[id]` | Detail + related + view increment |
+| POST | `/api/marketplace/livestock/leads` | Create buyer lead |
+| PATCH | `/api/marketplace/livestock/leads/[id]` | Update lead status (phone auth) |
+| GET | `/api/marketplace/livestock/leads/mine` | Buyer/seller scoped leads (JWT) |
+| GET | `/api/marketplace/livestock/dashboard` | Phone-based seller/buyer dashboard data |
+| GET | `/api/marketplace/livestock/breeds` | Breed list by animal type |
+| GET | `/api/marketplace/livestock/insights` | Price market comparison |
+
+### Planned (Phase 2)
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/api/marketplace/livestock/boost` | Create boost order (Razorpay) |
+| POST | `/api/marketplace/livestock/[id]/verify-otp` | Seller phone OTP verification |
+| GET | `/api/marketplace/livestock/demand` | Browse demand posts |
+| POST | `/api/marketplace/livestock/demand` | Post buyer requirement |
+
+---
+
+## 8. Monetization
+
+| Lever | Price (INR) | Phase |
+|---|---|---|
+| Boost listing — 3 days | ₹49 | Phase 2 |
+| Boost listing — 5 days | ₹99 | Phase 2 |
+| Boost listing — 10 days | ₹199 | Phase 2 |
+| Featured placement (admin-set) | ₹500–₹2,000 | Phase 2 |
+| Token booking fee | ₹500–₹2,000 | Phase 3 |
+| Qualified lead charge (traders) | ~₹100/lead | Phase 3 |
+| Platform take rate | 1–3% on facilitated transactions | Phase 3 |
+| Transport booking | ₹500–₹5,000+ | Phase 3 |
+| Insurance referral | Commission | Phase 3 |
+
+---
+
+## 9. Build roadmap
+
+### Phase 1 — MVP ✅ Complete
+
+- [x] Animal listing (create + submit for approval)
+- [x] Browse with core filters (type, breed, price, location, milk, verified)
+- [x] Detail page: WhatsApp + Call + Save
+- [x] Lead capture ("Interested") with seller notification path
+- [x] Seller dashboard: my listings + leads with status management
+- [x] Buyer dashboard: inquiry history
+- [x] Price intelligence on detail page
+- [x] Related listings on detail page
+
+### Phase 2 — Revenue + Intelligence (next)
+
+- [ ] **Boost listing** (Razorpay, ₹49–₹199) — highest revenue priority
+- [ ] **State → District geo filter** — critical UX gap vs Pashushala
+- [ ] **Buy-intent field** on lead form (`buyWithin`) — 1 field, high signal value
+- [ ] **Source tracking** on leads (`source` field) — 1 field
+- [ ] **Price suggestion in sell form** — reuses existing insights API
+- [ ] **Listing analytics** in seller dashboard — views + lead count per listing
+- [ ] **PashuGyan AI advisor** — Claude-powered chat widget
+- [ ] **Ration calculator** — stickiness tool
+- [ ] **Animal comparison** — add-to-compare, side-by-side modal
+- [ ] **Seller OTP verification** → Verified Seller badge
+- [ ] **Saved animals page** — reads localStorage `livestock_saved`
+
+### Phase 3 — Ecosystem
+
+- [ ] Demand posts (reverse marketplace)
+- [ ] Token booking + escrow (Razorpay)
+- [ ] Transport marketplace
+- [ ] Insurance integration
+- [ ] Pashumitra field agent program
+- [ ] Multi-language (Hindi, Telugu, Punjabi, Tamil) via next-intl
+- [ ] Voice search / audio descriptions
+- [ ] WhatsApp Business API — seller notification on new lead
+- [ ] Buyer price-drop + new-match alerts
+
+---
+
+## 10. Growth strategy
 
 **Phase 1 — Launch corridors**
-
-- Focus states (e.g. Andhra + Punjab as examples)  
-- WhatsApp-forward acquisition and mela tie-ins  
+- Focus states: Andhra Pradesh + Punjab (high cattle density)
+- WhatsApp-forward acquisition + mela tie-ins
+- Seed supply via admin-created listings from mela data
 
 **Phase 2 — Trust & intelligence**
+- Seller verification → trust flywheel
+- Price intelligence → farmers price accurately → faster sales
+- Boost listings → first revenue signal
 
-- Verification workflows  
-- Price intelligence v1  
-
-**Phase 3 — Services**
-
-- Logistics, insurance, documentation  
+**Phase 3 — Services & network effects**
+- Transport + insurance → platform becomes end-to-end
+- Demand posts → reverse liquidity
+- Pashumitra agents → offline supply capture
 
 ---
 
 ## 11. Risks & mitigations
 
 | Risk | Mitigation |
-|------|------------|
-| Fraudulent listings | Video for premium; verification; reporting; rate limits |
-| Low trust | Reviews, ratings, badges, clear seller history |
-| Poor liquidity | Mela + online funnel; lead products for traders |
+|---|---|
+| Fraudulent listings | Video for premium; phone OTP; admin moderation; rate limits |
+| Low trust | Verified badges, ratings, clear seller history |
+| Poor liquidity | Mela funnel, demand posts, Pashumitra agents |
+| Pashushala competition | Price intel + AI advisor + direct WhatsApp (not gated behind form) |
+| Low seller retention | Dashboard analytics + boost nudges |
 
 ---
 
 ## 12. Success metrics
 
-- Listings per day / active sellers  
-- Leads generated and contact rate  
-- Conversion: view → lead → offline deal (track proxies)  
-- Revenue: listings, boosts, leads, commission  
+- Listings per day / active sellers
+- Leads generated and contact rate
+- Conversion: view → lead → contacted (proxy for deal)
+- Boost purchases per week
+- Revenue: boosts, leads, commission
+- Seller dashboard weekly active users
 
 ---
 
-## 13. MVP checklist
+## 13. Closing note
 
-- [ ] Animal listing (create + edit + submit for approval if moderated)  
-- [ ] Listing browse with **core filters** (type, breed, price, location)  
-- [ ] Detail page with **WhatsApp** + **call** + save  
-- [ ] **Lead** capture (“Interested”) + seller notification (minimal)  
-- [ ] Basic **seller** view of “my listings” and “my leads”  
+This livestock vertical is **high-ticket** and **trust-sensitive**. The structural advantage over Pashushala and generic classifieds is:
 
-**Defer to post-MVP:** full price engine, logistics, advanced verification automation, video-as-gate for all tiers.
+1. **Direct contact** (WhatsApp + Call without a forced form)
+2. **Price intelligence** (no competitor has this)
+3. **Mela integration** (offline → online journey)
+4. **AI advisor** (planned — Claude-powered, livestock-specific)
 
----
-
-## 14. Closing note
-
-This livestock vertical is **high-ticket** and **trust-sensitive**. Pairing it with **KisaanMela melas** (offline discovery → online follow-up) is a structural advantage over generic classifieds. Implementation should reuse shared marketplace infrastructure where possible (auth, images, admin moderation) while allowing **livestock-specific** fields and UX on `/marketplace/livestock` and detail routes.
+Implementation reuses shared marketplace infrastructure (auth, images, admin moderation) while maintaining livestock-specific fields and UX under `/marketplace/livestock`.
 
 ---
 
-*Document version: 1.0 — aligned with internal roadmap; update when MVP scope is locked.*
+*Document version: 2.0 — updated after MVP launch + Pashushala competitive audit (April 2026)*

@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export type LivestockLeadStatus = 'new' | 'contacted' | 'closed' | 'spam';
+export type LeadBuyWithin = '15d' | '30d' | 'later';
+export type LeadSource = 'web' | 'whatsapp' | 'mela' | 'referral' | 'social' | 'vet';
 
 export interface ILivestockLead extends Document {
   listingId: mongoose.Types.ObjectId;
@@ -11,6 +13,8 @@ export interface ILivestockLead extends Document {
   buyerPhone: string;
   buyerMessage?: string;
   status: LivestockLeadStatus;
+  buyWithin?: LeadBuyWithin;
+  source?: LeadSource;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +33,17 @@ const LivestockLeadSchema = new Schema<ILivestockLead>(
       enum: ['new', 'contacted', 'closed', 'spam'],
       default: 'new',
       index: true
+    },
+    buyWithin: {
+      type: String,
+      enum: ['15d', '30d', 'later'],
+      trim: true
+    },
+    source: {
+      type: String,
+      enum: ['web', 'whatsapp', 'mela', 'referral', 'social', 'vet'],
+      default: 'web',
+      trim: true
     }
   },
   { timestamps: true }

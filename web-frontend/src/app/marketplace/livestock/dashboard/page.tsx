@@ -13,6 +13,8 @@ type SellerListing = {
   status: ListingStatus;
   featured: boolean;
   viewsCount?: number;
+  leadCount?: number;
+  boostedUntil?: string;
   images?: string[];
   location: string;
   createdAt: string;
@@ -78,6 +80,8 @@ export default function LivestockDashboardPage() {
   const [buyerData, setBuyerData] = useState<BuyerData | null>(null);
   const [leadStatuses, setLeadStatuses] = useState<Record<string, LeadStatus>>({});
   const [patchingLead, setPatchingLead] = useState<string | null>(null);
+  const [boostingId, setBoostingId] = useState<string | null>(null);
+  const [boostMsg, setBoostMsg] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     const digits = phone.replace(/\D/g, '').slice(-10);
@@ -132,6 +136,30 @@ export default function LivestockDashboardPage() {
       /* silent */
     } finally {
       setPatchingLead(null);
+    }
+  };
+
+  const boostListing = async (listingId: string, days: 3 | 5 | 10) => {
+    const digits = phone.replace(/\D/g, '').slice(-10);
+    setBoostingId(listingId);
+    try {
+      const res = await fetch('/api/marketplace/livestock/boost', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ listingId, sellerPhone: digits, days })
+      });
+      const j = await res.json();
+      if (j.success) {
+        setBoostMsg((prev) => ({ ...prev, [listingId]: `🚀 Boosted ${days} days! ₹${j.data.price} (demo)` }));
+        // Refresh dashboard
+        await load();
+      } else {
+        setBoostMsg((prev) => ({ ...prev, [listingId]: j.error || 'Boost failed' }));
+      }
+    } catch {
+      setBoostMsg((prev) => ({ ...prev, [listingId]: 'Boost failed' }));
+    } finally {
+      setBoostingId(null);
     }
   };
 
@@ -243,13 +271,18 @@ export default function LivestockDashboardPage() {
                         <th className="px-4 py-3 text-left">Animal</th>
                         <th className="px-4 py-3 text-left">Price</th>
                         <th className="px-4 py-3 text-left">Status</th>
-                        <th className="px-4 py-3 text-left">Views</th>
+                        <th className="px-4 py-3 text-left">Analytics</th>
                         <th className="px-4 py-3 text-left">Listed</th>
                         <th className="px-4 py-3" />
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {sellerData.listings.map((item) => (
+                      {sellerData.listings.map((item) => {
+                        const views = item.viewsCount ?? 0;
+                        const leads = item.leadCount ?? 0;
+                        const convRate = views > 0 ? ((leads / views) * 100).toFixed(1) : '0.0';
+                        const isBoosted = item.boostedUntil && new Date(item.boostedUntil) > new Date();
+                        return (
                         <tr key={item._id} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
@@ -274,26 +307,60 @@ export default function LivestockDashboardPage() {
                             >
                               {item.status}
                             </span>
-                            {item.featured && (
+                            {isBoosted && (
                               <span className="ml-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
-                                Featured
+                                🚀 Boosted
+                              </span>
+                            )}
+                            {item.featured && !isBoosted && (
+                              <span className="ml-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                                ★ Featured
                               </span>
                             )}
                           </td>
-                          <td className="px-4 py-3 text-gray-600">{item.viewsCount ?? 0}</td>
+                          <td className="px-4 py-3">
+                            <p className="text-xs text-gray-600">
+                              👁 {views} views · 📩 {leads} leads
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              📊 {convRate}% conversion
+                            </p>
+                          </td>
                           <td className="px-4 py-3 text-gray-500">{shortDate(item.createdAt)}</td>
                           <td className="px-4 py-3">
-                            {item.status === 'approved' && (
-                              <Link
-                                href={`/marketplace/livestock/${item._id}`}
-                                className="text-green-700 hover:underline text-xs font-medium"
-                              >
-                                View →
-                              </Link>
-                            )}
+                            <div className="flex flex-col gap-1">
+                              {item.status === 'approved' && (
+                                <Link
+                                  href={`/marketplace/livestock/${item._id}`}
+                                  className="text-green-700 hover:underline text-xs font-medium"
+                                >
+                                  View →
+                                </Link>
+                              )}
+                              {!isBoosted && item.status === 'approved' && (
+                                <div className="flex gap-1">
+                                  {([3, 5, 10] as const).map((d) => (
+                                    <button
+                                      key={d}
+                                      type="button"
+                                      disabled={boostingId === item._id}
+                                      onClick={() => boostListing(item._id, d)}
+                                      className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-800 hover:bg-amber-200 disabled:opacity-50"
+                                      title={`Boost ${d} days`}
+                                    >
+                                      🚀{d}d
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {boostMsg[item._id] && (
+                                <p className="text-xs text-amber-700">{boostMsg[item._id]}</p>
+                              )}
+                            </div>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

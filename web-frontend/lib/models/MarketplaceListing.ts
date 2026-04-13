@@ -20,6 +20,8 @@ export interface IMarketplaceListing extends Document {
   specifications?: Record<string, any>;
   /** Listing view count (incremented on advanced livestock detail). */
   viewsCount?: number;
+  /** Boost expiry — listings with future date are featured/boosted. */
+  boostedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -108,6 +110,9 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
     type: Number,
     default: 0,
     min: 0
+  },
+  boostedUntil: {
+    type: Date
   }
 }, {
   timestamps: true,

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { parseLivestockSpec } from '@/lib/livestock/livestockSpecifications';
 import { LivestockAnimalCard, type LivestockListingCard } from '@/components/marketplace/livestock';
+import { PashuGyanChat } from '@/components/marketplace/livestock/PashuGyanChat';
 
 type Listing = {
   _id: string;
@@ -34,6 +35,7 @@ export default function LivestockDetailPage() {
   const [leadName, setLeadName] = useState('');
   const [leadPhone, setLeadPhone] = useState('');
   const [leadMsg, setLeadMsg] = useState('');
+  const [leadBuyWithin, setLeadBuyWithin] = useState<'15d' | '30d' | 'later'>('30d');
   const [leadOk, setLeadOk] = useState<string | null>(null);
   const [leadErr, setLeadErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -109,7 +111,9 @@ export default function LivestockDetailPage() {
           listingId: id,
           buyerName: leadName.trim(),
           buyerPhone: leadPhone.trim(),
-          buyerMessage: leadMsg.trim() || undefined
+          buyerMessage: leadMsg.trim() || undefined,
+          buyWithin: leadBuyWithin,
+          source: 'web'
         })
       });
       const j = await res.json();
@@ -306,6 +310,18 @@ export default function LivestockDetailPage() {
               rows={2}
               className="mt-3 w-full rounded-lg border px-3 py-2 text-sm"
             />
+            <div className="mt-3">
+              <label className="text-sm font-medium text-gray-700">Planning to buy within</label>
+              <select
+                value={leadBuyWithin}
+                onChange={(e) => setLeadBuyWithin(e.target.value as '15d' | '30d' | 'later')}
+                className="mt-1 w-full rounded-lg border px-3 py-2 text-sm focus:border-green-500 focus:outline-none sm:w-auto"
+              >
+                <option value="15d">15 days</option>
+                <option value="30d">30 days</option>
+                <option value="later">Later / Just browsing</option>
+              </select>
+            </div>
             {leadErr && <p className="mt-2 text-sm text-red-600">{leadErr}</p>}
             {leadOk && <p className="mt-2 text-sm text-green-700">{leadOk}</p>}
             <button
@@ -330,6 +346,17 @@ export default function LivestockDetailPage() {
           <p className="mt-8 whitespace-pre-wrap text-sm text-gray-700">{L.description}</p>
         </div>
       </div>
+
+      <PashuGyanChat
+        listingContext={[
+          spec.animalType && `Animal: ${String(spec.animalType)}`,
+          spec.breed && `Breed: ${spec.breed}`,
+          `Price: ₹${L.price.toLocaleString('en-IN')}`,
+          spec.milkYieldPerDay != null && `Milk yield: ${spec.milkYieldPerDay} L/day`,
+          spec.ageYears != null && `Age: ${spec.ageYears} years`,
+          L.location && `Location: ${L.location}`
+        ].filter(Boolean).join(', ')}
+      />
     </div>
   );
 }

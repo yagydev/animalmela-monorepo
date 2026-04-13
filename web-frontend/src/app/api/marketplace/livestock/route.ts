@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sellerId = searchParams.get('sellerId')?.trim();
     const includePending = searchParams.get('includePending') === '1';
+    const state = searchParams.get('state')?.trim();
+    const district = searchParams.get('district')?.trim();
 
     const and: Record<string, unknown>[] = [];
 
@@ -62,6 +64,12 @@ export async function GET(request: NextRequest) {
           { 'specifications.state': { $regex: location, $options: 'i' } }
         ]
       });
+    }
+    if (state) {
+      and.push({ 'specifications.state': { $regex: state, $options: 'i' } });
+    }
+    if (district) {
+      and.push({ 'specifications.city': { $regex: district, $options: 'i' } });
     }
     if (minMilk) {
       const v = parseFloat(minMilk);
