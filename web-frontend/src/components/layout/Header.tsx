@@ -68,18 +68,20 @@ export function Header() {
       {/* Top Microbar */}
       <div className="bg-gray-800 text-white text-sm sm:text-base">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center min-h-11 py-1.5 gap-3 flex-wrap">
-            <div className="flex items-center space-x-4 min-w-0">
-              <div className="flex items-center space-x-2 whitespace-nowrap">
-                <span>📞</span>
-                <span className="font-medium">+91-9999778321</span>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-between sm:items-center min-h-11 py-1.5 sm:gap-3">
+            <div className="flex items-center gap-3 sm:space-x-4 min-w-0">
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="shrink-0" aria-hidden>
+                  📞
+                </span>
+                <span className="font-medium text-xs sm:text-sm md:text-base truncate">+91-9999778321</span>
               </div>
-              <div className="hidden md:flex items-center space-x-2 whitespace-nowrap">
+              <div className="hidden md:flex items-center space-x-2 whitespace-nowrap shrink-0">
                 <span>💬</span>
                 <span className="font-medium">WhatsApp Support</span>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+            <div className="flex items-center gap-2 sm:space-x-3 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
               <Link
                 href="/events/register"
                 className="hidden md:inline-flex items-center whitespace-nowrap rounded-md bg-green-600 hover:bg-green-700 px-3 py-1.5 text-sm font-semibold text-white transition-colors duration-200"
@@ -92,8 +94,8 @@ export function Header() {
               >
                 🏪 Book Stall
               </Link>
-              <div className="relative">
-                <select className="appearance-none bg-white border border-gray-300 rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+              <div className="relative min-w-0 max-w-full flex-1 sm:flex-initial sm:max-w-none">
+                <select className="w-full min-w-0 max-w-full sm:w-auto sm:max-w-[11rem] appearance-none bg-white border border-gray-300 rounded-lg px-2 sm:px-3 py-1.5 pr-7 sm:pr-8 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                   <option value="en">🇺🇸 English</option>
                   <option value="hi">🇮🇳 Hindi</option>
                   <option value="mr">🇮🇳 Marathi</option>
@@ -111,8 +113,11 @@ export function Header() {
       {/* Main Header */}
       <header ref={headerRef} className="bg-green-800 text-white shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[auto,1fr,auto] items-center gap-2 lg:gap-3 py-3">
-            <Link href="/" className="text-2xl lg:text-[1.65rem] xl:text-3xl font-extrabold tracking-wide whitespace-nowrap justify-self-start">
+          <div className="flex items-center justify-between gap-3 py-3 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-3">
+            <Link
+              href="/"
+              className="min-w-0 text-xl sm:text-2xl lg:text-[1.65rem] xl:text-3xl font-extrabold tracking-wide whitespace-nowrap lg:justify-self-start"
+            >
               KisaanMela
             </Link>
 
@@ -282,7 +287,8 @@ export function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden min-h-11 min-w-11 flex items-center justify-center text-2xl text-white"
+              type="button"
+              className="lg:hidden shrink-0 min-h-11 min-w-11 flex items-center justify-center rounded-md text-2xl text-white hover:bg-green-700/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
               onClick={() => setMobileOpen((prev) => !prev)}
               aria-label="Toggle mobile menu"
               aria-expanded={mobileOpen}
@@ -295,8 +301,8 @@ export function Header() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-green-900 text-white">
-          <ul className="flex flex-col gap-2 px-6 pb-4 transition-all">
+        <div className="lg:hidden bg-green-900 text-white max-h-[min(70vh,calc(100dvh-8rem))] overflow-y-auto overscroll-contain shadow-inner border-t border-green-700/80">
+          <ul className="flex flex-col gap-2 px-4 sm:px-6 pb-4 transition-all">
             {nav.map((item) => {
               const visibleChildren = (item.children ?? []).filter(
                 (child) => child.path !== item.path
@@ -374,7 +380,7 @@ export function Header() {
           </ul>
 
           {/* Mobile CTA Buttons */}
-          <div className="px-6 pb-4 border-t border-green-700 pt-4">
+          <div className="px-4 sm:px-6 pb-4 border-t border-green-700 pt-4">
             <div className="flex flex-col space-y-2">
               <Link
                 href="/events/register"
@@ -396,7 +402,7 @@ export function Header() {
           </div>
 
           {/* Mobile User Menu */}
-          <div className="px-6 pb-4 border-t border-green-700 pt-4">
+          <div className="px-4 sm:px-6 border-t border-green-700 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
             {isLoggedIn ? (
               <div className="space-y-2">
                 <Link
