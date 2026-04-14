@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         })
           .sort({ createdAt: -1 })
           .limit(50)
-          .select('_id name price status featured viewsCount images location specifications createdAt')
+          .select('_id name price status featured viewsCount boostedUntil images location specifications createdAt')
           .lean(),
 
         LivestockLead.find({ sellerPhone: { $regex: phoneSuffix } })
@@ -51,10 +51,22 @@ export async function GET(request: NextRequest) {
         .lean();
       const titleById = Object.fromEntries(titles.map((t) => [String(t._id), (t as unknown as { name: string }).name]));
 
+      // Count leads per listing for analytics
+      const leadCountByListing: Record<string, number> = {};
+      leads.forEach((l) => {
+        const lid = l.listingId.toString();
+        leadCountByListing[lid] = (leadCountByListing[lid] || 0) + 1;
+      });
+
+      const enrichedListings = listings.map((lst) => ({
+        ...lst,
+        leadCount: leadCountByListing[String(lst._id)] || 0
+      }));
+
       return NextResponse.json({
         success: true,
         data: {
-          listings,
+          listings: enrichedListings,
           leads: leads.map((l) => ({
             ...l,
             listingTitle: titleById[l.listingId.toString()] || 'Listing'
