@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { listingId, buyerName, buyerPhone, buyerMessage } = body;
+    const { listingId, buyerName, buyerPhone, buyerMessage, buyWithin, source } = body;
 
     if (!listingId || !buyerName || !buyerPhone) {
       return NextResponse.json(
@@ -54,6 +54,8 @@ export async function POST(request: NextRequest) {
       buyerName: String(buyerName).slice(0, 120),
       buyerPhone: String(buyerPhone).replace(/\s/g, '').slice(0, 20),
       buyerMessage: buyerMessage ? String(buyerMessage).slice(0, 2000) : undefined,
+      buyWithin: ['15d', '30d', 'later'].includes(buyWithin) ? buyWithin : undefined,
+      source: source ? String(source).slice(0, 50) : 'web',
       status: 'new'
     });
 

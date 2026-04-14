@@ -12,7 +12,8 @@ export interface IMarketplaceListing extends Document {
   sellerId: string;
   sellerName?: string;
   sellerPhone?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'archived';
+  adminNote?: string;
   featured: boolean;
   tags: string[];
   quantity?: number;
@@ -20,6 +21,8 @@ export interface IMarketplaceListing extends Document {
   specifications?: Record<string, any>;
   /** Listing view count (incremented on advanced livestock detail). */
   viewsCount?: number;
+  /** Date until which this listing is boosted (featured position). */
+  boostedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -79,7 +82,7 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'archived'],
     default: 'pending',
     index: true
   },
@@ -108,6 +111,15 @@ const MarketplaceListingSchema = new Schema<IMarketplaceListing>({
     type: Number,
     default: 0,
     min: 0
+  },
+  boostedUntil: {
+    type: Date,
+    index: true
+  },
+  adminNote: {
+    type: String,
+    trim: true,
+    maxlength: 500
   }
 }, {
   timestamps: true,

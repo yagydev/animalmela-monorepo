@@ -10,6 +10,8 @@ export interface ILivestockLead extends Document {
   buyerName: string;
   buyerPhone: string;
   buyerMessage?: string;
+  buyWithin?: '15d' | '30d' | 'later';
+  source?: string;
   status: LivestockLeadStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +26,8 @@ const LivestockLeadSchema = new Schema<ILivestockLead>(
     buyerName: { type: String, required: true, trim: true },
     buyerPhone: { type: String, required: true, trim: true },
     buyerMessage: { type: String, trim: true, maxlength: 2000 },
+    buyWithin: { type: String, enum: ['15d', '30d', 'later'], index: true },
+    source: { type: String, trim: true, maxlength: 50 },
     status: {
       type: String,
       enum: ['new', 'contacted', 'closed', 'spam'],

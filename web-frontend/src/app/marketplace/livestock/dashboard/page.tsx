@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 
-type ListingStatus = 'pending' | 'approved' | 'rejected';
+type ListingStatus = 'pending' | 'approved' | 'rejected' | 'archived';
 type LeadStatus = 'new' | 'contacted' | 'closed' | 'spam';
 
 type SellerListing = {
@@ -53,7 +53,8 @@ type BuyerData = { leads: BuyerLead[] };
 const STATUS_BADGE: Record<ListingStatus, string> = {
   approved: 'bg-green-100 text-green-800',
   pending: 'bg-amber-100 text-amber-800',
-  rejected: 'bg-red-100 text-red-800'
+  rejected: 'bg-red-100 text-red-800',
+  archived: 'bg-gray-100 text-gray-500'
 };
 
 const LEAD_STATUS_LABEL: Record<LeadStatus, string> = {
@@ -82,6 +83,8 @@ export default function LivestockDashboardPage() {
   const [patchingLead, setPatchingLead] = useState<string | null>(null);
   const [boostingId, setBoostingId] = useState<string | null>(null);
   const [boostMsg, setBoostMsg] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const digits = phone.replace(/\D/g, '').slice(-10);
@@ -136,6 +139,27 @@ export default function LivestockDashboardPage() {
       /* silent */
     } finally {
       setPatchingLead(null);
+    }
+  };
+
+  const deleteListing = async (listingId: string) => {
+    const digits = phone.replace(/\D/g, '').slice(-10);
+    setDeletingId(listingId);
+    try {
+      const res = await fetch(`/api/marketplace/livestock/${listingId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sellerPhone: digits })
+      });
+      const j = await res.json();
+      if (j.success) {
+        setDeleteConfirmId(null);
+        await load();
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -328,7 +352,7 @@ export default function LivestockDashboardPage() {
                           </td>
                           <td className="px-4 py-3 text-gray-500">{shortDate(item.createdAt)}</td>
                           <td className="px-4 py-3">
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-1.5">
                               {item.status === 'approved' && (
                                 <Link
                                   href={`/marketplace/livestock/${item._id}`}
@@ -355,6 +379,35 @@ export default function LivestockDashboardPage() {
                               )}
                               {boostMsg[item._id] && (
                                 <p className="text-xs text-amber-700">{boostMsg[item._id]}</p>
+                              )}
+                              {/* Delete */}
+                              {deleteConfirmId === item._id ? (
+                                <div className="flex gap-1 items-center">
+                                  <span className="text-xs text-red-600">Remove?</span>
+                                  <button
+                                    type="button"
+                                    disabled={deletingId === item._id}
+                                    onClick={() => deleteListing(item._id)}
+                                    className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700 hover:bg-red-200 disabled:opacity-50"
+                                  >
+                                    {deletingId === item._id ? '…' : 'Yes'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setDeleteConfirmId(null)}
+                                    className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600 hover:bg-gray-200"
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setDeleteConfirmId(item._id)}
+                                  className="text-xs text-red-500 hover:text-red-700 hover:underline text-left"
+                                >
+                                  Remove
+                                </button>
                               )}
                             </div>
                           </td>

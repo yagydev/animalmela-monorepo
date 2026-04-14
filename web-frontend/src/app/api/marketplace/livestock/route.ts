@@ -155,6 +155,15 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Require a valid seller phone — used for ownership checks throughout the system
+    const phoneDigits = sellerPhone ? String(sellerPhone).replace(/\D/g, '').slice(-10) : '';
+    if (phoneDigits.length < 10) {
+      return NextResponse.json(
+        { success: false, error: 'A valid 10-digit sellerPhone is required to post a listing' },
+        { status: 400 }
+      );
+    }
     const imgs: string[] = Array.isArray(images) ? images.filter(Boolean) : [];
     if (imgs.length === 0) {
       return NextResponse.json({ success: false, error: 'At least one image URL is required' }, { status: 400 });

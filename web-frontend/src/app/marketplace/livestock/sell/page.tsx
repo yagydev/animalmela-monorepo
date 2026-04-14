@@ -19,6 +19,9 @@ export default function LivestockSellPage() {
   const [sellerPhone, setSellerPhone] = useState('');
   const [sellerType, setSellerType] = useState<'farmer' | 'trader' | 'vet'>('farmer');
   const [images, setImages] = useState('https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?w=800');
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadErr, setUploadErr] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [ageYears, setAgeYears] = useState('');
   const [ageMonths, setAgeMonths] = useState('');
@@ -73,6 +76,54 @@ export default function LivestockSellPage() {
       if (priceDebounceRef.current) clearTimeout(priceDebounceRef.current);
     };
   }, [price, breed, animalType]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploading(true);
+    setUploadErr(null);
+    const newUrls: string[] = [];
+    try {
+      for (const file of files.slice(0, 5)) {
+        const params = new URLSearchParams({
+          filename: file.name,
+          contentType: file.type,
+          size: String(file.size)
+        });
+        const res = await fetch(`/api/marketplace/livestock/upload-url?${params}`);
+        const j = await res.json();
+        if (!j.success) {
+          setUploadErr(j.error || 'Upload failed');
+          break;
+        }
+        const { uploadUrl, objectUrl } = j.data;
+        const putRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file
+        });
+        if (!putRes.ok) {
+          setUploadErr('Upload to storage failed. Try again.');
+          break;
+        }
+        newUrls.push(objectUrl);
+      }
+    } catch {
+      setUploadErr('Upload failed. Check your connection.');
+    } finally {
+      setUploading(false);
+    }
+    if (newUrls.length > 0) {
+      setUploadedUrls((prev) => [...prev, ...newUrls]);
+      // also append to the URL textarea so they're included in submission
+      setImages((prev) => {
+        const existing = prev.trim();
+        return existing ? `${existing}\n${newUrls.join('\n')}` : newUrls.join('\n');
+      });
+    }
+    // Reset file input
+    e.target.value = '';
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -365,14 +416,50 @@ export default function LivestockSellPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Photo URLs (comma or newline)</label>
-              <textarea
-                value={images}
-                onChange={(e) => setImages(e.target.value)}
-                rows={2}
-                placeholder="https://..."
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
-              />
+              <label className="text-sm font-medium text-gray-700">Photos *</label>
+
+              {/* File upload (uses S3 pre-signed URL if AWS_S3_BUCKET is configured) */}
+              <label className={`mt-2 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-5 text-sm transition ${uploading ? 'border-green-300 bg-green-50' : 'border-gray-300 hover:border-green-400 hover:bg-green-50/40'}`}>
+                <span className="text-2xl">{uploading ? '⏳' : '📷'}</span>
+                <span className="font-medium text-gray-700">
+                  {uploading ? 'Uploading…' : 'Click to upload photos'}
+                </span>
+                <span className="text-xs text-gray-400">JPG, PNG, WEBP, HEIC — up to 25 MB each, max 5 photos</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  multiple
+                  disabled={uploading}
+                  onChange={handleFileUpload}
+                  className="sr-only"
+                />
+              </label>
+
+              {/* Uploaded previews */}
+              {uploadedUrls.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {uploadedUrls.map((url) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={url} src={url} alt="" className="h-16 w-16 rounded-lg object-cover ring-1 ring-gray-200" />
+                  ))}
+                </div>
+              )}
+
+              {uploadErr && (
+                <p className="mt-1 text-xs text-red-600">{uploadErr}</p>
+              )}
+
+              {/* URL fallback */}
+              <details className="mt-3">
+                <summary className="cursor-pointer text-xs text-gray-500 hover:text-green-700">Or paste image URLs instead</summary>
+                <textarea
+                  value={images}
+                  onChange={(e) => setImages(e.target.value)}
+                  rows={2}
+                  placeholder="https://..."
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-green-500 focus:outline-none"
+                />
+              </details>
             </div>
           </div>
 
