@@ -1,24 +1,32 @@
 import jwt from 'jsonwebtoken';
 import { NextResponse } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || JWT_SECRET;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || (JWT_SECRET ? `${JWT_SECRET}_refresh` : undefined);
-
 const ACCESS_EXPIRES = process.env.JWT_ACCESS_EXPIRES_IN || '15m';
 const REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 const LEGACY_EXPIRES = process.env.JWT_EXPIRES_IN || '24h';
 
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not set');
+/** Resolve at call time so missing env does not crash module load (Vercel cold start). */
+function accessSecret() {
+  const s = process.env.JWT_ACCESS_SECRET?.trim() || process.env.JWT_SECRET?.trim();
+  if (!s) {
+    throw new Error('JWT_SECRET or JWT_ACCESS_SECRET environment variable is not set');
+  }
+  return s;
 }
-if (!JWT_REFRESH_SECRET) {
-  throw new Error('JWT_REFRESH_SECRET or JWT_SECRET must be set');
+
+function refreshSecret() {
+  const explicit = process.env.JWT_REFRESH_SECRET?.trim();
+  if (explicit) return explicit;
+  const base = process.env.JWT_SECRET?.trim();
+  if (!base) {
+    throw new Error('JWT_SECRET or JWT_REFRESH_SECRET environment variable is not set');
+  }
+  return `${base}_refresh`;
 }
 
 /** Legacy single token (backward compatible). */
 export const generateToken = (payload) => {
-  return jwt.sign(payload, JWT_ACCESS_SECRET, {
+  return jwt.sign(payload, accessSecret(), {
     expiresIn: LEGACY_EXPIRES,
   });
 };
@@ -26,7 +34,7 @@ export const generateToken = (payload) => {
 export const signAccessToken = (payload) => {
   return jwt.sign(
     { ...payload, typ: 'access' },
-    JWT_ACCESS_SECRET,
+    accessSecret(),
     { expiresIn: ACCESS_EXPIRES }
   );
 };
@@ -34,18 +42,18 @@ export const signAccessToken = (payload) => {
 export const signRefreshToken = (payload, expiresInOverride) => {
   return jwt.sign(
     { ...payload, typ: 'refresh' },
-    JWT_REFRESH_SECRET,
+    refreshSecret(),
     { expiresIn: expiresInOverride || REFRESH_EXPIRES }
   );
 };
 
 /** Verify access / legacy bearer token (no strict `typ` for older JWTs). */
 export const verifyToken = (token) => {
-  return jwt.verify(token, JWT_ACCESS_SECRET);
+  return jwt.verify(token, accessSecret());
 };
 
 export const verifyAccessToken = (token) => {
-  const decoded = jwt.verify(token, JWT_ACCESS_SECRET);
+  const decoded = jwt.verify(token, accessSecret());
   if (decoded.typ === 'refresh') {
     throw new Error('Invalid access token');
   }
@@ -56,7 +64,7 @@ export const verifyAccessToken = (token) => {
 };
 
 export const verifyRefreshToken = (token) => {
-  const decoded = jwt.verify(token, JWT_REFRESH_SECRET);
+  const decoded = jwt.verify(token, refreshSecret());
   if (decoded.typ !== 'refresh') {
     throw new Error('Invalid refresh token');
   }

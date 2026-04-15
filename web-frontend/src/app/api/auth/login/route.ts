@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
     attachLegacyTokenCookie(res, r.data.accessToken);
     return res;
   } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
     const demo = tryDemoOfflineLogin(body?.login, body?.password);
     if (demo) {
       const res = jsonOk(
@@ -54,6 +55,24 @@ export async function POST(request: NextRequest) {
       return res;
     }
     console.error('auth login', e);
-    return jsonError('Server error', 500);
+    if (/JWT_SECRET|JWT_ACCESS_SECRET|JWT_REFRESH_SECRET|not set/i.test(msg)) {
+      return jsonError(
+        'Sign-in is unavailable: authentication secrets are not configured on this server.',
+        503,
+        { code: 'JWT_NOT_CONFIGURED' }
+      );
+    }
+    if (
+      /mongo|MongoNetwork|MongooseServerSelectionError|ECONNREFUSED|ENOTFOUND|Server selection timed out|connect ECONNREFUSED|getaddrinfo/i.test(
+        msg
+      )
+    ) {
+      return jsonError(
+        'Sign-in is temporarily unavailable (cannot reach the database).',
+        503,
+        { code: 'DATABASE_UNAVAILABLE' }
+      );
+    }
+    return jsonError('Server error', 500, { code: 'LOGIN_FAILED' });
   }
 }
