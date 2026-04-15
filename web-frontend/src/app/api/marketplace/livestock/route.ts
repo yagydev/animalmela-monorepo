@@ -5,13 +5,16 @@ import type { AnimalType } from '@/lib/livestock/livestockSpecifications';
 
 const ANIMAL_TYPES: AnimalType[] = ['cow', 'buffalo', 'goat', 'sheep', 'poultry', 'other'];
 
+/** True when Mongo is unreachable, misconfigured on Vercel, or auth/network to Atlas failed. */
 function isDbUnavailableError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return (
-    message.includes('ECONNREFUSED') ||
-    message.includes('buffering timed out') ||
-    message.includes('ServerSelectionError')
+  return /ECONNREFUSED|ENOTFOUND|ETIMEDOUT|ESERVFAIL|querySrv|buffering timed out|SelectionError|MongoNetworkError|SSL alert|tlsv1|authentication failed|bad auth|not authorized|whitelist|IpWhitelist|Missing MONGODB_URI|MONGODB_URI or DATABASE_URL|must be mongodb|connection.*timed out|socket closed|Primary stepped down|ReplicaSetNoPrimary/i.test(
+    message
   );
+}
+
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** GET /api/marketplace/livestock — browse advanced livestock listings (Mongo, category=livestock). */
@@ -76,13 +79,14 @@ export async function GET(request: NextRequest) {
       if (!Number.isNaN(v)) and.push({ 'specifications.milkYieldPerDay': { $gte: v } });
     }
     if (q) {
+      const safe = escapeRegex(q);
       and.push({
         $or: [
-          { name: { $regex: q, $options: 'i' } },
-          { description: { $regex: q, $options: 'i' } },
-          { tags: { $in: [new RegExp(q, 'i')] } },
-          { 'specifications.breed': { $regex: q, $options: 'i' } }
-        ]
+          { name: { $regex: safe, $options: 'i' } },
+          { description: { $regex: safe, $options: 'i' } },
+          { tags: { $regex: safe, $options: 'i' } },
+          { 'specifications.breed': { $regex: safe, $options: 'i' } },
+        ],
       });
     }
 
