@@ -1,0 +1,93 @@
+{
+  "info": {
+    "name": "KisaanMela Auth API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Next.js App Router auth endpoints under /api/auth/* (same-origin). Set {{baseUrl}} e.g. http://localhost:3000"
+  },
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:3000" }],
+  "item": [
+    {
+      "name": "Signup (password)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Farmer\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"farmer@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"farmer\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/signup"
+      }
+    },
+    {
+      "name": "Signup (OTP init only)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"mode\": \"otp_init\",\n  \"name\": \"OTP User\",\n  \"mobile\": \"9123456789\",\n  \"role\": \"buyer\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/signup"
+      }
+    },
+    {
+      "name": "Send OTP",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"phone\": \"9876543210\"\n}" },
+        "url": "{{baseUrl}}/api/auth/send-otp"
+      }
+    },
+    {
+      "name": "Verify OTP",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\",\n  \"rememberMe\": false\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/verify-otp"
+      }
+    },
+    {
+      "name": "Login (email or username + password)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"farmer@example.com\",\n  \"password\": \"secret123\",\n  \"rememberMe\": true\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Refresh tokens",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/api/auth/refresh"
+      }
+    },
+    {
+      "name": "Me (cookies or Bearer)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/auth/me"
+      }
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{}" },
+        "url": "{{baseUrl}}/api/auth/logout"
+      }
+    }
+  ]
+}

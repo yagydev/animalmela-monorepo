@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { sanitizeStoredAccessToken } from '@/lib/clientAccessToken';
 import {
   ShoppingBagIcon,
   ClipboardDocumentListIcon,
@@ -62,6 +63,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchDashboard() {
+      if (typeof window !== 'undefined') sanitizeStoredAccessToken();
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       if (!token) {
         setUnauthorized(true);
@@ -73,9 +75,9 @@ export default function DashboardPage() {
 
       try {
         const [meRes, productsRes, ordersRes] = await Promise.all([
-          fetch('/api/me', { headers }),
-          fetch('/api/marketplace/products?limit=1', { headers }),
-          fetch('/api/marketplace/orders?limit=1', { headers }),
+          fetch('/api/me', { headers, credentials: 'include' }),
+          fetch('/api/marketplace/products?limit=1', { headers, credentials: 'include' }),
+          fetch('/api/marketplace/orders?limit=1', { headers, credentials: 'include' }),
         ]);
 
         if (meRes.status === 401) {

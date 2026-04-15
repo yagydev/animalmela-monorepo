@@ -3,7 +3,8 @@
 **Route:** `/marketplace/livestock`  
 **Document version:** 2.0  
 **Last updated:** 2026-04-13  
-**Status:** MVP shipped · Phase 2 in planning
+**Status:** MVP shipped · Phase 2 in planning  
+**Related:** [Cloud architecture & deployment](./livestock-marketplace-cloud-architecture.md)
 
 ---
 

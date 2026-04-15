@@ -1,164 +1,118 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '../../../../lib/database';
-import User from '../../../../models/User';
-import { generateToken } from '../../../../lib/jwt';
+import { attachAuthCookies, attachLegacyTokenCookie } from '@/lib/auth/cookies';
+import { tryDemoOfflineLogin } from '@/lib/auth/demoOfflineLogin';
+import { authLoginPassword } from '@/lib/auth/service';
 
-// MongoDB-connected login API for kisaanmela.com
+/**
+ * Legacy POST /api/login — email + password (same as /api/auth/login with login=email).
+ * Sets httpOnly cookies and returns access + refresh in JSON for backward compatibility.
+ */
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, rememberMe } = await request.json();
 
-    // Validate required fields
     if (!email || !password) {
-      return NextResponse.json({
-        success: false,
-        message: 'Email and password are required'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Email and password are required', data: {} },
+        { status: 400 }
+      );
     }
 
-    // Validate email format
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json({
-        success: false,
-        message: 'Please enter a valid email address'
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Please enter a valid email address', data: {} },
+        { status: 400 }
+      );
     }
 
-    // Try to connect to MongoDB, fallback to demo mode if unavailable
     try {
       await connectDB();
-    } catch (dbError) {
-      console.warn('MongoDB connection failed, using demo mode:', dbError.message);
-      
-      // Demo mode - simple authentication for testing
-      // Allow multiple demo users for testing
-      const demoUsers = [
-        { email: 'demo@kisaanmela.com', password: 'demo123', role: 'farmer' },
-        { email: 'admin@kisaanmela.com', password: 'admin123', role: 'admin' },
-        { email: 'buyer@kisaanmela.com', password: 'buyer123', role: 'buyer' },
-        { email: 'seller@kisaanmela.com', password: 'seller123', role: 'seller' }
-      ];
-      
-      const demoUser = demoUsers.find(user => 
-        user.email === email.toLowerCase() && user.password === password
-      );
-      
-      if (demoUser) {
-        return NextResponse.json({
+    } catch (dbError: unknown) {
+      const errMsg = (dbError as Error).message || String(dbError);
+      console.error('MongoDB connection failed for /api/login:', errMsg);
+
+      const isDeployed =
+        process.env.VERCEL === '1' || process.env.VERCEL === 'true' || process.env.NODE_ENV === 'production';
+
+      const demo = tryDemoOfflineLogin(email, password);
+      if (demo) {
+        const res = NextResponse.json({
           success: true,
-          message: 'Login successful (demo mode)',
+          message: 'Login successful (demo mode — database offline)',
           data: {
-            user: {
-              id: `demo-user-${demoUser.role}`,
-              email: demoUser.email,
-              name: `Demo ${demoUser.role.charAt(0).toUpperCase() + demoUser.role.slice(1)}`,
-              role: demoUser.role,
-              mobile: '9876543210',
-              profileComplete: true,
-              location: {
-                state: 'Punjab',
-                district: 'Ludhiana',
-                pincode: '141001',
-                village: 'Demo Village'
-              },
-              rating: { average: 4.5, count: 10 },
-              totalRatings: 10
-            },
-            token: `demo-token-${demoUser.role}-${Date.now()}`
-          }
+            user: demo.user,
+            token: demo.accessToken,
+            accessToken: demo.accessToken,
+          },
         });
+        attachLegacyTokenCookie(res, demo.accessToken);
+        return res;
       }
-      
-      return NextResponse.json({
-        success: false,
-        message: 'MongoDB not available. Use demo@kisaanmela.com/demo123, admin@kisaanmela.com/admin123, buyer@kisaanmela.com/buyer123, or seller@kisaanmela.com/seller123 for testing'
-      }, { status: 503 });
-    }
 
-    // Find user by email
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
-    
-    if (!user) {
-      return NextResponse.json({
-        success: false,
-        message: 'Invalid email or password'
-      }, { status: 401 });
-    }
+      // Production: DB down or misconfigured — 503 is correct; message should not imply "wrong password"
+      const userMessage = isDeployed
+        ? 'Sign-in is temporarily unavailable. Please try again in a few minutes.'
+        : 'Database not reachable from this server. For local dev without MongoDB, use demo@kisaanmela.com / demo123 (see API message) or start MongoDB and set MONGODB_URI.';
 
-    // Check if user is active
-    if (!user.isActive) {
-      return NextResponse.json({
-        success: false,
-        message: 'Account is deactivated. Please contact support.'
-      }, { status: 401 });
-    }
-
-    // Check if user has a password (some users might be OTP-only)
-    if (!user.password) {
-      return NextResponse.json({
-        success: false,
-        message: 'Please use OTP login for this account'
-      }, { status: 401 });
-    }
-
-    // Verify password
-    const isPasswordValid = await user.comparePassword(password);
-    
-    if (!isPasswordValid) {
-      return NextResponse.json({
-        success: false,
-        message: 'Invalid email or password'
-      }, { status: 401 });
-    }
-
-    // Update last login
-    user.lastLogin = new Date();
-    await user.save();
-
-    // Generate JWT token
-    const tokenPayload = {
-      id: user._id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      mobile: user.mobile
-    };
-
-    const token = generateToken(tokenPayload);
-
-    // Successful login
-    return NextResponse.json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          mobile: user.mobile,
-          profileComplete: user.profileComplete,
-          location: user.location,
-          rating: user.rating,
-          totalRatings: user.totalRatings
+      return NextResponse.json(
+        {
+          success: false,
+          message: userMessage,
+          data: {
+            code: 'DATABASE_UNAVAILABLE',
+            // Safe hint for deployers (no secrets)
+            hint: isDeployed
+              ? 'Owner: confirm MONGODB_URI or DATABASE_URL on Vercel (Production) and Atlas Network Access (e.g. 0.0.0.0/0).'
+              : errMsg,
+          },
         },
-        token: token
-      }
+        { status: 503 }
+      );
+    }
+
+    const ua = request.headers.get('user-agent') || undefined;
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || undefined;
+    const r = await authLoginPassword(
+      { login: email.toLowerCase(), password, rememberMe: Boolean(rememberMe) },
+      { rememberMe: Boolean(rememberMe), userAgent: ua, ip }
+    );
+
+    if (!r.ok) {
+      return NextResponse.json({ success: false, message: r.message, data: {} }, { status: r.status });
+    }
+
+    const res = NextResponse.json({
+      success: true,
+      message: r.message || 'Login successful',
+      data: {
+        user: r.data.user,
+        token: r.data.accessToken,
+        accessToken: r.data.accessToken,
+        refreshToken: r.data.refreshToken,
+      },
     });
 
+    attachAuthCookies(
+      res,
+      { accessToken: r.data.accessToken, refreshToken: r.data.refreshToken },
+      { rememberMe: Boolean(rememberMe) }
+    );
+    attachLegacyTokenCookie(res, r.data.accessToken);
+    return res;
   } catch (error) {
     console.error('Login error:', error);
-
-    return NextResponse.json({
-      success: false,
-      message: 'Internal server error. Please try again later.'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Internal server error. Please try again later.', data: {} },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET() {
-  return NextResponse.json({
-    message: 'Login endpoint. Use POST method with email and password.'
-  }, { status: 405 });
+  return NextResponse.json(
+    { message: 'Login endpoint. Use POST method with email and password.', data: {} },
+    { status: 405 }
+  );
 }

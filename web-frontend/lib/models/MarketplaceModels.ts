@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+// Register main app User so Product/Order populate('…farmerId/buyerId') resolves.
+import '../../models/User';
 
 // ─── MarketplaceUser ────────────────────────────────────────────────────────
 const marketplaceUserSchema = new mongoose.Schema({
@@ -70,7 +72,7 @@ const productSchema = new mongoose.Schema(
     unit: { type: String, default: 'kg' },
     category: { type: String, index: true },
     images: [String],
-    farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'FarmerProfile' },
+    farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     location: { city: String, state: String, pincode: String },
     organic: { type: Boolean, default: false },
     harvestDate: Date,
@@ -83,7 +85,7 @@ const productSchema = new mongoose.Schema(
     rating: { type: Number, default: 0, min: 0, max: 5 },
     reviews: [
       {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'FarmerProfile' },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         rating: Number,
         comment: String,
         createdAt: { type: Date, default: Date.now },
@@ -97,8 +99,8 @@ const productSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema(
   {
     orderId: { type: String, required: true, unique: true },
-    buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'FarmerProfile' },
-    farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'FarmerProfile' },
+    buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    farmerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     items: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },

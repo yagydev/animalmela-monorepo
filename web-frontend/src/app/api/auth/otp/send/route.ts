@@ -1,86 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { authSendOtp } from '@/lib/auth/service';
+import { jsonError, jsonOk } from '@/lib/auth/http';
 
-// Mock SMS service for development
-const mockSmsService = {
-  isConfigured: () => false,
-  sendOTP: async (mobile: string, otp: string) => {
-    console.log(`Mock SMS: OTP ${otp} sent to ${mobile}`);
-    return { success: true, message: 'OTP sent via mock service', provider: 'mock' };
-  }
-};
-
+/**
+ * Legacy POST /api/auth/otp/send — forwards to unified OTP pipeline (hashed OTP, rate limit, SMS/mock).
+ */
 export async function POST(request: NextRequest) {
   try {
-    const { mobile } = await request.json();
-
-    if (!mobile) {
-      return NextResponse.json(
-        { success: false, error: 'Mobile number is required' },
-        { status: 400 }
-      );
+    const body = await request.json();
+    const phone = body?.mobile || body?.phone;
+    const r = await authSendOtp({ phone });
+    if (!r.ok) {
+      return jsonError(r.message, r.status);
     }
-
-    // Validate mobile number format (10 digits for India)
-    const mobileRegex = /^[6-9]\d{9}$/;
-    if (!mobileRegex.test(mobile)) {
-      return NextResponse.json(
-        { success: false, error: 'Please enter a valid 10-digit mobile number' },
-        { status: 400 }
-      );
-    }
-
-    // Generate random 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    console.log(`Generated OTP for ${mobile}: ${otp}`);
-    
-    // Use mock SMS service for development
-    const smsService = mockSmsService;
-    
-    // Check if SMS service is configured
-    if (!smsService.isConfigured()) {
-      console.warn('SMS service not configured, using demo mode');
-      return NextResponse.json({
-        success: true,
-        message: 'OTP sent successfully (demo mode)',
-        otp: otp, // Only for testing when SMS service is not configured
-        demo: true
-      });
-    }
-
-    // Send OTP via SMS service
-    const smsResult = await smsService.sendOTP(mobile, otp);
-    
-    if (smsResult.success) {
-      console.log(`OTP sent to ${mobile} via ${smsResult.provider}: ${otp}`);
-      
-      // Store OTP in session/cache for verification (in production, use Redis or database)
-      // For now, we'll just return success
-      
-      return NextResponse.json({
-        success: true,
-        message: smsResult.message,
-        provider: smsResult.provider,
-        otp: otp // Only for testing - remove in production
-      });
-    } else {
-      console.error(`Failed to send OTP to ${mobile}:`, smsResult.message);
-      
-      // Fallback to demo mode if SMS fails
-      return NextResponse.json({
-        success: true,
-        message: 'OTP sent successfully (demo mode - SMS service unavailable)',
-        otp: otp,
-        demo: true,
-        smsError: smsResult.message
-      });
-    }
-
-  } catch (error) {
-    console.error('OTP send error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to send OTP' },
-      { status: 500 }
+    return jsonOk(
+      {
+        ...r.data,
+        demo: Boolean((r.data as { demoOtp?: boolean }).demoOtp),
+      },
+      r.message || 'OTP sent successfully'
     );
+  } catch (e) {
+    const status = (e as Error & { statusCode?: number }).statusCode;
+    if (status === 429) {
+      return jsonError((e as Error).message, 429);
+    }
+    console.error('OTP send error:', e);
+    return jsonError('Failed to send OTP', 500);
   }
 }

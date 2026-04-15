@@ -1,15 +1,5 @@
 import mongoose from 'mongoose';
-
-function resolveMongoUri(): string {
-  const fromEnv =
-    process.env.MONGODB_URI?.trim() || process.env.DATABASE_URL?.trim();
-  if (fromEnv?.startsWith('mongodb')) {
-    return fromEnv;
-  }
-  return 'mongodb://localhost:27017/kisaanmela';
-}
-
-const MONGODB_URI = resolveMongoUri();
+import { getMongoConnectionUri } from './mongoConnectionUri';
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -28,6 +18,7 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
+    const mongoUri = getMongoConnectionUri();
     const opts = {
       bufferCommands: false,
       serverSelectionTimeoutMS: 10_000,
@@ -35,7 +26,7 @@ async function dbConnect() {
       maxPoolSize: 10,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts) as unknown as Promise<typeof cached>;
+    cached.promise = mongoose.connect(mongoUri, opts) as unknown as Promise<typeof cached>;
   }
 
   try {

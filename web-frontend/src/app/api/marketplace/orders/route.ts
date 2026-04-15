@@ -122,21 +122,37 @@ export async function GET(request: NextRequest) {
     const buyerId = searchParams.get('buyerId');
     const farmerId = searchParams.get('farmerId');
     const status = searchParams.get('status');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-    const filter: any = {};
+    const filter: Record<string, unknown> = {};
     if (buyerId) filter.buyerId = buyerId;
     if (farmerId) filter.farmerId = farmerId;
     if (status) filter.orderStatus = status;
 
-    const orders = await Order.find(filter)
-      .populate('buyerId', 'name email phone')
-      .populate('farmerId', 'name email phone')
-      .populate('items.productId', 'name images price')
-      .sort({ createdAt: -1 });
+    const skip = (Math.max(1, page) - 1) * Math.min(Math.max(1, limit), 100);
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .populate('buyerId', 'name email mobile')
+        .populate('farmerId', 'name email mobile')
+        .populate('items.productId', 'name images price')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Math.min(Math.max(1, limit), 100)),
+      Order.countDocuments(filter),
+    ]);
 
     return NextResponse.json({
       success: true,
-      orders
+      orders,
+      pagination: {
+        currentPage: Math.max(1, page),
+        totalPages: Math.ceil(total / Math.min(Math.max(1, limit), 100)) || 1,
+        total,
+        hasNext: skip + orders.length < total,
+        hasPrev: page > 1,
+      },
     });
   } catch (error: any) {
     console.error('Error fetching orders:', error);

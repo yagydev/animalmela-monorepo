@@ -4,8 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { parseLivestockSpec } from '@/lib/livestock/livestockSpecifications';
-import { LivestockAnimalCard, type LivestockListingCard } from '@/components/marketplace/livestock';
-import { PashuGyanChat } from '@/components/marketplace/livestock/PashuGyanChat';
+import { LivestockAnimalCard, PashuGyanChat, type LivestockListingCard } from '@/components/marketplace/livestock';
 
 type Listing = {
   _id: string;

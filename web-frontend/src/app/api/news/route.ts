@@ -22,8 +22,15 @@ export async function GET(request: NextRequest) {
     const page      = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
     const skip      = (page - 1) * limit;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filter: Record<string, any> = { status: 'published' };
+    type RegexCond = { $regex: string; $options: string };
+    type NewsListFilter = {
+      status: string;
+      category?: string;
+      featured?: boolean;
+      $or?: Array<{ title?: RegexCond; excerpt?: RegexCond; tags?: RegexCond }>;
+    };
+
+    const filter: NewsListFilter = { status: 'published' };
 
     if (category) filter.category = category;
     if (featured === 'true') filter.featured = true;

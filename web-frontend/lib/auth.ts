@@ -28,25 +28,30 @@ export interface AuthResponse {
 // Login with email and password
 export const loginWithEmail = async (email: string, password: string): Promise<AuthResponse> => {
   try {
-    const response = await fetch('/api/login', {
+    const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      credentials: 'include',
+      body: JSON.stringify({
+        login: email.trim().toLowerCase(),
+        password,
+        rememberMe: false,
+      }),
     });
 
     const data = await response.json();
-    
-    if (data.success) {
-      // Store authentication data
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+
+    if (data.success && data.data) {
+      const token = data.data.accessToken || data.data.token;
+      if (token) localStorage.setItem('token', token);
+      if (data.data.user) localStorage.setItem('user', JSON.stringify(data.data.user));
     }
-    
+
     return data;
   } catch (error) {
     return {
       success: false,
-      message: 'Login failed. Please try again.'
+      message: 'Login failed. Please try again.',
     };
   }
 };

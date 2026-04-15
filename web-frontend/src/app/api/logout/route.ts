@@ -1,33 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { clearAuthCookies } from '@/lib/auth/cookies';
+import { readRefreshToken } from '@/lib/auth/request';
+import { authLogout } from '@/lib/auth/service';
 
-// Logout endpoint
 export async function POST(request: NextRequest) {
   try {
-    // In a real application, you might:
-    // 1. Invalidate the token in the database
-    // 2. Add token to a blacklist
-    // 3. Clear server-side sessions
-
-    // For this demo, we just return success
-    // The client should remove the token from storage
-    
-    return NextResponse.json({
+    const refresh = readRefreshToken(request);
+    await authLogout(refresh);
+    const res = NextResponse.json({
       success: true,
-      message: 'Logged out successfully'
+      message: 'Logged out successfully',
+      data: {},
     });
-
+    clearAuthCookies(res);
+    return res;
   } catch (error) {
     console.error('Logout error:', error);
-
-    return NextResponse.json({
-      success: false,
-      message: 'Internal server error'
-    }, { status: 500 });
+    const res = NextResponse.json(
+      { success: false, message: 'Internal server error', data: {} },
+      { status: 500 }
+    );
+    clearAuthCookies(res);
+    return res;
   }
 }
 
 export async function GET() {
-  return NextResponse.json({
-    message: 'Logout endpoint. Use POST method.'
-  }, { status: 405 });
+  return NextResponse.json({ message: 'Logout endpoint. Use POST method.', data: {} }, { status: 405 });
 }

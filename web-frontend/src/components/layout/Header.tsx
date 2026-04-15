@@ -4,20 +4,28 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { navigationConfig } from '@/config/navigation';
-import { isRouteVisibleForRole } from '@/config/appMatrix';
+import { isRouteVisibleForRole, type AppRole } from '@/config/appMatrix';
+import { useAuth } from '@/components/providers/AuthProvider';
+
+function navRoleFromUser(role: string | undefined): AppRole {
+  if (!role) return 'guest';
+  const r = role.toLowerCase();
+  if (r === 'seller') return 'vendor';
+  if (r === 'farmer' || r === 'admin') return 'farmer';
+  return 'guest';
+}
 
 export function Header() {
   const pathname = usePathname();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const headerRef = useRef<HTMLElement | null>(null);
   const [desktopOpenMenu, setDesktopOpenMenu] = useState<string | null>(null);
   const [mobileOpenMenu, setMobileOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would come from auth context
   const safePathname = pathname ?? '';
-  
-  // Determine user role (this would come from auth context in real app)
-  const userRole: 'guest' | 'farmer' | 'vendor' = isLoggedIn ? 'farmer' : 'guest';
+
+  const userRole: AppRole = isAuthenticated ? navRoleFromUser(user?.role) : 'guest';
   
   // Filter navigation items based on user role
   const getVisibleNavItems = () => {
@@ -220,18 +228,35 @@ export function Header() {
             {/* CTA Buttons & User Menu */}
             <div className="hidden lg:flex items-center space-x-2 xl:space-x-3 shrink-0 justify-self-end pl-2">
               <div className="flex items-center space-x-2">
-                {isLoggedIn ? (
+                {isLoading ? (
+                  <span className="text-sm text-green-200/90 px-2" aria-live="polite">
+                    …
+                  </span>
+                ) : isAuthenticated ? (
                   <div className="relative">
                     <button
+                      type="button"
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="flex items-center space-x-2 text-base font-medium text-white hover:text-yellow-400 transition-colors duration-200"
+                      className="flex items-center gap-2 max-w-[14rem] text-base font-medium text-white hover:text-yellow-400 transition-colors duration-200"
+                      aria-expanded={userMenuOpen}
+                      aria-haspopup="menu"
                     >
-                      <span>👤</span>
-                      <span>Profile</span>
-                      <span>▼</span>
+                      <span className="shrink-0" aria-hidden>
+                        👤
+                      </span>
+                      <span className="truncate">{user?.name || user?.mobile || 'Account'}</span>
+                      <span className="shrink-0" aria-hidden>
+                        ▼
+                      </span>
                     </button>
                     {userMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white text-green-800 rounded-md shadow-lg py-2 z-[60]">
+                      <div
+                        role="menu"
+                        className="absolute right-0 mt-2 w-52 bg-white text-green-800 rounded-md shadow-lg py-2 z-[60] border border-green-100"
+                      >
+                        <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100 truncate">
+                          {user?.email || user?.mobile}
+                        </div>
                         <Link
                           href="/profile"
                           className="block px-4 py-2.5 text-sm font-medium hover:bg-green-50 rounded"
@@ -253,15 +278,16 @@ export function Header() {
                         >
                           Settings
                         </Link>
-                        <hr className="my-2" />
+                        <hr className="my-2 border-gray-100" />
                         <button
+                          type="button"
                           onClick={() => {
-                            setIsLoggedIn(false);
                             setUserMenuOpen(false);
+                            void logout();
                           }}
-                          className="block w-full text-left px-4 py-2 hover:bg-green-50 rounded text-red-600"
+                          className="block w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-red-50 rounded text-red-600"
                         >
-                          Sign Out
+                          Sign out
                         </button>
                       </div>
                     )}
@@ -403,8 +429,16 @@ export function Header() {
 
           {/* Mobile User Menu */}
           <div className="px-4 sm:px-6 border-t border-green-700 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
-            {isLoggedIn ? (
+            {isLoading ? (
+              <p className="text-sm text-green-200 py-2">Loading account…</p>
+            ) : isAuthenticated ? (
               <div className="space-y-2">
+                <p className="text-sm text-green-100/90 pb-2 border-b border-green-700 truncate">
+                  {user?.name}
+                  {user?.email || user?.mobile ? (
+                    <span className="block text-xs text-green-200/80 truncate">{user?.email || user?.mobile}</span>
+                  ) : null}
+                </p>
                 <Link
                   href="/profile"
                   onClick={() => setMobileOpen(false)}
@@ -427,13 +461,14 @@ export function Header() {
                   ⚙️ Settings
                 </Link>
                 <button
+                  type="button"
                   onClick={() => {
-                    setIsLoggedIn(false);
                     setMobileOpen(false);
+                    void logout();
                   }}
-                  className="block w-full text-left py-2 text-red-400 hover:text-red-300 transition-colors duration-200"
+                  className="block w-full text-left py-2 text-red-400 hover:text-red-300 transition-colors duration-200 font-medium"
                 >
-                  🚪 Sign Out
+                  🚪 Sign out
                 </button>
               </div>
             ) : (

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const products = await Product.find(filter)
-      .populate('farmerId', 'name email phone rating location')
+      .populate('farmerId', 'name email mobile rating location')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

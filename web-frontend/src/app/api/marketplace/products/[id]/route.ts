@@ -12,7 +12,7 @@ export async function GET(
     await connectDB();
 
     const product = await Product.findById(params.id)
-      .populate('farmerId', 'name email phone rating location')
+      .populate('farmerId', 'name email mobile rating location')
       .populate('reviews.userId', 'name profileImage');
 
     if (!product) {
@@ -56,7 +56,7 @@ export async function PUT(
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(params.id, { $set: body }, { new: true })
-      .populate('farmerId', 'name email phone rating location');
+      .populate('farmerId', 'name email mobile rating location');
 
     return NextResponse.json({ success: true, product: updatedProduct, message: 'Product updated successfully' });
   } catch (error) {
